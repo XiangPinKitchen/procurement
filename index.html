@@ -3,458 +3,496 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>香品小食堂 訂貨系統</title>
-</head>
-<body>
-<script>
-/* ╔══════════════════════════════════════════════════════════════════╗
-   ║          香品小食堂 訂貨系統  ──  新手可修改區                  ║
-   ╚══════════════════════════════════════════════════════════════════╝
-
-   ★ 只需修改本區塊內的內容即可，請勿更動下方的 CSS 與 HTML。
-
-   ────────────────────────────────────────────────────────────────
-   【A】店家基本資料
-   ────────────────────────────────────────────────────────────────  */
-
-const SHOP_NAME     = "香品小食堂";                   // ← 店名
-const DELIVERY_ADDR = "平鎮區龍南路666巷1-2號1樓";    // ← 配送地址
-const DELIVERY_NOTE = "抵達請致電，人員會出去接應";     // ← 地址備註
-const TEL_MAIN      = "03-4505582";                  // ← 主電話
-const TEL_B1        = "0916-550855";                 // ← 備用電話 1
-const TEL_B2        = "0938-582828";                 // ← 備用電話 2
-
-/* ────────────────────────────────────────────────────────────────
-   【B】廠商與品項資料
-
-   格式：
-     vendor: "廠商名稱"
-     items: [
-       { name: "品項名稱", unit: "單位", price: 數字, note: "備註(選填)" },
-     ]
-
-   ‣ price: 0  → 未設定價格
-   ‣ note       → 灰色小字，僅自己看得到
-   ‣ 常用單位：斤 包 條 箱 瓶 罐 盒 顆 把 桶 捲 袋 片 件 尾 台斤 籃
-
-   ── 新增廠商 ──  在最後一個 }, 後貼上：
-     { vendor: "新廠商", items: [ { name: "品項", unit: "包", price: 0 } ] },
-
-   ── 新增品項 ──  在 items:[ ] 最後一個 }, 後加一行：
-     { name: "新品項", unit: "斤", price: 80 },
-
-   ── 刪除 ──  把整行（或整個廠商區塊）刪掉，注意保留逗號。
-   ────────────────────────────────────────────────────────────────  */
-
-const data = [
-
-  /* ══════════ 廠商 1：雜貨-富陽行 ══════════ */
-  {
-    vendor: "雜貨-富陽行",
-    items: [
-      { name: "602扁碗",              unit: "箱",   price: 1000, note: "炒碗" },
-      { name: "C-165平蓋",            unit: "箱",   price: 320,  note: "炒碗-蓋" },
-      { name: "C-165凸蓋",            unit: "條",   price: 75,   note: "炸物-蓋" },
-      { name: "750紙湯杯",             unit: "條",   price: 60,   note: "湯碗" },
-      { name: "750紙湯杯蓋",           unit: "條",   price: 50,   note: "湯碗-蓋" },
-      { name: "1000紙湯杯",            unit: "條",   price: 100,  note: "湯麵/粥碗" },
-      { name: "850CC湯杯蓋",           unit: "條",   price: 38,   note: "湯麵/粥碗-蓋" },
-      { name: "260紙湯杯",             unit: "條",   price: 30,   note: "白飯碗" },
-      { name: "2632蓋",               unit: "條",   price: 30,   note: "白飯碗-蓋" },
-      { name: "902圓碗",              unit: "條",   price: 75,   note: "加麵碗" },
-      { name: "免洗筷",               unit: "包",   price: 25 },
-      { name: "彎形湯匙",             unit: "箱",   price: 480 },
-      { name: "邦提圈",               unit: "包",   price: 30 },
-      { name: "四兩-耐熱袋",          unit: "包",   price: 33 },
-      { name: "六兩-耐熱袋",          unit: "包",   price: 33 },
-      { name: "半斤-耐熱袋",          unit: "包",   price: 33 },
-      { name: "一斤-耐熱袋",          unit: "包",   price: 33 },
-      { name: "兩斤-耐熱袋",          unit: "捲",   price: 155 },
-      { name: "三斤-耐熱袋",          unit: "捲",   price: 155 },
-      { name: "五斤-耐熱袋",          unit: "捲",   price: 155 },
-      { name: "四兩-提袋",            unit: "包",   price: 25 },
-      { name: "半斤-提袋",            unit: "包",   price: 25 },
-      { name: "一斤-提袋",            unit: "包",   price: 25 },
-      { name: "兩斤-提袋",            unit: "包",   price: 25 },
-      { name: "三斤-提袋",            unit: "包",   price: 25 },
-      { name: "五斤-提袋",            unit: "包",   price: 25 },
-      { name: "七斤-提袋",            unit: "包",   price: 25 },
-      { name: "6吋防油紙墊",          unit: "包",   price: 100 },
-      { name: "醬油碟",               unit: "條",   price: 65 },
-      { name: "2號夾鏈袋",            unit: "包",   price: 12 },
-      { name: "國寶-美國米",          unit: "袋",   price: 1225 },
-      { name: "福懋-沙拉油",          unit: "桶",   price: 840 },
-      { name: "鹽巴",                 unit: "包",   price: 18 },
-      { name: "味精",                 unit: "包",   price: 85 },
-      { name: "油蔥酥",               unit: "包",   price: 60 },
-      { name: "蒜頭酥",               unit: "包",   price: 60 },
-      { name: "老公仔-胡椒粉",        unit: "盒",   price: 120 },
-      { name: "老公仔-胡椒鹽粉",      unit: "盒",   price: 190 },
-      { name: "辣椒粉",               unit: "包",   price: 90 },
-      { name: "小磨坊-印度咖哩粉",    unit: "罐",   price: 145 },
-      { name: "烹大師-鰹魚粉",        unit: "包",   price: 290 },
-      { name: "金味王-醬油(10斤)",     unit: "桶",   price: 220 },
-      { name: "金蘭-甘醇油膏(10斤)",   unit: "桶",   price: 225 },
-      { name: "萬家鄉-香菇素蠔油(5L)", unit: "桶",   price: 250 },
-      { name: "牛頭牌-沙茶醬(3Kg)",   unit: "罐",   price: 540 },
-      { name: "可果美-番茄醬(塑膠桶)", unit: "瓶",   price: 210 },
-      { name: "可果美-番茄醬(鐵桶)",  unit: "桶",   price: 215 },
-      { name: "工研烏醋(600ml)",      unit: "瓶",   price: 50 },
-      { name: "工研白醋(5L)",         unit: "瓶",   price: 200 },
-      { name: "福華牌-泰雞醬",        unit: "瓶",   price: 75 },
-      { name: "燈燦香油",             unit: "瓶",   price: 270 },
-      { name: "豆瓣醬(5斤)",          unit: "桶",   price: 130 },
-      { name: "飯友-切角鳳梨",        unit: "罐",   price: 220 },
-      { name: "世宇-單顆沙拉",        unit: "顆",   price: 50 },
-      { name: "圓紫菜",               unit: "包",   price: 100 },
-      { name: "料理米酒",             unit: "罐",   price: 15 },
-      { name: "黑木耳絲",             unit: "包",   price: 170 },
-      { name: "乾辣椒(切段)",         unit: "包",   price: 180 },
-      { name: "辣油(2.4L)",           unit: "瓶",   price: 210 },
-      { name: "八角粒",               unit: "包",   price: 0 },
-      { name: "花椒粒",               unit: "包",   price: 0 },
-      { name: "太白粉(5斤)",          unit: "包",   price: 175 },
-      { name: "地瓜粉(5斤)",          unit: "包",   price: 125 },
-      { name: "黏師傅",               unit: "包",   price: 80 },
-      { name: "吉士粉",               unit: "包",   price: 62 },
-      { name: "二號砂糖(5斤)",        unit: "包",   price: 100 },
-      { name: "特砂(白糖)",           unit: "台斤",  price: 0 },
-      { name: "風車可可風味米(彩色)",  unit: "罐",   price: 0 },
-      { name: "黑豆豉",               unit: "斤",   price: 45 },
-      { name: "洗碗精",               unit: "罐",   price: 45 },
-      { name: "漂白水",               unit: "罐",   price: 65 },
-      { name: "去油劑",               unit: "罐",   price: 220 },
-      { name: "鋼刷球",               unit: "顆",   price: 0 },
-      { name: "礦泉水(1500ml)",       unit: "箱",   price: 70 },
-      { name: "嫩精",                 unit: "罐",   price: 130 },
-      { name: "枸杞",                 unit: "包",   price: 195 },
-      { name: "人蔘鬚",               unit: "把",   price: 75 },
-      { name: "冬粉翅",               unit: "包",   price: 500 },
-      { name: "熟白芝麻(半斤)",       unit: "包",   price: 50 },
-    ]
-  },
-
-  /* ══════════ 廠商 2：台北-聯和 ══════════ */
-  {
-    vendor: "台北-聯和",
-    items: [
-      { name: "魷魚清肉(10k)",        unit: "件",  price: 2100 },
-      { name: "白蝦-南美(6/7)",       unit: "盒",  price: 210 },
-      { name: "帶殼海瓜子(500g)",     unit: "包",  price: 75 },
-      { name: "冷凍蚵仔(600g)",       unit: "包",  price: 160 },
-      { name: "蚵仔(1斤)-大",         unit: "包",  price: 130 },
-      { name: "蛤仔(活)-大(8分)",     unit: "斤",  price: 80 },
-      { name: "割背蝦仁(2號-16/20)",  unit: "包",  price: 1200 },
-      { name: "紅糟鰻(600g)",         unit: "包",  price: 155 },
-      { name: "月亮蝦餅(蝦怪)",       unit: "片",  price: 55 },
-      { name: "鮭魚碎肉A藍袋-1KG",    unit: "包",  price: 600 },
-      { name: "虱目魚肚-無刺(進口)",  unit: "包",  price: 40 },
-      { name: "鹿茸烏骨雞(金)",       unit: "包",  price: 300 },
-      { name: "蒲燒鯛魚排(110P)",     unit: "盒",  price: 1350 },
-      { name: "金目鱸魚(蝴蝶切)",     unit: "尾",  price: 120 },
-      { name: "佛跳牆(金)",           unit: "盒",  price: 280 },
-    ]
-  },
-
-  /* ══════════ 廠商 3：中壢-聯合 ══════════ */
-  {
-    vendor: "中壢-聯合",
-    items: [
-      { name: "豬肉絲",   unit: "包", price: 500 },
-      { name: "牛炒片",   unit: "包", price: 630 },
-      { name: "羊炒片",   unit: "包", price: 830 },
-      { name: "香腸片",   unit: "包", price: 380 },
-      { name: "白蝦仁",   unit: "包", price: 730 },
-      { name: "A大貢丸",  unit: "包", price: 450 },
-      { name: "鱈魚丸",   unit: "包", price: 350 },
-      { name: "虱目魚肚", unit: "包", price: 65 },
-      { name: "玉米粒",   unit: "包", price: 70 },
-      { name: "雞胸清肉", unit: "斤", price: 93 },
-      { name: "大雞腿",   unit: "斤", price: 75 },
-    ]
-  },
-
-  /* ══════════ 廠商 4：中壢-昇暉製麵 ══════════ */
-  {
-    vendor: "中壢-昇暉製麵",
-    items: [
-      { name: "烏龍麵(5斤)", unit: "包", price: 80 },
-      { name: "豆菜麵(5斤)", unit: "包", price: 80 },
-      { name: "魚板絲",      unit: "包", price: 300 },
-      { name: "魚板片",      unit: "包", price: 350 },
-    ]
-  },
-
-  /* ══════════ 廠商 5：中壢-富昌 ══════════ */
-  {
-    vendor: "中壢-富昌",
-    items: [
-      { name: "五花肉", unit: "斤", price: 140 },
-      { name: "軟骨排", unit: "斤", price: 140 },
-    ]
-  },
-
-  /* ══════════ 廠商 6：永溢麵食 ══════════ */
-  {
-    vendor: "永溢麵食",
-    items: [
-      { name: "豆菜麵(5斤)", unit: "包", price: 90 },
-      { name: "烏龍麵(5斤)", unit: "包", price: 100 },
-    ]
-  },
-
-  /* ══════════ 廠商 7：三信蛋行 ══════════ */
-  {
-    vendor: "三信蛋行",
-    items: [
-      { name: "雞蛋(⚠️要「大」顆的‼️)", unit: "籃", price: 0 },
-      { name: "皮蛋",                    unit: "顆", price: 0 },
-      { name: "鹹蛋黃",                  unit: "顆", price: 0 },
-    ]
-  },
-
-  /* ══════════ 廠商 8：市場(阿潭) ══════════ */
-  {
-    vendor: "市場(阿潭)",
-    items: [
-      { name: "空心菜",      unit: "把",  price: 0 },
-      { name: "高麗菜",      unit: "顆",  price: 0 },
-      { name: "地瓜葉",      unit: "",    price: 0 },
-      { name: "菠菜",        unit: "把",  price: 0 },
-      { name: "炒麵菜",      unit: "把",  price: 0 },
-      { name: "水蓮",        unit: "包",  price: 0 },
-      { name: "洋蔥",        unit: "顆",  price: 0 },
-      { name: "紅蘿蔔",      unit: "條",  price: 0 },
-      { name: "九層塔",      unit: "",    price: 0 },
-      { name: "蔥",          unit: "",    price: 0 },
-      { name: "蒜末",        unit: "包",  price: 0 },
-      { name: "辣椒",        unit: "",    price: 0 },
-      { name: "薑絲",        unit: "包",  price: 0 },
-      { name: "芹菜",        unit: "",    price: 0 },
-      { name: "豆腐",        unit: "盒",  price: 0 },
-      { name: "皮蛋",        unit: "顆",  price: 0 },
-      { name: "乾菜脯",      unit: "",    price: 0 },
-      { name: "蒜味花生",    unit: "",    price: 0 },
-      { name: "蛤蜊",        unit: "斤",  price: 0 },
-      { name: "豆菜麵(1斤)", unit: "包",  price: 0 },
-      { name: "烏龍麵(1斤)", unit: "包",  price: 0 },
-    ]
-  },
-
-];
-
-/* ────────────────────────────────────────────────────────────────
-   【C】記帳專區 ── 快速品項按鈕清單
-
-   格式：{ label: "分類標題", items: ["品項1", "品項2", ...] }
-   點選後自動帶入名稱，游標跳到金額欄快速填入。
-   ────────────────────────────────────────────────────────────────  */
-
-const LEDGER_GROUPS = [
-  { label: "雜貨",       items: ["雜貨"] },
-  { label: "台北聯和",   items: ["魷魚清肉","白蝦","帶殼海瓜子","冷凍蚵仔","蚵仔","蛤仔","割背蝦仁","紅糟鰻","月亮蝦餅","鮭魚碎肉","虱目魚肚","鹿茸烏骨雞","蒲燒鯛魚排","金目鱸魚","佛跳牆"] },
-  { label: "中壢聯合",   items: ["豬肉絲","牛炒片","羊炒片","香腸片","白蝦仁","A大貢丸","鱈魚丸","虱目魚肚","玉米粒","雞胸清肉","大雞腿"] },
-  { label: "昇暉製麵",   items: ["烏龍麵(5斤)","豆菜麵(5斤)","魚板絲","魚板片"] },
-  { label: "富昌",       items: ["五花肉","軟骨排"] },
-  { label: "市場(阿潭)", items: ["空心菜","高麗菜","地瓜葉","菠菜","炒麵菜","水蓮","洋蔥","紅蘿蔔","九層塔","蔥","蒜末","辣椒","薑絲","芹菜","豆腐","皮蛋","乾菜脯","蒜味花生","蛤蜊"] },
-];
-
-/* ═══════════════════════════════════════════════════════════════
-   ★ 以下為系統程式碼，請勿修改
-   ═══════════════════════════════════════════════════════════════ */
-</script>
-
+<title>香品小食堂</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f5; color: #222; font-size: 16px; }
+:root {
+  --green:       #2c7a4b;
+  --green-lt:    #e8f5ee;
+  --green-mid:   #b2dfc4;
+  --amber:       #d97706;
+  --amber-lt:    #fffbeb;
+  --amber-mid:   #fde68a;
+  --red:         #dc2626;
+  --gray:        #6b7280;
+  --gray-lt:     #f3f4f6;
+  --border:      #e5e7eb;
+  --white:       #ffffff;
+  --text:        #111827;
+  --radius:      10px;
+  --fs:          16px;  /* ← 全站字型，改這裡同步放大縮小 */
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
+       background: #f0f2f5; color: var(--text); font-size: var(--fs); }
 
 /* ── 頂部列 ── */
-.top-bar { display: flex; align-items: center; padding: 8px 10px; gap: 8px; background: #fff; border-bottom: 1px solid #ddd; }
-.top-bar h1 { font-size: 1.2rem; font-weight: 700; color: #1a2f5a; white-space: nowrap; flex-shrink: 0; }
-.search-wrap { display: flex; align-items: center; border: 1.5px solid #ccc; border-radius: 20px; padding: 6px 12px; background: #f9f9f9; gap: 6px; flex: 1; min-width: 0; max-width: 200px; }
-.search-wrap:focus-within { border-color: #2c7a4b; background: #fff; }
-.search-icon { color: #aaa; font-size: 15px; flex-shrink: 0; }
-.search-input { border: none; background: transparent; font-size: 15px; outline: none; width: 100%; color: #333; min-width: 0; }
-.search-clear { color: #bbb; font-size: 17px; cursor: pointer; flex-shrink: 0; line-height: 1; display: none; }
-.search-clear.show { display: block; }
+.topbar { position: sticky; top: 0; z-index: 50; background: var(--white);
+  border-bottom: 1px solid var(--border); padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.topbar-title { font-size: 1.05rem; font-weight: 800; color: var(--green); white-space: nowrap; }
+.search-box { flex: 1; display: flex; align-items: center; gap: 6px;
+  background: var(--gray-lt); border-radius: 20px; padding: 7px 12px;
+  border: 1.5px solid transparent; transition: border-color .2s; }
+.search-box:focus-within { border-color: var(--green); background: var(--white); }
+.search-box input { border: none; background: transparent; font-size: 1rem;
+  outline: none; flex: 1; color: var(--text); }
+.search-box input::placeholder { color: #aaa; }
+.search-clr { color: #bbb; cursor: pointer; font-size: 1rem; display: none; }
+.search-clr.on { display: block; }
+
+/* ── 模式分頁 ── */
+.mode-tabs { display: flex; background: var(--white); border-bottom: 1px solid var(--border); }
+.mode-tab { flex: 1; padding: 12px 6px; font-size: 1rem; font-weight: 700;
+  text-align: center; cursor: pointer; color: var(--gray);
+  border-bottom: 3px solid transparent; transition: all .2s; user-select: none; }
+.mode-tab.active.order-tab  { color: var(--green); border-bottom-color: var(--green); }
+.mode-tab.active.ledger-tab { color: var(--amber); border-bottom-color: var(--amber); }
 
 /* ── 廠商分頁 ── */
-.tabs { display: flex; flex-wrap: wrap; gap: 5px; padding: 8px 10px; background: #fff; border-bottom: 1px solid #ddd; }
-.tab-btn { flex: 1 1 calc(25% - 5px); min-width: 0; padding: 10px 4px; border: 1.5px solid #bbb; border-radius: 8px; background: #fff; font-size: 14px; font-weight: 600; cursor: pointer; color: #555; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tab-btn.active { background: #2c7a4b; color: #fff; border-color: #2c7a4b; }
-.tab-btn.ledger-tab { border-color: #e8960a; color: #a86300; }
-.tab-btn.ledger-tab.active { background: #e8960a; color: #fff; border-color: #e8960a; }
+.vendor-scroll { background: var(--white); border-bottom: 1px solid var(--border);
+  overflow-x: auto; display: flex; gap: 6px; padding: 8px 10px;
+  scrollbar-width: none; white-space: nowrap; }
+.vendor-scroll::-webkit-scrollbar { display: none; }
+.vtab { padding: 7px 14px; border-radius: 16px; border: 1.5px solid var(--border);
+  font-size: .95rem; font-weight: 600; color: var(--gray);
+  cursor: pointer; background: var(--white); flex-shrink: 0; transition: all .15s; }
+.vtab.active { background: var(--green); border-color: var(--green); color: var(--white); }
 
 /* ── 內容區 ── */
-.content { padding: 10px; max-width: 700px; margin: 0 auto; padding-bottom: 130px; }
-.vendor-title { font-size: 1.15rem; font-weight: 700; color: #2c7a4b; padding: 4px 0 8px; border-bottom: 2px solid #2c7a4b; margin-bottom: 8px; }
-.search-result-header { font-size: 15px; color: #888; padding: 4px 0 8px; }
-.search-vendor-tag { display: inline-block; font-size: 12px; background: #e8f5ee; color: #2c7a4b; border-radius: 4px; padding: 1px 5px; margin-left: 5px; font-weight: 600; }
-.item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 7px; }
+.content { padding: 10px; max-width: 700px; margin: 0 auto; padding-bottom: 120px; }
+.ledger-wrap { padding: 10px; max-width: 700px; margin: 0 auto; padding-bottom: 40px; }
 
-/* ── 品項卡片 ── */
-.item-card { background: #fff; border-radius: 10px; padding: 10px 10px 8px; border: 1px solid #e0e0e0; display: flex; flex-direction: column; gap: 7px; }
-.item-card.ordered { border-color: #2c7a4b; background: #f6fdf9; }
-.item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 4px; }
-.item-name-wrap { flex: 1; min-width: 0; }
-.item-name { font-size: 17px; font-weight: 700; line-height: 1.3; }
-.item-note { font-size: 13px; color: #bbb; margin-left: 4px; font-weight: 400; }
-.item-unit { font-size: 14px; color: #aaa; white-space: nowrap; text-align: right; flex-shrink: 0; }
-.item-price { font-size: 13px; color: #e00; font-weight: 600; display: block; }
+/* ── 卡片（共用） ── */
+.card { background: var(--white); border-radius: var(--radius);
+  padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); }
+.card-head { display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; padding-bottom: 8px; }
+.card-head.g { border-bottom: 2px solid var(--green-mid); }
+.card-head.a { border-bottom: 2px solid var(--amber-mid); }
+.card-title { font-size: 1.05rem; font-weight: 800; }
+.card-title.g { color: var(--green); }
+.card-title.a { color: var(--amber); }
 
-/* ── 數量控制器（訂貨） ── */
-.qty-ctrl { display: inline-flex; align-items: center; border: 1.5px solid #ddd; border-radius: 8px; overflow: hidden; align-self: flex-start; }
-.qty-ctrl.active { border-color: #2c7a4b; }
-.qty-btn { width: 34px; height: 36px; border: none; background: #f5f5f5; font-size: 21px; font-weight: 700; cursor: pointer; color: #444; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none; flex-shrink: 0; }
-.qty-btn:active { background: #ddd; }
-.qty-num { width: 42px; height: 36px; border: none; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; background: #fff; font-size: 16px; font-weight: 700; text-align: center; color: #222; -moz-appearance: textfield; }
-.qty-num:focus { outline: none; color: #2c7a4b; }
-.qty-num::-webkit-inner-spin-button { -webkit-appearance: none; }
-.qty-ctrl.active .qty-num { color: #2c7a4b; }
+/* ── 品項快速按鈕（叫貨綠 / 記帳琥珀，形狀相同） ── */
+.btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.ibtn { font-size: .95rem; padding: 6px 13px; border-radius: 14px;
+  font-weight: 600; white-space: nowrap; cursor: pointer; transition: background .1s; }
+.ibtn.g { border: 1.5px solid var(--green-mid); background: var(--green-lt); color: var(--green); }
+.ibtn.g:active  { background: #c8ebd8; }
+.ibtn.g.on { background: var(--green); color: var(--white); border-color: var(--green); }
+.ibtn.a { border: 1.5px solid var(--amber-mid); background: var(--amber-lt); color: var(--amber); }
+.ibtn.a:active  { background: #fde68a; }
+.group-lbl { font-size: .82rem; color: #aaa; font-weight: 700; margin: 10px 0 4px; }
 
-/* ── 臨時品項區塊（訂貨） ── */
-.other-block { background: #f6fdf9; border-radius: 10px; padding: 13px; margin-bottom: 8px; border: 1.5px solid #b2dfc4; border-left: 4px solid #2c7a4b; }
-.other-block-title { font-size: 15px; font-weight: 700; color: #2c7a4b; margin-bottom: 10px; }
-.other-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
-.other-row-name { flex: 1; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; padding: 8px 10px; color: #333; outline: none; background: #fafafa; min-width: 0; }
-.other-row-name:focus { border-color: #2c7a4b; background: #fff; }
-.other-row-unit { width: 46px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; padding: 8px 4px; color: #555; outline: none; background: #fafafa; text-align: center; flex-shrink: 0; }
-.other-row-unit:focus { border-color: #2c7a4b; background: #fff; }
-.qty-ctrl-sm { display: inline-flex; align-items: center; border: 1.5px solid #ddd; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
-.qty-ctrl-sm.active { border-color: #2c7a4b; }
-.qty-btn-sm { width: 32px; height: 36px; border: none; background: #f5f5f5; font-size: 19px; font-weight: 700; cursor: pointer; color: #444; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none; flex-shrink: 0; }
-.qty-btn-sm:active { background: #ddd; }
-.qty-num-sm { width: 38px; height: 36px; border: none; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; background: #fff; font-size: 15px; font-weight: 700; text-align: center; color: #222; -moz-appearance: textfield; outline: none; }
-.qty-num-sm::-webkit-inner-spin-button { -webkit-appearance: none; }
-.qty-ctrl-sm.active .qty-num-sm { color: #2c7a4b; }
-.other-row-del { width: 34px; height: 36px; border: none; background: #fee; border-radius: 8px; font-size: 17px; color: #c00; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.other-row-del:active { background: #fcc; }
-.other-add-btn { width: 100%; padding: 11px; border: 1.5px solid #2c7a4b; border-radius: 8px; background: #e8f5ee; color: #2c7a4b; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; }
-.other-add-btn:active { background: #c8ebd8; }
+/* ── 欄位標題 ── */
+.col-hdr { display: flex; gap: 6px; margin: 12px 0 5px; }
+.col-hdr span { font-size: .82rem; color: #bbb; }
+.col-hdr .cn { flex: 1; min-width: 0; }
+.col-hdr .cq { width: 112px; text-align: center; flex-shrink: 0; }
+.col-hdr .cp { width: 76px;  text-align: right;  flex-shrink: 0; }
+.col-hdr .cd { width: 34px;  flex-shrink: 0; }
 
-/* ── 底部總金額 ── */
-.total-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #ddd; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 -2px 8px rgba(0,0,0,.08); gap: 10px; z-index: 100; }
-.total-label { font-size: 14px; color: #999; }
-.total-amount { font-size: 1.5rem; font-weight: 700; color: #2c7a4b; }
-.btns { display: flex; gap: 8px; flex-shrink: 0; }
-.btn { padding: 13px 18px; border-radius: 10px; font-size: 16px; cursor: pointer; font-weight: 700; border: none; white-space: nowrap; -webkit-appearance: none; }
-.btn-green { background: #2c7a4b; color: #fff; }
-.btn-red { background: #fff; color: #c00; border: 2px solid #c00; }
-.btn:active { opacity: 0.8; }
+/* ── 叫貨列 ── */
+.orow { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.orow-info { flex: 1; min-width: 0; }
+.orow-line1 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.orow-name  { font-size: 1rem; font-weight: 700; }
+.orow-unit  { font-size: .85rem; color: #aaa; }
+.orow-price { font-size: .85rem; color: var(--red); font-weight: 600; }
+.orow-note  { font-size: .8rem; color: #bbb; margin-top: 2px; }
+
+/* ── 記帳列 ── */
+.lrow { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.lrow-name { flex: 1; border: 1px solid var(--border); border-radius: 7px;
+  font-size: 1rem; padding: 8px 10px; outline: none; background: #fafafa; min-width: 0; }
+.lrow-name:focus { border-color: var(--amber); }
+.lrow-price { width: 76px; flex-shrink: 0; border: 1px solid var(--border); border-radius: 7px;
+  font-size: 1rem; padding: 8px 7px; text-align: right; outline: none;
+  background: #fafafa; -moz-appearance: textfield; height: 38px; }
+.lrow-price::-webkit-inner-spin-button { -webkit-appearance: none; }
+.lrow-price:focus { border-color: var(--amber); }
+
+/* ── 加減器（叫貨 & 記帳完全共用） ── */
+.qc { display: inline-flex; align-items: center; border: 1.5px solid var(--border);
+  border-radius: 8px; overflow: hidden; flex-shrink: 0; width: 112px; }
+.qc.g.on { border-color: var(--green); }
+.qc.a.on { border-color: var(--amber); }
+.qb { width: 32px; height: 38px; border: none; background: var(--gray-lt);
+  font-size: 1.2rem; font-weight: 700; cursor: pointer; color: #555;
+  display: flex; align-items: center; justify-content: center;
+  user-select: none; flex-shrink: 0; }
+.qb:active { background: #ddd; }
+.qn { flex: 1; height: 38px; border: none; border-inline: 1px solid var(--border);
+  background: var(--white); font-size: 1rem; font-weight: 700;
+  text-align: center; color: var(--text); outline: none; min-width: 0;
+  -moz-appearance: textfield; }
+.qn::-webkit-inner-spin-button { -webkit-appearance: none; }
+.qc.g.on .qn { color: var(--green); }
+.qc.a.on .qn { color: var(--amber); }
+
+/* ── 刪除按鈕 ── */
+.del-btn { width: 34px; height: 38px; border: none; background: #fee2e2;
+  border-radius: 7px; font-size: .95rem; color: var(--red); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.del-btn:active { background: #fcc; }
+
+/* ── 臨時品項輸入欄 ── */
+.extra-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.extra-name { flex: 1; border: 1px solid var(--border); border-radius: 7px;
+  font-size: 1rem; padding: 8px 10px; outline: none; background: #fafafa; min-width: 0; }
+.extra-name:focus { border-color: var(--green); }
+.extra-unit { width: 48px; border: 1px solid var(--border); border-radius: 7px;
+  font-size: .9rem; padding: 8px 4px; text-align: center; outline: none; background: #fafafa; }
+.extra-unit:focus { border-color: var(--green); }
+
+/* ── 新增 / 合計 / 清除 ── */
+.add-btn { width: 100%; padding: 10px; border-radius: 8px; font-size: 1rem;
+  font-weight: 700; cursor: pointer; margin-top: 5px; }
+.add-btn.g { border: 1.5px dashed var(--green-mid); background: var(--green-lt); color: var(--green); }
+.add-btn.a { border: 1.5px dashed var(--amber-mid); background: var(--amber-lt); color: var(--amber); }
+.total-row { display: flex; justify-content: flex-end; align-items: center; gap: 10px;
+  margin-top: 12px; padding-top: 10px; border-top: 2px solid var(--border); }
+.total-lbl { font-size: 1rem; color: var(--gray); }
+.total-val { font-size: 1.4rem; font-weight: 800; }
+.total-val.g { color: var(--green); }
+.total-val.a { color: var(--amber); }
+.clr-btn { padding: 7px 13px; border: 2px solid var(--red); border-radius: 8px;
+  background: var(--white); color: var(--red); font-size: .9rem; font-weight: 700; cursor: pointer; }
+
+/* ── 記帳預覽 ── */
+.preview-lbl { font-size: 1rem; font-weight: 700; color: var(--gray); margin-bottom: 8px; }
+.preview-box { background: var(--green-lt); border-radius: 8px; padding: 12px;
+  font-size: .95rem; color: var(--green); line-height: 2;
+  white-space: pre-wrap; word-break: break-all;
+  border: 1px solid var(--green-mid); margin-bottom: 10px; }
+.preview-actions { display: flex; gap: 8px; }
+.copy-btn { flex: 0 0 auto; padding: 12px 18px; border: none; border-radius: 8px;
+  background: #374151; color: var(--white); font-size: 1rem; font-weight: 700; cursor: pointer; }
+.line-btn { flex: 1; padding: 12px; border: none; border-radius: 8px;
+  background: #06c755; color: var(--white); font-size: 1rem; font-weight: 700; cursor: pointer; }
+
+/* ── 底部列 ── */
+.bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+  background: var(--white); border-top: 1px solid var(--border);
+  padding: 10px 14px; display: flex; align-items: center;
+  justify-content: space-between; gap: 10px; box-shadow: 0 -2px 8px rgba(0,0,0,.08); }
+.bottom-bar .lbl { font-size: .85rem; color: var(--gray); }
+.bottom-bar .amt { font-size: 1.5rem; font-weight: 800; color: var(--green); }
+.bar-btns { display: flex; gap: 8px; }
+.bbtn { padding: 12px 18px; border-radius: var(--radius); font-size: 1rem;
+  font-weight: 700; cursor: pointer; border: none; white-space: nowrap; }
+.bbtn.outline { background: var(--white); color: var(--red); border: 2px solid var(--red); }
+.bbtn.solid   { background: var(--green); color: var(--white); }
+
+/* ── 防呆橫幅 ── */
+.warn { background: #fff7ed; border: 1.5px solid #fed7aa; border-radius: 8px;
+  padding: 10px 14px; font-size: .95rem; color: #92400e; margin-bottom: 8px; display: none; }
+.warn.on { display: block; }
 
 /* ── 訂單預覽彈窗 ── */
-.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: flex-end; justify-content: center; }
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 200; align-items: flex-end; justify-content: center; }
 .overlay.open { display: flex; }
-.modal { background: #fff; border-radius: 16px 16px 0 0; width: 100%; max-width: 700px; max-height: 90vh; display: flex; flex-direction: column; animation: slideUp .2s ease; }
+.modal { background: var(--white); border-radius: 16px 16px 0 0; width: 100%;
+  max-width: 700px; max-height: 90vh; display: flex; flex-direction: column;
+  animation: slideUp .2s ease; }
 @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
-.modal-head { padding: 14px 16px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.modal-head { padding: 14px 16px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
 .modal-title { font-size: 1.05rem; font-weight: 700; }
 .modal-close { font-size: 28px; color: #bbb; cursor: pointer; line-height: 1; }
-.modal-body { flex: 1; overflow-y: auto; padding: 14px 16px; }
-.modal-foot { padding: 10px 14px; border-top: 1px solid #eee; display: flex; gap: 10px; flex-shrink: 0; }
-.pre-vendor { font-size: 1.05rem; font-weight: 700; color: #2c7a4b; margin: 12px 0 5px; border-bottom: 1px solid #dff0e6; padding-bottom: 3px; }
+.modal-body  { flex: 1; overflow-y: auto; padding: 14px 16px; }
+.modal-foot  { padding: 10px 14px; border-top: 1px solid var(--border);
+  display: flex; gap: 10px; flex-shrink: 0; }
+.pre-vendor { font-size: 1rem; font-weight: 700; color: var(--green);
+  margin: 12px 0 5px; border-bottom: 1px solid var(--green-lt); padding-bottom: 3px; }
 .pre-vendor:first-child { margin-top: 0; }
-.pre-item { display: flex; gap: 6px; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed #f0f0f0; }
-.pre-num { font-size: 14px; color: #bbb; min-width: 22px; flex-shrink: 0; }
-.pre-item-name { flex: 1; font-size: 16px; font-weight: 600; color: #333; }
-.pre-calc { font-size: 14px; color: #bbb; white-space: nowrap; }
-.pre-sub { font-size: 16px; font-weight: 700; color: #2c7a4b; white-space: nowrap; }
-.pre-qty { font-size: 15px; color: #888; font-weight: 600; white-space: nowrap; }
-.pre-total { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 2px solid #eee; font-size: 17px; font-weight: 700; }
-.pre-total span:last-child { color: #2c7a4b; }
-.pre-text-wrap { margin-top: 12px; border-top: 1px solid #eee; padding-top: 10px; }
-.pre-text-label { font-size: 14px; color: #aaa; margin-bottom: 5px; }
-.pre-textarea { width: 100%; height: 175px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; color: #444; resize: vertical; background: #fafafa; line-height: 1.8; }
-.btn-copy { background: #555; color: #fff; flex: 0 0 auto; }
-.btn-line { background: #06c755; color: #fff; flex: 1; font-size: 18px; }
+.pre-item { display: flex; gap: 6px; align-items: baseline;
+  padding: 6px 0; border-bottom: 1px dashed #f0f0f0; }
+.pre-num  { font-size: .9rem; color: #bbb; min-width: 22px; flex-shrink: 0; }
+.pre-name { flex: 1; font-size: 1rem; font-weight: 600; color: #333; }
+.pre-calc { font-size: .9rem; color: #bbb; white-space: nowrap; }
+.pre-sub  { font-size: 1rem; font-weight: 700; color: var(--green); white-space: nowrap; }
+.pre-qty  { font-size: .95rem; color: #888; font-weight: 600; white-space: nowrap; }
+.pre-total { display: flex; justify-content: space-between; margin-top: 12px;
+  padding-top: 10px; border-top: 2px solid var(--border); font-size: 1.05rem; font-weight: 700; }
+.pre-total span:last-child { color: var(--green); }
+.pre-text-wrap { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
+.pre-text-lbl  { font-size: .9rem; color: #aaa; margin-bottom: 5px; }
+.pre-textarea  { width: 100%; height: 170px; padding: 10px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: .95rem; color: #444; resize: vertical;
+  background: #fafafa; line-height: 1.9; outline: none; }
 
-/* ── 自訂確認彈窗 ── */
-.confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; align-items: center; justify-content: center; }
-.confirm-overlay.open { display: flex; }
-.confirm-box { background: #fff; border-radius: 16px; padding: 28px 24px 20px; max-width: 300px; width: 88%; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.18); }
-.confirm-msg { font-size: 17px; font-weight: 600; color: #333; line-height: 1.5; margin-bottom: 22px; }
+/* ── 確認彈窗 ── */
+.confirm-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 300; align-items: center; justify-content: center; }
+.confirm-ov.open { display: flex; }
+.confirm-box { background: var(--white); border-radius: 14px; padding: 28px 24px 20px;
+  max-width: 300px; width: 88%; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.18); }
+.confirm-msg  { font-size: 1.05rem; font-weight: 600; color: var(--text);
+  line-height: 1.5; margin-bottom: 22px; }
 .confirm-btns { display: flex; gap: 10px; }
-.confirm-btn { flex: 1; padding: 13px; border-radius: 10px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; }
-.confirm-ok { background: #c00; color: #fff; }
-.confirm-ok:active { opacity: .8; }
-.confirm-cancel { background: #f0f0f0; color: #555; }
-.confirm-cancel:active { background: #ddd; }
-
-/* ── 記帳專區 ── */
-.ledger-wrap { padding: 10px; max-width: 700px; margin: 0 auto; padding-bottom: 40px; }
-.ledger-section { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 10px; border: 1px solid #e0e0e0; }
-.ledger-title-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e8960a; }
-.ledger-title { font-size: 1.15rem; font-weight: 700; color: #a86300; }
-.ledger-clear-btn { padding: 7px 14px; border: 2px solid #c00; border-radius: 8px; background: #fff; color: #c00; font-size: 14px; font-weight: 700; cursor: pointer; }
-.ledger-clear-btn:active { background: #fee; }
-.ledger-group-label { font-size: 12px; color: #999; font-weight: 700; margin: 10px 0 5px; }
-.ledger-quick-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
-.ledger-quick-btn { font-size: 13px; padding: 5px 11px; border: 1px solid #e8960a; border-radius: 15px; background: #fffbf0; color: #a86300; cursor: pointer; }
-.ledger-quick-btn:active { background: #fef3d0; }
-.ledger-header-row { display: flex; gap: 6px; padding: 0 2px; margin: 12px 0 4px; }
-.ledger-header-row span { font-size: 12px; color: #aaa; }
-.ledger-header-row span:first-child { flex: 1; }
-.ledger-header-row span:nth-child(2) { width: 110px; text-align: center; }
-.ledger-header-row span:nth-child(3) { width: 76px; text-align: right; }
-.ledger-header-row span:last-child { width: 34px; }
-.ledger-row { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
-.ledger-row-name { flex: 1; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; padding: 8px 10px; outline: none; background: #fafafa; min-width: 0; }
-.ledger-row-name:focus { border-color: #e8960a; background: #fff; }
-/* 記帳數量控制器 */
-.ledger-qty-ctrl { display: inline-flex; align-items: center; border: 1.5px solid #ddd; border-radius: 8px; overflow: hidden; flex-shrink: 0; width: 110px; }
-.ledger-qty-ctrl.active { border-color: #e8960a; }
-.ledger-qty-btn { width: 30px; height: 36px; border: none; background: #f5f5f5; font-size: 19px; font-weight: 700; cursor: pointer; color: #444; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none; flex-shrink: 0; }
-.ledger-qty-btn:active { background: #ddd; }
-.ledger-qty-num { flex: 1; height: 36px; border: none; border-left: 1px solid #e0e0e0; border-right: 1px solid #e0e0e0; background: #fff; font-size: 15px; font-weight: 700; text-align: center; color: #222; -moz-appearance: textfield; outline: none; min-width: 0; }
-.ledger-qty-num::-webkit-inner-spin-button { -webkit-appearance: none; }
-.ledger-qty-ctrl.active .ledger-qty-num { color: #e8960a; }
-/* 金額欄 */
-.ledger-row-price { width: 76px; flex-shrink: 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; padding: 8px 7px; text-align: right; outline: none; background: #fafafa; -moz-appearance: textfield; height: 36px; }
-.ledger-row-price::-webkit-inner-spin-button { -webkit-appearance: none; }
-.ledger-row-price:focus { border-color: #e8960a; background: #fff; }
-.ledger-row-del { width: 34px; height: 36px; border: none; background: #fee; border-radius: 8px; font-size: 16px; color: #c00; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.ledger-row-del:active { background: #fcc; }
-.ledger-add-btn { width: 100%; padding: 10px; border: 1.5px dashed #e8960a; border-radius: 8px; background: #fffbf0; color: #a86300; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px; }
-.ledger-add-btn:active { background: #fef3d0; }
-.ledger-total-row { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 2px solid #eee; }
-.ledger-total-label { font-size: 15px; color: #888; }
-.ledger-total-amt { font-size: 1.4rem; font-weight: 700; color: #a86300; }
-.ledger-preview-label { font-size: 15px; font-weight: 700; color: #555; margin-bottom: 8px; }
-.ledger-preview-box { background: #f0faf5; border-radius: 8px; padding: 12px; font-size: 14px; color: #2c7a4b; line-height: 2; white-space: pre-wrap; word-break: break-all; border: 1px solid #c8e8d8; margin-bottom: 10px; }
-.ledger-action-row { display: flex; gap: 8px; }
-.ledger-copy-btn { flex: 0 0 auto; padding: 12px 18px; border: none; border-radius: 8px; background: #555; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
-.ledger-copy-btn:active { opacity: .8; }
-.ledger-line-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; background: #06c755; color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; }
-.ledger-line-btn:active { opacity: .8; }
+.cbtn { flex: 1; padding: 13px; border-radius: 9px; font-size: 1rem;
+  font-weight: 700; border: none; cursor: pointer; }
+.cbtn.ok  { background: var(--red);    color: var(--white); }
+.cbtn.can { background: var(--gray-lt); color: #555; }
 
 /* ── Toast ── */
-.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 12px 24px; border-radius: 8px; font-size: 15px; z-index: 999; opacity: 0; transition: opacity .3s; pointer-events: none; white-space: nowrap; }
+.toast { position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
+  background: #1f2937; color: var(--white); padding: 11px 24px; border-radius: 8px;
+  font-size: 1rem; z-index: 999; opacity: 0; transition: opacity .25s;
+  pointer-events: none; white-space: nowrap; }
 .toast.show { opacity: 1; }
+.search-hint { text-align: center; color: #bbb; padding: 40px 0; font-size: 1rem; }
 </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+  ★★★  可修改設定區  ★★★
+  ═══════════════════════════════════════════════════════════
+
+  本檔案只需修改這個 <script> 區塊，其他地方請勿動。
+
+  ┌─────────────────────────────────────────────────────────┐
+  │ 【A】店家資料                                           │
+  │   直接改引號內的文字即可。                              │
+  ├─────────────────────────────────────────────────────────┤
+  │ 【B】廠商與品項                                         │
+  │                                                         │
+  │  每筆品項格式：                                         │
+  │    { name:"品名", unit:"單位", price:數字, note:"備註" }│
+  │                                                         │
+  │  ‣ note  → 選填，灰色小字。沒有備註可以整行省略。       │
+  │  ‣ price → 整數金額。不知道填 0。                       │
+  │  ‣ unit  → 常用：斤 包 條 箱 瓶 罐 盒 顆 把 桶 捲 袋   │
+  │                                                         │
+  │  ★ 新增廠商：在最後一個 }, 後面貼上：                   │
+  │      { vendor:"廠商名稱", items: [                      │
+  │        { name:"品名", unit:"包", price: 0 },            │
+  │      ]},                                                │
+  │                                                         │
+  │  ★ 新增品項：在該廠商 items 最後一個 }, 後加一行：       │
+  │      { name:"新品項", unit:"斤", price: 80 },           │
+  │                                                         │
+  │  ★ 刪除廠商或品項：把整個 { … }, 連同逗號一起刪掉。     │
+  │                                                         │
+  │  ⚠️ 記帳按鈕會自動從這裡的廠商品項產生，                │
+  │     不需要另外維護一份清單！                             │
+  └─────────────────────────────────────────────────────────┘
+═══════════════════════════════════════════════════════════ -->
+<script>
+
+/* ── 【A】店家資料 ── */
+const SHOP_NAME     = "香品小食堂";                 // 店名
+const DELIVERY_ADDR = "平鎮區龍南路666巷1-2號1樓";  // 配送地址
+const DELIVERY_NOTE = "抵達請致電，人員會出去接應";  // 地址備註
+const TEL_MAIN      = "03-4505582";                 // 主電話
+const TEL_B1        = "0916-550855";                // 備用電話 1
+const TEL_B2        = "0938-582828";                // 備用電話 2
+
+/* ── 【B】廠商與品項 ── */
+const VENDORS = [
+
+  { vendor: "雜貨-富陽行", items: [
+    { name: "602扁碗",              unit: "箱",  price: 1000, note: "炒碗" },
+    { name: "C-165平蓋",            unit: "箱",  price: 320,  note: "炒碗-蓋" },
+    { name: "C-165凸蓋",            unit: "條",  price: 75,   note: "炸物-蓋" },
+    { name: "750紙湯杯",             unit: "條",  price: 60,   note: "湯碗" },
+    { name: "750紙湯杯蓋",           unit: "條",  price: 50,   note: "湯碗-蓋" },
+    { name: "1000紙湯杯",            unit: "條",  price: 100,  note: "湯麵/粥碗" },
+    { name: "850CC湯杯蓋",           unit: "條",  price: 38,   note: "湯麵/粥碗-蓋" },
+    { name: "260紙湯杯",             unit: "條",  price: 30,   note: "白飯碗" },
+    { name: "2632蓋",               unit: "條",  price: 30,   note: "白飯碗-蓋" },
+    { name: "902圓碗",              unit: "條",  price: 75,   note: "加麵碗" },
+    { name: "免洗筷",               unit: "包",  price: 25 },
+    { name: "彎形湯匙",             unit: "箱",  price: 480 },
+    { name: "邦提圈",               unit: "包",  price: 30 },
+    { name: "四兩-耐熱袋",          unit: "包",  price: 33 },
+    { name: "六兩-耐熱袋",          unit: "包",  price: 33 },
+    { name: "半斤-耐熱袋",          unit: "包",  price: 33 },
+    { name: "一斤-耐熱袋",          unit: "包",  price: 33 },
+    { name: "兩斤-耐熱袋",          unit: "捲",  price: 155 },
+    { name: "三斤-耐熱袋",          unit: "捲",  price: 155 },
+    { name: "五斤-耐熱袋",          unit: "捲",  price: 155 },
+    { name: "四兩-提袋",            unit: "包",  price: 25 },
+    { name: "半斤-提袋",            unit: "包",  price: 25 },
+    { name: "一斤-提袋",            unit: "包",  price: 25 },
+    { name: "兩斤-提袋",            unit: "包",  price: 25 },
+    { name: "三斤-提袋",            unit: "包",  price: 25 },
+    { name: "五斤-提袋",            unit: "包",  price: 25 },
+    { name: "七斤-提袋",            unit: "包",  price: 25 },
+    { name: "6吋防油紙墊",          unit: "包",  price: 100 },
+    { name: "醬油碟",               unit: "條",  price: 65 },
+    { name: "2號夾鏈袋",            unit: "包",  price: 12 },
+    { name: "國寶-美國米",          unit: "袋",  price: 1225 },
+    { name: "福懋-沙拉油",          unit: "桶",  price: 840 },
+    { name: "鹽巴",                 unit: "包",  price: 18 },
+    { name: "味精",                 unit: "包",  price: 85 },
+    { name: "油蔥酥",               unit: "包",  price: 60 },
+    { name: "蒜頭酥",               unit: "包",  price: 60 },
+    { name: "老公仔-胡椒粉",        unit: "盒",  price: 120 },
+    { name: "老公仔-胡椒鹽粉",      unit: "盒",  price: 190 },
+    { name: "辣椒粉",               unit: "包",  price: 90 },
+    { name: "小磨坊-印度咖哩粉",    unit: "罐",  price: 145 },
+    { name: "烹大師-鰹魚粉",        unit: "包",  price: 290 },
+    { name: "金味王-醬油(10斤)",     unit: "桶",  price: 220 },
+    { name: "金蘭-甘醇油膏(10斤)",   unit: "桶",  price: 225 },
+    { name: "萬家鄉-香菇素蠔油(5L)", unit: "桶",  price: 250 },
+    { name: "牛頭牌-沙茶醬(3Kg)",   unit: "罐",  price: 540 },
+    { name: "可果美-番茄醬(塑膠桶)", unit: "瓶",  price: 210 },
+    { name: "可果美-番茄醬(鐵桶)",  unit: "桶",  price: 215 },
+    { name: "工研烏醋(600ml)",      unit: "瓶",  price: 50 },
+    { name: "工研白醋(5L)",         unit: "瓶",  price: 200 },
+    { name: "福華牌-泰雞醬",        unit: "瓶",  price: 75 },
+    { name: "燈燦香油",             unit: "瓶",  price: 270 },
+    { name: "豆瓣醬(5斤)",          unit: "桶",  price: 130 },
+    { name: "飯友-切角鳳梨",        unit: "罐",  price: 220 },
+    { name: "世宇-單顆沙拉",        unit: "顆",  price: 50 },
+    { name: "圓紫菜",               unit: "包",  price: 100 },
+    { name: "料理米酒",             unit: "罐",  price: 15 },
+    { name: "黑木耳絲",             unit: "包",  price: 170 },
+    { name: "乾辣椒(切段)",         unit: "包",  price: 180 },
+    { name: "辣油(2.4L)",           unit: "瓶",  price: 210 },
+    { name: "八角粒",               unit: "包",  price: 0 },
+    { name: "花椒粒",               unit: "包",  price: 0 },
+    { name: "太白粉(5斤)",          unit: "包",  price: 175 },
+    { name: "地瓜粉(5斤)",          unit: "包",  price: 125 },
+    { name: "黏師傅",               unit: "包",  price: 80 },
+    { name: "吉士粉",               unit: "包",  price: 62 },
+    { name: "二號砂糖(5斤)",        unit: "包",  price: 100 },
+    { name: "特砂(白糖)",           unit: "台斤", price: 0 },
+    { name: "黑豆豉",               unit: "斤",  price: 45 },
+    { name: "洗碗精",               unit: "罐",  price: 45 },
+    { name: "漂白水",               unit: "罐",  price: 65 },
+    { name: "去油劑",               unit: "罐",  price: 220 },
+    { name: "礦泉水(1500ml)",       unit: "箱",  price: 70 },
+    { name: "嫩精",                 unit: "罐",  price: 130 },
+    { name: "枸杞",                 unit: "包",  price: 195 },
+    { name: "人蔘鬚",               unit: "把",  price: 75 },
+    { name: "冬粉翅",               unit: "包",  price: 500 },
+    { name: "熟白芝麻(半斤)",       unit: "包",  price: 50 },
+  ]},
+
+  { vendor: "台北-聯和", items: [
+    { name: "魷魚清肉(10k)",        unit: "件",  price: 2100 },
+    { name: "白蝦-南美(6/7)",       unit: "盒",  price: 210 },
+    { name: "帶殼海瓜子(500g)",     unit: "包",  price: 75 },
+    { name: "冷凍蚵仔(600g)",       unit: "包",  price: 160 },
+    { name: "蚵仔(1斤)-大",         unit: "包",  price: 130 },
+    { name: "蛤仔(活)-大(8分)",     unit: "斤",  price: 80 },
+    { name: "割背蝦仁(2號-16/20)",  unit: "包",  price: 1200 },
+    { name: "紅糟鰻(600g)",         unit: "包",  price: 155 },
+    { name: "月亮蝦餅(蝦怪)",       unit: "片",  price: 55 },
+    { name: "鮭魚碎肉A藍袋-1KG",    unit: "包",  price: 600 },
+    { name: "虱目魚肚-無刺(進口)",  unit: "包",  price: 40 },
+    { name: "鹿茸烏骨雞(金)",       unit: "包",  price: 300 },
+    { name: "蒲燒鯛魚排(110P)",     unit: "盒",  price: 1350 },
+    { name: "金目鱸魚(蝴蝶切)",     unit: "尾",  price: 120 },
+    { name: "佛跳牆(金)",           unit: "盒",  price: 280 },
+  ]},
+
+  { vendor: "中壢-聯合", items: [
+    { name: "豬肉絲",   unit: "包", price: 500 },
+    { name: "牛炒片",   unit: "包", price: 630 },
+    { name: "羊炒片",   unit: "包", price: 830 },
+    { name: "香腸片",   unit: "包", price: 380 },
+    { name: "白蝦仁",   unit: "包", price: 730 },
+    { name: "A大貢丸",  unit: "包", price: 450 },
+    { name: "鱈魚丸",   unit: "包", price: 350 },
+    { name: "虱目魚肚", unit: "包", price: 65 },
+    { name: "玉米粒",   unit: "包", price: 70 },
+    { name: "雞胸清肉", unit: "斤", price: 93 },
+    { name: "大雞腿",   unit: "斤", price: 75 },
+  ]},
+
+  { vendor: "中壢-昇暉製麵", items: [
+    { name: "烏龍麵(5斤)", unit: "包", price: 80 },
+    { name: "豆菜麵(5斤)", unit: "包", price: 80 },
+    { name: "魚板絲",      unit: "包", price: 300 },
+    { name: "魚板片",      unit: "包", price: 350 },
+  ]},
+
+  { vendor: "中壢-富昌", items: [
+    { name: "五花肉", unit: "斤", price: 140 },
+    { name: "軟骨排", unit: "斤", price: 140 },
+  ]},
+
+  { vendor: "永溢麵食", items: [
+    { name: "豆菜麵(5斤)", unit: "包", price: 90 },
+    { name: "烏龍麵(5斤)", unit: "包", price: 100 },
+  ]},
+
+  { vendor: "三信蛋行", items: [
+    { name: "雞蛋(⚠️要「大」顆的‼️)", unit: "籃", price: 0 },
+    { name: "皮蛋",                    unit: "顆", price: 0 },
+    { name: "鹹蛋黃",                  unit: "顆", price: 0 },
+  ]},
+
+  { vendor: "市場(阿潭)", items: [
+    { name: "空心菜",      unit: "把",  price: 0 },
+    { name: "高麗菜",      unit: "顆",  price: 0 },
+    { name: "地瓜葉",      unit: "",    price: 0 },
+    { name: "菠菜",        unit: "把",  price: 0 },
+    { name: "炒麵菜",      unit: "把",  price: 0 },
+    { name: "水蓮",        unit: "包",  price: 0 },
+    { name: "洋蔥",        unit: "顆",  price: 0 },
+    { name: "紅蘿蔔",      unit: "條",  price: 0 },
+    { name: "九層塔",      unit: "",    price: 0 },
+    { name: "蔥",          unit: "",    price: 0 },
+    { name: "蒜末",        unit: "包",  price: 0 },
+    { name: "辣椒",        unit: "",    price: 0 },
+    { name: "薑絲",        unit: "包",  price: 0 },
+    { name: "芹菜",        unit: "",    price: 0 },
+    { name: "豆腐",        unit: "盒",  price: 0 },
+    { name: "皮蛋",        unit: "顆",  price: 0 },
+    { name: "乾菜脯",      unit: "",    price: 0 },
+    { name: "蒜味花生",    unit: "",    price: 0 },
+    { name: "蛤蜊",        unit: "斤",  price: 0 },
+    { name: "豆菜麵(1斤)", unit: "包",  price: 0 },
+    { name: "烏龍麵(1斤)", unit: "包",  price: 0 },
+  ]},
+
+];
+</script>
+<!-- ═══════════════════════════════════════════════════════════
+  ★★★  設定區結束，以下請勿修改  ★★★
+  ═══════════════════════════════════════════════════════════ -->
 
 <!-- 頂部 -->
-<div class="top-bar">
-  <h1>🍱 香品小食堂 訂貨系統</h1>
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input class="search-input" id="searchInput" type="text" placeholder="搜尋…" oninput="onSearch(this.value)">
-    <span class="search-clear" id="searchClear" onclick="clearSearch()">✕</span>
+<div class="topbar">
+  <div class="topbar-title">🍱 香品小食堂</div>
+  <div class="search-box">
+    <span style="color:#aaa">🔍</span>
+    <input id="searchInput" type="text" placeholder="搜尋品項…" oninput="onSearch(this.value)">
+    <span class="search-clr" id="searchClr" onclick="clearSearch()">✕</span>
   </div>
 </div>
 
-<div class="tabs" id="tabBar"></div>
-<div class="content" id="itemList"></div>
+<!-- 模式分頁 -->
+<div class="mode-tabs">
+  <div class="mode-tab order-tab active"  id="modeOrder"  onclick="switchMode('order')">📦 叫貨</div>
+  <div class="mode-tab ledger-tab"        id="modeLedger" onclick="switchMode('ledger')">📒 記帳</div>
+</div>
+
+<!-- 廠商分頁（叫貨用） -->
+<div class="vendor-scroll" id="vendorScroll"></div>
+
+<!-- 叫貨面板 -->
+<div class="content" id="orderPanel"><div id="itemList"></div></div>
+
+<!-- 記帳面板 -->
 <div class="ledger-wrap" id="ledgerPanel" style="display:none;"></div>
 
-<!-- 底部總金額（訂貨） -->
-<div class="total-bar" id="totalBar">
+<!-- 底部列（叫貨用） -->
+<div class="bottom-bar" id="bottomBar">
   <div>
-    <div class="total-label">總金額（僅供參考）</div>
-    <div class="total-amount" id="totalAmt">$0</div>
+    <div class="lbl">總金額（僅供參考）</div>
+    <div class="amt" id="totalAmt">$0</div>
   </div>
-  <div class="btns">
-    <button class="btn btn-red" onclick="clearAll()">清除全部</button>
-    <button class="btn btn-green" onclick="openModal()">📋 確認並傳送</button>
+  <div class="bar-btns">
+    <button class="bbtn outline" onclick="clearAll()">清除全部</button>
+    <button class="bbtn solid"   onclick="openModal()">📋 確認傳送</button>
   </div>
 </div>
 
@@ -467,483 +505,548 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
     </div>
     <div class="modal-body" id="modalBody"></div>
     <div class="modal-foot">
-      <button class="btn btn-copy" onclick="copyText()">📋 複製</button>
-      <button class="btn btn-line" onclick="openLine()">📤 傳送到 LINE</button>
+      <button class="bbtn" style="background:#374151;color:#fff;flex:0 0 auto" onclick="copyOrderText()">📋 複製</button>
+      <button class="bbtn solid" style="flex:1;text-align:center" onclick="lineOrder()">📤 傳送到 LINE</button>
     </div>
   </div>
 </div>
 
-<!-- 自訂確認彈窗 -->
-<div class="confirm-overlay" id="confirmOverlay">
+<!-- 確認彈窗 -->
+<div class="confirm-ov" id="confirmOv">
   <div class="confirm-box">
     <div class="confirm-msg" id="confirmMsg"></div>
     <div class="confirm-btns">
-      <button class="confirm-btn confirm-cancel" onclick="confirmCancel()">取消</button>
-      <button class="confirm-btn confirm-ok" id="confirmOk">確定清除</button>
+      <button class="cbtn can" onclick="confirmCancel()">取消</button>
+      <button class="cbtn ok"  id="confirmOk">確定清除</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<!-- ═══════ 系統程式碼（請勿修改） ═══════ -->
 <script>
-/* ══ 全域狀態 ══ */
-let curVendor = 0, searchMode = false, showLedger = false;
-const qty        = data.map(v => v.items.map(() => 0));
-const extraItems = data.map(() => []);   // 訂貨臨時品項
-let   ledgerRows = [];                   // 記帳專區列
+/* ── 全域狀態 ── */
+let mode      = 'order';
+let curVendor = 0;
+let searchMode= false;
 
-/* ══ 建立廠商分頁按鈕 ══ */
-data.forEach((v, i) => {
-  const b = document.createElement("button");
-  b.className = "tab-btn" + (i === 0 ? " active" : "");
+// orderRows[vi] = [{ji, name, unit, price, note, qty}]
+const orderRows  = VENDORS.map(() => []);
+const extraItems = VENDORS.map(() => []);
+let   ledgerRows = [];
+
+/* ── 廠商頁籤（自動產生） ── */
+VENDORS.forEach((v, i) => {
+  const b = document.createElement('div');
+  b.className = 'vtab' + (i === 0 ? ' active' : '');
   b.textContent = v.vendor;
-  b.onclick = () => { showLedger = false; curVendor = i; clearSearch(); render(); };
-  document.getElementById("tabBar").appendChild(b);
+  b.onclick = () => { curVendor = i; clearSearch(); renderOrder(); };
+  document.getElementById('vendorScroll').appendChild(b);
 });
-const lbTab = document.createElement("button");
-lbTab.className = "tab-btn ledger-tab";
-lbTab.textContent = "📒 記帳專區";
-lbTab.onclick = () => { showLedger = true; clearSearch(); renderLedger(); };
-document.getElementById("tabBar").appendChild(lbTab);
 
-/* ══ 面板切換 ══ */
-function showOrderPanel() {
-  document.getElementById("itemList").style.display = "";
-  document.getElementById("ledgerPanel").style.display = "none";
-  document.getElementById("totalBar").style.display = "";
-  lbTab.classList.remove("active");
-}
-function showLedgerPanel() {
-  document.getElementById("itemList").style.display = "none";
-  document.getElementById("ledgerPanel").style.display = "";
-  document.getElementById("totalBar").style.display = "none";
-  document.querySelectorAll(".tab-btn:not(.ledger-tab)").forEach(b => b.classList.remove("active"));
-  lbTab.classList.add("active");
+/* ─────────────────────────
+   模式切換
+───────────────────────── */
+function switchMode(m) {
+  mode = m;
+  document.getElementById('modeOrder').classList.toggle('active', m === 'order');
+  document.getElementById('modeLedger').classList.toggle('active', m === 'ledger');
+  document.getElementById('orderPanel').style.display   = m === 'order'  ? '' : 'none';
+  document.getElementById('ledgerPanel').style.display  = m === 'ledger' ? '' : 'none';
+  document.getElementById('vendorScroll').style.display = m === 'order'  ? '' : 'none';
+  document.getElementById('bottomBar').style.display    = m === 'order'  ? '' : 'none';
+  m === 'order' ? renderOrder() : renderLedger();
 }
 
-/* ══ 訂貨主畫面 ══ */
-function render() {
-  showLedger = false;
-  showOrderPanel();
-  document.querySelectorAll(".tab-btn:not(.ledger-tab)").forEach((b, i) => b.classList.toggle("active", i === curVendor));
-  const v = data[curVendor];
-  let html = `<div class="vendor-title">${v.vendor}</div><div class="item-grid">`;
-  v.items.forEach((it, j) => { html += buildItemCard(curVendor, j, it, false); });
-  html += `</div>` + buildExtraBlock(curVendor);
-  document.getElementById("itemList").innerHTML = html;
-  calcTotal();
-}
-
-/* ══ 搜尋 ══ */
+/* ─────────────────────────
+   搜尋
+───────────────────────── */
 function onSearch(kw) {
   kw = kw.trim();
-  document.getElementById("searchClear").classList.toggle("show", kw.length > 0);
-  if (!kw) { searchMode = false; if (showLedger) renderLedger(); else render(); return; }
-  searchMode = true; showLedger = false;
-  showOrderPanel();
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById('searchClr').classList.toggle('on', kw.length > 0);
+  if (!kw) { searchMode = false; renderOrder(); return; }
+  if (mode === 'ledger') switchMode('order');
+  searchMode = true;
+  document.querySelectorAll('.vtab').forEach(b => b.classList.remove('active'));
+
   const res = [];
-  data.forEach((v, vi) => v.items.forEach((it, j) => { if (it.name.includes(kw)) res.push({vi, j, it}); }));
-  let html = `<div class="search-result-header">搜尋「${kw}」，共 ${res.length} 筆</div>`;
-  if (!res.length) html += `<div style="text-align:center;color:#bbb;padding:40px 0;font-size:15px;">找不到相關品項</div>`;
-  else { html += `<div class="item-grid">`; res.forEach(({vi, j, it}) => { html += buildItemCard(vi, j, it, true); }); html += `</div>`; }
-  document.getElementById("itemList").innerHTML = html;
+  VENDORS.forEach((v, vi) => v.items.forEach((it, j) => {
+    if (it.name.includes(kw)) res.push({vi, j, it});
+  }));
+
+  let html = `<div style="font-size:.9rem;color:#aaa;padding:4px 2px 8px">搜尋「${kw}」共 ${res.length} 筆</div>`;
+  if (!res.length) {
+    html += `<div class="search-hint">找不到相關品項</div>`;
+  } else {
+    html += `<div class="card"><div class="btn-group">`;
+    res.forEach(({vi, j, it}) => {
+      const on = orderRows[vi].some(r => r.ji===j && (r.qty||0)>0);
+      html += `<button class="ibtn g${on?' on':''}" onclick="orderQuickAdd(${vi},${j})">${VENDORS[vi].vendor} / ${it.name}</button>`;
+    });
+    html += `</div></div>`;
+    // 已選清單
+    const sel = res.filter(({vi,j}) => orderRows[vi].some(r => r.ji===j && (r.qty||0)>0));
+    if (sel.length) {
+      html += `<div class="card"><div class="col-hdr"><span class="cn">品項</span><span class="cq">數量</span><span class="cd"></span></div><div>`;
+      sel.forEach(({vi,j}) => {
+        const ri = orderRows[vi].findIndex(r => r.ji===j);
+        if (ri !== -1) html += buildORow(vi, ri, orderRows[vi][ri]);
+      });
+      html += `</div></div>`;
+    }
+  }
+  document.getElementById('itemList').innerHTML = html;
   calcTotal();
 }
 function clearSearch() {
-  document.getElementById("searchInput").value = "";
-  document.getElementById("searchClear").classList.remove("show");
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClr').classList.remove('on');
   searchMode = false;
 }
 
-/* ══ 品項卡片 ══ */
-function buildItemCard(vi, j, it, showTag) {
-  const q = qty[vi][j];
-  const noteHtml  = it.note  ? `<span class="item-note">${it.note}</span>` : "";
-  const priceHtml = it.price > 0 ? `<span class="item-price">$${it.price.toLocaleString("zh-TW")}</span>` : "";
-  const tagHtml   = showTag  ? `<br><span class="search-vendor-tag">${data[vi].vendor}</span>` : "";
-  return `<div class="item-card${q > 0 ? " ordered" : ""}" id="c${vi}-${j}">
-    <div class="item-top">
-      <div class="item-name-wrap"><span class="item-name">${it.name}</span>${noteHtml}${tagHtml}</div>
-      <div class="item-unit">${it.unit}${priceHtml}</div>
+/* ─────────────────────────
+   叫貨主畫面
+───────────────────────── */
+function renderOrder() {
+  if (searchMode) return;
+  document.querySelectorAll('.vtab').forEach((b,i) => b.classList.toggle('active', i===curVendor));
+  const vi = curVendor, v = VENDORS[vi];
+
+  // 防呆：其他廠商有訂貨？
+  const conflict = orderRows.findIndex((rows,i) => i!==vi && rows.some(r=>(r.qty||0)>0));
+  const blocked  = conflict !== -1;
+
+  let html = `<div class="card">
+    <div class="card-head g"><div class="card-title g">${v.vendor}</div></div>
+    ${blocked ? `<div class="warn on">⚠️ 已有【${VENDORS[conflict].vendor}】的訂貨，請先確認傳送或清除後，再叫其他廠商。</div>` : ''}
+    <div class="btn-group">`;
+
+  v.items.forEach((it, j) => {
+    const on  = orderRows[vi].some(r => r.ji===j && (r.qty||0)>0);
+    const dis = blocked ? ' style="opacity:.35;pointer-events:none"' : '';
+    html += `<button class="ibtn g${on?' on':''}" id="ibtn-${vi}-${j}" onclick="orderQuickAdd(${vi},${j})"${dis}>${v.vendor} / ${it.name}</button>`;
+  });
+  html += `</div></div>`;
+
+  html += `<div class="card">
+    <div class="col-hdr">
+      <span class="cn">品項 / 備註</span>
+      <span class="cq">數量</span>
+      <span class="cd"></span>
     </div>
-    <div class="qty-ctrl${q > 0 ? " active" : ""}" id="qc${vi}-${j}">
-      <button class="qty-btn" onclick="adj(${vi},${j},-1)">−</button>
-      <input type="number" class="qty-num" id="q${vi}-${j}" min="0" inputmode="decimal"
-        value="${q || ""}" placeholder="0" oninput="setQty(${vi},${j},this.value)">
-      <button class="qty-btn" onclick="adj(${vi},${j},1)">+</button>
+    <div id="order-rows-${vi}">`;
+  orderRows[vi].forEach((r,ri) => { html += buildORow(vi,ri,r); });
+  html += `</div>`;
+  html += buildExtraSection(vi);
+  html += `<div class="total-row">
+    <span class="total-lbl">本廠商小計</span>
+    <span class="total-val g" id="vendor-sub-${vi}">$0</span>
+  </div></div>`;
+
+  document.getElementById('itemList').innerHTML = html;
+  calcTotal();
+  updateSub(vi);
+}
+
+/* ── 叫貨品項列 HTML ── */
+function buildORow(vi, ri, r) {
+  const on = (r.qty||0) > 0;
+  const meta = [
+    r.unit  ? `<span class="orow-unit">${r.unit}</span>` : '',
+    r.price > 0 ? `<span class="orow-price">$${r.price.toLocaleString('zh-TW')}</span>` : '',
+  ].filter(Boolean).join('');
+  const note = r.note ? `<div class="orow-note">${r.note}</div>` : '';
+  return `<div class="orow" id="orow-${vi}-${ri}">
+    <div class="orow-info">
+      <div class="orow-line1"><span class="orow-name">${r.name}</span>${meta}</div>
+      ${note}
     </div>
+    <div class="qc g${on?' on':''}" id="oqc-${vi}-${ri}">
+      <button class="qb" onclick="oAdj(${vi},${ri},-1)">−</button>
+      <input type="number" class="qn" id="oq-${vi}-${ri}" min="0" inputmode="decimal"
+        value="${r.qty||''}" placeholder="0" oninput="oQtyChange(${vi},${ri},this.value)">
+      <button class="qb" onclick="oAdj(${vi},${ri},1)">+</button>
+    </div>
+    <button class="del-btn" onclick="oDelRow(${vi},${ri})">🗑</button>
   </div>`;
 }
 
-/* ══ 訂貨臨時品項區塊 ══ */
-function buildExtraBlock(vi) {
-  const rows = extraItems[vi].map((r, ri) => `
-    <div class="other-row" id="er${vi}-${ri}">
-      <input class="other-row-name" placeholder="品項名稱" value="${r.name}" oninput="setExtra(${vi},${ri},'name',this.value)">
-      <input class="other-row-unit" placeholder="單位" value="${r.unit}" oninput="setExtra(${vi},${ri},'unit',this.value)">
-      <div class="qty-ctrl-sm${r.qty > 0 ? " active" : ""}" id="eqc${vi}-${ri}">
-        <button class="qty-btn-sm" onclick="adjExtra(${vi},${ri},-1)">−</button>
-        <input type="number" class="qty-num-sm" id="eq${vi}-${ri}" min="0" inputmode="decimal"
-          value="${r.qty || ""}" placeholder="0" oninput="setExtra(${vi},${ri},'qty',this.value);updExtraCard(${vi},${ri})">
-        <button class="qty-btn-sm" onclick="adjExtra(${vi},${ri},1)">+</button>
+/* ── 臨時品項區 HTML ── */
+function buildExtraSection(vi) {
+  const rows = extraItems[vi].map((r,ei) => `
+    <div class="extra-row" id="er-${vi}-${ei}">
+      <input class="extra-name" placeholder="品項名稱" value="${r.name}" oninput="setExtra(${vi},${ei},'name',this.value)">
+      <input class="extra-unit" placeholder="單位"     value="${r.unit}" oninput="setExtra(${vi},${ei},'unit',this.value)">
+      <div class="qc g${r.qty>0?' on':''}" id="eqc-${vi}-${ei}">
+        <button class="qb" onclick="eAdj(${vi},${ei},-1)">−</button>
+        <input type="number" class="qn" id="eq-${vi}-${ei}" min="0" inputmode="decimal"
+          value="${r.qty||''}" placeholder="0" oninput="setExtra(${vi},${ei},'qty',this.value);updEqc(${vi},${ei})">
+        <button class="qb" onclick="eAdj(${vi},${ei},1)">+</button>
       </div>
-      <button class="other-row-del" onclick="delExtra(${vi},${ri})">🗑</button>
-    </div>`).join("");
-  return `<div class="other-block" id="extra-block-${vi}">
-    <div class="other-block-title">✏️ 其他臨時品項（可新增多筆）</div>
-    <div id="extra-rows-${vi}">${rows}</div>
-    <button class="other-add-btn" onclick="addExtra(${vi})">＋ 新增一筆臨時品項</button>
-  </div>`;
+      <button class="del-btn" onclick="delExtra(${vi},${ei})">🗑</button>
+    </div>`).join('');
+  return `<div id="extra-section-${vi}">${rows}</div>
+    <button class="add-btn g" onclick="addExtra(${vi})">＋ 新增臨時品項</button>`;
 }
 
-/* ══ 訂貨數量操作 ══ */
-function adj(vi, ji, d) {
-  qty[vi][ji] = Math.max(0, (qty[vi][ji] || 0) + d);
-  const el = document.getElementById(`q${vi}-${ji}`);
-  if (el) el.value = qty[vi][ji] || "";
-  updateCard(vi, ji); calcTotal();
-}
-function setQty(vi, ji, v) { qty[vi][ji] = Math.max(0, parseFloat(v) || 0); updateCard(vi, ji); calcTotal(); }
-function updateCard(vi, ji) {
-  const on = qty[vi][ji] > 0;
-  const c = document.getElementById(`c${vi}-${ji}`); if (c) c.className = "item-card" + (on ? " ordered" : "");
-  const q = document.getElementById(`qc${vi}-${ji}`); if (q) q.className = "qty-ctrl" + (on ? " active" : "");
-}
-function calcTotal() {
-  let t = 0;
-  data.forEach((v, vi) => v.items.forEach((it, ji) => { t += (qty[vi][ji] || 0) * (it.price || 0); }));
-  document.getElementById("totalAmt").textContent = "$" + t.toLocaleString("zh-TW");
+/* ─────────────────────────
+   叫貨操作
+───────────────────────── */
+function orderQuickAdd(vi, ji) {
+  const conflict = orderRows.findIndex((rows,i) => i!==vi && rows.some(r=>(r.qty||0)>0));
+  if (conflict !== -1) { toast(`⚠️ 請先清除【${VENDORS[conflict].vendor}】的訂貨`); return; }
+  const it = VENDORS[vi].items[ji];
+  const existing = orderRows[vi].findIndex(r => r.ji===ji);
+  if (existing !== -1) {
+    if ((orderRows[vi][existing].qty||0) === 0) orderRows[vi][existing].qty = 1;
+    if (!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
+    setTimeout(() => document.getElementById(`oq-${vi}-${existing}`)?.focus(), 60);
+    return;
+  }
+  orderRows[vi].push({ji, name:it.name, unit:it.unit||'', price:it.price||0, note:it.note||'', qty:1});
+  const ri = orderRows[vi].length - 1;
+  if (!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
+  setTimeout(() => document.getElementById(`oq-${vi}-${ri}`)?.focus(), 60);
+  calcTotal();
 }
 
-/* ══ 訂貨臨時品項操作 ══ */
+function oAdj(vi, ri, d) {
+  if (!orderRows[vi][ri]) return;
+  orderRows[vi][ri].qty = Math.max(0, (orderRows[vi][ri].qty||0)+d);
+  const el = document.getElementById(`oq-${vi}-${ri}`); if (el) el.value = orderRows[vi][ri].qty||'';
+  updOqc(vi,ri); syncBtn(vi,ri); calcTotal(); updateSub(vi);
+}
+function oQtyChange(vi, ri, val) {
+  if (!orderRows[vi][ri]) return;
+  orderRows[vi][ri].qty = Math.max(0, parseFloat(val)||0);
+  updOqc(vi,ri); syncBtn(vi,ri); calcTotal(); updateSub(vi);
+}
+function updOqc(vi, ri) {
+  const c = document.getElementById(`oqc-${vi}-${ri}`);
+  if (c) c.className = `qc g${(orderRows[vi][ri]?.qty||0)>0?' on':''}`;
+}
+function syncBtn(vi, ri) {
+  const ji = orderRows[vi][ri]?.ji;
+  if (ji == null) return;
+  const btn = document.getElementById(`ibtn-${vi}-${ji}`);
+  if (btn) btn.classList.toggle('on', (orderRows[vi][ri]?.qty||0)>0);
+}
+function oDelRow(vi, ri) {
+  orderRows[vi].splice(ri,1);
+  if (!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
+  calcTotal();
+}
+
+/* ─────────────────────────
+   臨時品項操作
+───────────────────────── */
 function addExtra(vi) {
-  extraItems[vi].push({name: "", unit: "", qty: 0});
-  const b = document.getElementById(`extra-block-${vi}`); if (b) b.outerHTML = buildExtraBlock(vi);
+  collectExtras(vi);
+  extraItems[vi].push({name:'',unit:'',qty:0});
+  renderOrder();
+  setTimeout(() => {
+    const rows = document.querySelectorAll(`#extra-section-${vi} .extra-row`);
+    rows[rows.length-1]?.querySelector('.extra-name')?.focus();
+  }, 50);
 }
-function delExtra(vi, ri) {
-  extraItems[vi].splice(ri, 1);
-  const b = document.getElementById(`extra-block-${vi}`); if (b) b.outerHTML = buildExtraBlock(vi);
+function delExtra(vi, ei)    { collectExtras(vi); extraItems[vi].splice(ei,1); renderOrder(); }
+function setExtra(vi, ei, f, v) {
+  if (!extraItems[vi][ei]) return;
+  extraItems[vi][ei][f] = f==='qty'?(parseFloat(v)||0):v;
+  calcTotal(); updateSub(vi);
 }
-function setExtra(vi, ri, f, v) {
-  if (extraItems[vi][ri]) extraItems[vi][ri][f] = f === "qty" ? (parseFloat(v) || 0) : v;
+function eAdj(vi, ei, d) {
+  if (!extraItems[vi][ei]) return;
+  extraItems[vi][ei].qty = Math.max(0,(extraItems[vi][ei].qty||0)+d);
+  const el = document.getElementById(`eq-${vi}-${ei}`); if (el) el.value=extraItems[vi][ei].qty||'';
+  updEqc(vi,ei); calcTotal(); updateSub(vi);
 }
-function adjExtra(vi, ri, d) {
-  if (!extraItems[vi][ri]) return;
-  extraItems[vi][ri].qty = Math.max(0, (extraItems[vi][ri].qty || 0) + d);
-  const el = document.getElementById(`eq${vi}-${ri}`); if (el) el.value = extraItems[vi][ri].qty || "";
-  updExtraCard(vi, ri);
-}
-function updExtraCard(vi, ri) {
-  const c = document.getElementById(`eqc${vi}-${ri}`);
-  if (c) c.className = "qty-ctrl-sm" + ((extraItems[vi][ri]?.qty || 0) > 0 ? " active" : "");
+function updEqc(vi, ei) {
+  const c = document.getElementById(`eqc-${vi}-${ei}`);
+  if (c) c.className=`qc g${(extraItems[vi][ei]?.qty||0)>0?' on':''}`;
 }
 function collectExtras(vi) {
-  document.querySelectorAll(`#extra-rows-${vi} .other-row`).forEach((row, ri) => {
-    if (!extraItems[vi][ri]) return;
-    const inp = row.querySelectorAll("input");
-    extraItems[vi][ri].name = inp[0].value;
-    extraItems[vi][ri].unit = inp[1].value;
-    extraItems[vi][ri].qty  = parseFloat(inp[2].value) || 0;
+  document.querySelectorAll(`#extra-section-${vi} .extra-row`).forEach((row,ei) => {
+    if (!extraItems[vi][ei]) return;
+    const inp = row.querySelectorAll('input');
+    extraItems[vi][ei].name = inp[0].value;
+    extraItems[vi][ei].unit = inp[1].value;
+    extraItems[vi][ei].qty  = parseFloat(inp[2].value)||0;
   });
 }
 
-/* ══ 確認彈窗共用 ══ */
+/* ─────────────────────────
+   金額
+───────────────────────── */
+function calcTotal() {
+  let t = 0;
+  VENDORS.forEach((_,vi) => orderRows[vi].forEach(r => { t += (r.qty||0)*(r.price||0); }));
+  document.getElementById('totalAmt').textContent = '$'+t.toLocaleString('zh-TW');
+}
+function updateSub(vi) {
+  const el = document.getElementById(`vendor-sub-${vi}`); if (!el) return;
+  let s = 0; orderRows[vi].forEach(r => { s += (r.qty||0)*(r.price||0); });
+  el.textContent = '$'+s.toLocaleString('zh-TW');
+}
+
+/* ─────────────────────────
+   確認彈窗
+───────────────────────── */
 function showConfirm(msg, onOk) {
-  document.getElementById("confirmMsg").textContent = msg;
-  document.getElementById("confirmOverlay").classList.add("open");
-  document.getElementById("confirmOk").onclick = function () {
-    document.getElementById("confirmOverlay").classList.remove("open");
-    onOk();
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmOv').classList.add('open');
+  document.getElementById('confirmOk').onclick = () => {
+    document.getElementById('confirmOv').classList.remove('open'); onOk();
   };
 }
-function confirmCancel() { document.getElementById("confirmOverlay").classList.remove("open"); }
+function confirmCancel() { document.getElementById('confirmOv').classList.remove('open'); }
 
-/* ══ 清除全部（訂貨） ══ */
 function clearAll() {
-  showConfirm("確定要清除所有訂貨數量？", () => {
-    data.forEach((_, vi) => {
-      data[vi].items.forEach((__, ji) => { qty[vi][ji] = 0; });
-      extraItems[vi] = [];
-    });
-    render(); toast("已清除所有數量");
+  showConfirm('確定要清除所有訂貨數量？', () => {
+    VENDORS.forEach((_,vi) => { orderRows[vi]=[]; extraItems[vi]=[]; });
+    renderOrder(); toast('已清除所有數量');
   });
 }
 
-/* ══ 建立訂單文字 ══ */
-function buildMsg() {
-  data.forEach((_, vi) => collectExtras(vi));
-  const d = new Date(), roc = d.getFullYear() - 1911;
-  const mm = String(d.getMonth() + 1).padStart(2, "0"), dd2 = String(d.getDate()).padStart(2, "0");
-  const sep = "━━━━━━━━━━━━━━";
-  let lines = [`📦${SHOP_NAME}-訂貨單 (${roc}/${mm}/${dd2})`, sep], num = 1, has = false;
-  data.forEach((v, vi) => {
-    const vl = [];
-    v.items.forEach((it, ji) => {
-      const q = qty[vi][ji] || 0; if (!q) return;
-      vl.push(`${num++}. ${it.name}${it.unit ? " × " + q + " " + it.unit : " × " + q}`); has = true;
+/* ─────────────────────────
+   訂單文字 & 彈窗
+───────────────────────── */
+function buildOrderMsg() {
+  VENDORS.forEach((_,vi) => collectExtras(vi));
+  const d=new Date(), roc=d.getFullYear()-1911;
+  const mm=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
+  const sep='━━━━━━━━━━━━━━';
+  let lines=[`📦${SHOP_NAME}-訂貨單 (${roc}/${mm}/${dd})`,sep], num=1, has=false;
+  VENDORS.forEach((v,vi) => {
+    const vl=[];
+    orderRows[vi].forEach(r => {
+      const q=r.qty||0; if(!q) return;
+      vl.push(`${num++}. ${r.name}${r.unit?' × '+q+' '+r.unit:' × '+q}`); has=true;
     });
     extraItems[vi].forEach(r => {
-      if (!r.qty || !r.name) return;
-      vl.push(`${num++}. ${r.name}${r.unit ? " × " + r.qty + " " + r.unit : " × " + r.qty}`); has = true;
+      if(!r.qty||!r.name) return;
+      vl.push(`${num++}. ${r.name}${r.unit?' × '+r.qty+' '+r.unit:' × '+r.qty}`); has=true;
     });
-    if (vl.length) { lines.push(`【${v.vendor}】`, ""); lines = lines.concat(vl); lines.push(""); }
+    if(vl.length){ lines.push(`【${v.vendor}】`,''); lines=lines.concat(vl); lines.push(''); }
   });
-  if (!has) return null;
-  lines.push(sep,
-    "🏠 配送地址：", DELIVERY_ADDR, `(${DELIVERY_NOTE})`,
-    "", "☎️ 聯繫資訊：",
-    `- 市話優先（${TEL_MAIN}）`,
-    "- 無人接再撥",
-    `（${TEL_B1} / ${TEL_B2}）`,
-    "", "謝謝您，辛苦了！🙏");
-  return lines.join("\n");
+  if(!has) return null;
+  lines.push(sep,'🏠 配送地址：',DELIVERY_ADDR,`(${DELIVERY_NOTE})`,'',
+    '☎️ 聯繫資訊：',`- 市話優先（${TEL_MAIN}）`,'- 無人接再撥',
+    `（${TEL_B1} / ${TEL_B2}）`,'','謝謝您，辛苦了！🙏');
+  return lines.join('\n');
 }
 
-/* ══ 訂單預覽彈窗 ══ */
 function openModal() {
-  data.forEach((_, vi) => collectExtras(vi));
-  const msg = buildMsg(); if (!msg) { toast("尚未填寫任何數量！"); return; }
-  let html = "", grand = 0, num = 1;
-  data.forEach((v, vi) => {
-    let vh = "";
-    v.items.forEach((it, ji) => {
-      const q = qty[vi][ji] || 0; if (!q) return;
-      const p = it.price || 0, sub = q * p; grand += sub;
-      vh += `<div class="pre-item"><div class="pre-num">${num++}.</div><div class="pre-item-name">${it.name}${it.unit ? "（" + it.unit + "）" : ""}</div><div class="pre-calc">${p > 0 ? "$" + p + " × " + q : ""}</div><div class="${sub > 0 ? "pre-sub" : "pre-qty"}">${sub > 0 ? "$" + sub.toLocaleString("zh-TW") : q + (it.unit ? " " + it.unit : "")}</div></div>`;
+  VENDORS.forEach((_,vi) => collectExtras(vi));
+  const msg=buildOrderMsg(); if(!msg){ toast('尚未填寫任何數量！'); return; }
+  let html='', grand=0, num=1;
+  VENDORS.forEach((v,vi) => {
+    let vh='';
+    orderRows[vi].forEach(r => {
+      const q=r.qty||0; if(!q) return;
+      const p=r.price||0, sub=q*p; grand+=sub;
+      vh+=`<div class="pre-item"><div class="pre-num">${num++}.</div><div class="pre-name">${r.name}${r.unit?'（'+r.unit+'）':''}</div><div class="pre-calc">${p>0?'$'+p+' × '+q:''}</div><div class="${sub>0?'pre-sub':'pre-qty'}">${sub>0?'$'+sub.toLocaleString('zh-TW'):q+(r.unit?' '+r.unit:'')}</div></div>`;
     });
     extraItems[vi].forEach(r => {
-      if (!r.qty || !r.name) return;
-      vh += `<div class="pre-item"><div class="pre-num">${num++}.</div><div class="pre-item-name">${r.name}${r.unit ? "（" + r.unit + "）" : ""}</div><div class="pre-calc"></div><div class="pre-qty">${r.qty}${r.unit ? " " + r.unit : ""}</div></div>`;
+      if(!r.qty||!r.name) return;
+      vh+=`<div class="pre-item"><div class="pre-num">${num++}.</div><div class="pre-name">${r.name}${r.unit?'（'+r.unit+'）':''}</div><div class="pre-calc"></div><div class="pre-qty">${r.qty}${r.unit?' '+r.unit:''}</div></div>`;
     });
-    if (vh) html += `<div class="pre-vendor">${v.vendor}</div>${vh}`;
+    if(vh) html+=`<div class="pre-vendor">${v.vendor}</div>${vh}`;
   });
-  html += `<div class="pre-total"><span>訂貨總金額（僅供參考）</span><span>${grand > 0 ? "$" + grand.toLocaleString("zh-TW") : "（未設定價格）"}</span></div>`;
-  html += `<div class="pre-text-wrap"><div class="pre-text-label">傳送文字預覽（可手動修改）</div><textarea class="pre-textarea" id="preText">${msg}</textarea></div>`;
-  document.getElementById("modalBody").innerHTML = html;
-  document.getElementById("overlay").classList.add("open");
+  html+=`<div class="pre-total"><span>訂貨總金額（僅供參考）</span><span>${grand>0?'$'+grand.toLocaleString('zh-TW'):'（未設定價格）'}</span></div>`;
+  html+=`<div class="pre-text-wrap"><div class="pre-text-lbl">傳送文字預覽（可手動修改）</div><textarea class="pre-textarea" id="preText">${msg}</textarea></div>`;
+  document.getElementById('modalBody').innerHTML=html;
+  document.getElementById('overlay').classList.add('open');
 }
-function closeModal() { document.getElementById("overlay").classList.remove("open"); }
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
 
-/* ══ 複製 / LINE ══ */
-function copyText() {
-  const el = document.getElementById("preText");
-  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(el.value).then(() => toast("已複製！")).catch(() => fbCopy(el));
+function copyOrderText() {
+  const el=document.getElementById('preText');
+  if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(el.value).then(()=>toast('已複製！')).catch(()=>fbCopy(el));
   else fbCopy(el);
 }
+function lineOrder() {
+  const t=document.getElementById('preText').value;
+  navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{});
+  toast('正在開啟 LINE…');
+  setTimeout(()=>window.open('https://line.me/R/msg/text/?'+encodeURIComponent(t),'_blank'),300);
+}
 function fbCopy(el) {
-  el.select(); el.setSelectionRange(0, 99999);
-  try { document.execCommand("copy"); toast("已複製！"); } catch { toast("複製失敗，請手動選取"); }
-  window.getSelection && window.getSelection().removeAllRanges();
-}
-function openLine() {
-  const t = document.getElementById("preText").value;
-  navigator.clipboard && navigator.clipboard.writeText(t).catch(() => {});
-  toast("正在開啟 LINE…");
-  setTimeout(() => window.open("https://line.me/R/msg/text/?" + encodeURIComponent(t), "_blank"), 300);
+  el.select(); el.setSelectionRange(0,99999);
+  try{document.execCommand('copy');toast('已複製！');}catch{toast('複製失敗，請手動選取');}
 }
 
-/* ══ Toast ══ */
-function toast(msg) {
-  const el = document.getElementById("toast");
-  el.textContent = msg; el.classList.add("show");
-  setTimeout(() => el.classList.remove("show"), 2500);
-}
-
-/* ════════════════════════════════════════════════════════════════
-   記帳專區
-   ════════════════════════════════════════════════════════════════ */
-
+/* ═══════════════════════════
+   記帳
+═══════════════════════════ */
 function renderLedger() {
-  showLedger = true;
-  showLedgerPanel();
-  const d = new Date();
-  const mm = String(d.getMonth() + 1).padStart(2, "0"), dd2 = String(d.getDate()).padStart(2, "0");
+  const d=new Date(), mm=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
 
-  let html = `<div class="ledger-section">
-    <div class="ledger-title-bar">
-      <div class="ledger-title">📒 記帳專區 ── ${mm}/${dd2}</div>
-      <button class="ledger-clear-btn" onclick="ledgerClearAll()">清除全部</button>
-    </div>`;
-
-  LEDGER_GROUPS.forEach(g => {
-    html += `<div class="ledger-group-label">${g.label}</div><div class="ledger-quick-btns">`;
-    g.items.forEach(name => {
-      html += `<button class="ledger-quick-btn" onclick="ledgerQuickAdd('${name.replace(/'/g, "\\'")}')">${name}</button>`;
+  // 品項按鈕：直接從 VENDORS 產生，按廠商分組
+  let btns = '';
+  VENDORS.forEach(v => {
+    btns += `<div class="group-lbl">${v.vendor}</div><div class="btn-group" style="margin-bottom:4px">`;
+    v.items.forEach(it => {
+      const label = `${v.vendor} / ${it.name}`;
+      btns += `<button class="ibtn a" onclick="ledgerQuickAdd('${label.replace(/'/g,"\\'")}')"> ${label}</button>`;
     });
-    html += `</div>`;
+    btns += `</div>`;
   });
 
-  html += `<div class="ledger-header-row">
-      <span>品項名稱</span><span>數量</span><span>金額</span><span></span>
+  let html=`<div class="card">
+    <div class="card-head a">
+      <div class="card-title a">📒 記帳專區 ── ${mm}/${dd}</div>
+      <button class="clr-btn" onclick="ledgerClearAll()">清除全部</button>
+    </div>
+    ${btns}
+    <div class="col-hdr">
+      <span class="cn">品項名稱</span>
+      <span class="cq">數量</span>
+      <span class="cp">金額</span>
+      <span class="cd"></span>
     </div>
     <div id="ledger-rows">`;
-  ledgerRows.forEach((r, ri) => { html += buildLedgerRow(ri, r); });
-  html += `</div>
-    <button class="ledger-add-btn" onclick="ledgerAddRow()">＋ ✏️ 其他臨時品項</button>
-    <div class="ledger-total-row">
-      <span class="ledger-total-label">本日合計</span>
-      <div class="ledger-total-amt" id="ledger-grand">$0</div>
+  ledgerRows.forEach((r,ri) => { html+=buildLRow(ri,r); });
+  html+=`</div>
+    <button class="add-btn a" onclick="ledgerAddRow()">＋ 其他臨時品項</button>
+    <div class="total-row">
+      <span class="total-lbl">本日合計</span>
+      <span class="total-val a" id="ledger-grand">$0</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="preview-lbl">📋 LINE 記帳訊息</div>
+    <div class="preview-box" id="ledger-preview">（尚未有品項）</div>
+    <div class="preview-actions">
+      <button class="copy-btn" onclick="ledgerCopy()">📋 複製</button>
+      <button class="line-btn" onclick="ledgerLine()">📤 傳送到 LINE</button>
     </div>
   </div>`;
 
-  html += `<div class="ledger-section">
-    <div class="ledger-preview-label">📋 LINE 記帳訊息</div>
-    <div class="ledger-preview-box" id="ledger-preview">（尚未有品項）</div>
-    <div class="ledger-action-row">
-      <button class="ledger-copy-btn" onclick="ledgerCopy()">📋 複製</button>
-      <button class="ledger-line-btn" onclick="ledgerLine()">📤 傳送到 LINE</button>
-    </div>
-  </div>`;
-
-  document.getElementById("ledgerPanel").innerHTML = html;
-  calcLedger();
+  document.getElementById('ledgerPanel').innerHTML=html;
+  calcLedger(true);
 }
 
-function buildLedgerRow(ri, r) {
-  const on    = (r.qty || 0) > 0;
-  const total = Math.round((r.qty || 0) * (r.unitPrice || 0));
-  return `<div class="ledger-row" id="lr-${ri}">
-    <input class="ledger-row-name" placeholder="品項名稱" value="${(r.name || "").replace(/"/g, "&quot;")}"
-      oninput="lSet(${ri},'name',this.value)">
-    <div class="ledger-qty-ctrl${on ? " active" : ""}" id="lqc-${ri}">
-      <button class="ledger-qty-btn" onclick="lAdj(${ri},-1)">−</button>
-      <input type="number" class="ledger-qty-num" id="lq-${ri}" min="0" inputmode="decimal"
-        value="${r.qty || ""}" placeholder="0" oninput="lQtyChange(${ri},this.value)">
-      <button class="ledger-qty-btn" onclick="lAdj(${ri},1)">+</button>
+function buildLRow(ri, r) {
+  const on=(r.qty||0)>0, total=Math.round((r.qty||0)*(r.unitPrice||0));
+  return `<div class="lrow" id="lr-${ri}">
+    <input class="lrow-name" placeholder="品項名稱" value="${(r.name||'').replace(/"/g,'&quot;')}" oninput="lSet(${ri},'name',this.value)">
+    <div class="qc a${on?' on':''}" id="lqc-${ri}">
+      <button class="qb" onclick="lAdj(${ri},-1)">−</button>
+      <input type="number" class="qn" id="lq-${ri}" min="0" inputmode="decimal"
+        value="${r.qty||''}" placeholder="0" oninput="lQtyChange(${ri},this.value)">
+      <button class="qb" onclick="lAdj(${ri},1)">+</button>
     </div>
-    <input class="ledger-row-price" type="number" min="0" inputmode="decimal" placeholder="金額"
-      id="lp-${ri}" value="${total || ""}" oninput="lPriceChange(${ri},this.value)">
-    <button class="ledger-row-del" onclick="lDel(${ri})">🗑</button>
+    <input class="lrow-price" type="number" min="0" inputmode="decimal" placeholder="金額"
+      id="lp-${ri}" value="${total||''}" oninput="lPriceChange(${ri},this.value)">
+    <button class="del-btn" onclick="lDel(${ri})">🗑</button>
   </div>`;
 }
 
 function collectLedger() {
-  document.querySelectorAll("#ledger-rows .ledger-row").forEach((row, ri) => {
-    if (!ledgerRows[ri]) return;
-    const nameEl  = row.querySelector(".ledger-row-name");
-    const qtyEl   = row.querySelector(".ledger-qty-num");
-    const priceEl = row.querySelector(".ledger-row-price");
-    if (nameEl)  ledgerRows[ri].name = nameEl.value;
-    if (qtyEl)   ledgerRows[ri].qty  = parseFloat(qtyEl.value) || 0;
-    if (priceEl) {
-      const total = parseFloat(priceEl.value) || 0;
-      ledgerRows[ri].unitPrice = total / (ledgerRows[ri].qty || 1);
-    }
+  document.querySelectorAll('#ledger-rows .lrow').forEach((row,ri) => {
+    if(!ledgerRows[ri]) return;
+    ledgerRows[ri].name = row.querySelector('.lrow-name')?.value||'';
+    ledgerRows[ri].qty  = parseFloat(row.querySelector('.qn')?.value)||0;
+    const total = parseFloat(row.querySelector('.lrow-price')?.value)||0;
+    ledgerRows[ri].unitPrice = total/(ledgerRows[ri].qty||1);
   });
 }
 
-/* 數量改變 → 更新 qty，金額欄自動乘 */
 function lQtyChange(ri, val) {
-  if (!ledgerRows[ri]) return;
-  ledgerRows[ri].qty = Math.max(0, parseFloat(val) || 0);
-  updLqc(ri);
-  const total = Math.round(ledgerRows[ri].qty * (ledgerRows[ri].unitPrice || 0));
-  const pel = document.getElementById(`lp-${ri}`);
-  if (pel) pel.value = total || "";
+  if(!ledgerRows[ri]) return;
+  ledgerRows[ri].qty=Math.max(0,parseFloat(val)||0); updLqc(ri);
+  const total=Math.round(ledgerRows[ri].qty*(ledgerRows[ri].unitPrice||0));
+  const pel=document.getElementById(`lp-${ri}`); if(pel) pel.value=total||'';
   calcLedger();
 }
-/* 金額改變 → 反推單價 */
 function lPriceChange(ri, val) {
-  if (!ledgerRows[ri]) return;
-  const total = parseFloat(val) || 0;
-  const q = ledgerRows[ri].qty || 1;
-  ledgerRows[ri].unitPrice = total / q;
+  if(!ledgerRows[ri]) return;
+  ledgerRows[ri].unitPrice=(parseFloat(val)||0)/(ledgerRows[ri].qty||1);
   calcLedger();
 }
-/* 名稱改變 */
-function lSet(ri, field, val) {
-  if (!ledgerRows[ri]) return;
-  ledgerRows[ri][field] = val;
-  calcLedger();
-}
+function lSet(ri,f,v) { if(ledgerRows[ri]){ ledgerRows[ri][f]=v; calcLedger(); } }
 function lAdj(ri, d) {
-  if (!ledgerRows[ri]) return;
-  ledgerRows[ri].qty = Math.max(0, (ledgerRows[ri].qty || 0) + d);
-  const qEl = document.getElementById(`lq-${ri}`); if (qEl) qEl.value = ledgerRows[ri].qty || "";
-  const total = Math.round(ledgerRows[ri].qty * (ledgerRows[ri].unitPrice || 0));
-  const pEl = document.getElementById(`lp-${ri}`); if (pEl) pEl.value = total || "";
+  if(!ledgerRows[ri]) return;
+  ledgerRows[ri].qty=Math.max(0,(ledgerRows[ri].qty||0)+d);
+  const qEl=document.getElementById(`lq-${ri}`); if(qEl) qEl.value=ledgerRows[ri].qty||'';
+  const total=Math.round(ledgerRows[ri].qty*(ledgerRows[ri].unitPrice||0));
+  const pEl=document.getElementById(`lp-${ri}`); if(pEl) pEl.value=total||'';
   updLqc(ri); calcLedger();
 }
 function updLqc(ri) {
-  if (!ledgerRows[ri]) return;
-  const c = document.getElementById(`lqc-${ri}`);
-  if (c) c.className = "ledger-qty-ctrl" + ((ledgerRows[ri].qty || 0) > 0 ? " active" : "");
+  const c=document.getElementById(`lqc-${ri}`);
+  if(c) c.className=`qc a${(ledgerRows[ri]?.qty||0)>0?' on':''}`;
 }
-function lDel(ri) { collectLedger(); ledgerRows.splice(ri, 1); renderLedger(); }
+function lDel(ri) { collectLedger(); ledgerRows.splice(ri,1); renderLedger(); }
 
 function ledgerAddRow() {
   collectLedger();
-  ledgerRows.push({name: "", qty: 1, unitPrice: 0});
+  ledgerRows.push({name:'', qty:1, unitPrice:0});
   renderLedger();
-  setTimeout(() => {
-    const rows = document.querySelectorAll("#ledger-rows .ledger-row");
-    if (rows.length) rows[rows.length - 1].querySelector(".ledger-row-name")?.focus();
-  }, 50);
+  setTimeout(()=>{ const rows=document.querySelectorAll('#ledger-rows .lrow'); rows[rows.length-1]?.querySelector('.lrow-name')?.focus(); },50);
 }
 function ledgerQuickAdd(name) {
   collectLedger();
-  ledgerRows.push({name, qty: 1, unitPrice: 0});
+  ledgerRows.push({name, qty:1, unitPrice:0});
   renderLedger();
-  setTimeout(() => {
-    const rows = document.querySelectorAll("#ledger-rows .ledger-row");
-    if (rows.length) rows[rows.length - 1].querySelector(".ledger-row-price")?.focus();
-  }, 50);
+  setTimeout(()=>{ const rows=document.querySelectorAll('#ledger-rows .lrow'); rows[rows.length-1]?.querySelector('.lrow-price')?.focus(); },50);
 }
 
-function calcLedger() {
-  collectLedger();
-  const items = ledgerRows.filter(r => r.name);
-  const grand = items.reduce((s, r) => s + Math.round((r.qty || 0) * (r.unitPrice || 0)), 0);
-  const grandEl = document.getElementById("ledger-grand");
-  if (grandEl) grandEl.textContent = "$" + grand.toLocaleString("zh-TW");
-  const previewEl = document.getElementById("ledger-preview");
-  if (!previewEl) return;
-  if (!items.length) { previewEl.textContent = "（尚未有品項）"; return; }
-  const d = new Date();
-  const mm = String(d.getMonth() + 1).padStart(2, "0"), dd2 = String(d.getDate()).padStart(2, "0");
-  const itemStr = items.map(r => {
-    const qty   = r.qty || 0;
-    const total = Math.round(qty * (r.unitPrice || 0));
-    const qtyStr   = qty > 1 ? `*${qty}` : "";
-    const priceStr = total > 0 ? `(${total.toLocaleString("zh-TW")}元)` : "";
-    return `${r.name}${qtyStr}${priceStr}`;
-  }).join("、");
-  previewEl.textContent = `🔆${mm}/${dd2}購買品項：${itemStr}\n\n➡️合計：${grand.toLocaleString("zh-TW")}元。`;
+function calcLedger(skipCollect) {
+  if (!skipCollect) collectLedger();
+  const items=ledgerRows.filter(r=>r.name&&(r.qty||0)>0);
+  const grand=items.reduce((s,r)=>s+Math.round((r.qty||0)*(r.unitPrice||0)),0);
+  const grandEl=document.getElementById('ledger-grand'); if(grandEl) grandEl.textContent='$'+grand.toLocaleString('zh-TW');
+  const preEl=document.getElementById('ledger-preview'); if(!preEl) return;
+  if(!items.length){ preEl.textContent='（尚未有品項）'; return; }
+  const d=new Date(), mm=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
+  const itemStr=items.map((r,i)=>{
+    const q=r.qty||0, total=Math.round(q*(r.unitPrice||0));
+    const qStr=q>1?`*${q}`:'', pStr=total>0?`(${total.toLocaleString('zh-TW')}元)`:'';
+    return `${r.name}${qStr}${pStr}${i===items.length-1?'。':''}`;
+  }).join('、');
+  preEl.textContent=`🔆${mm}/${dd}購買品項：${itemStr}\n\n➡️合計：${grand.toLocaleString('zh-TW')}元。`;
 }
 
 function ledgerClearAll() {
-  showConfirm("確定要清除記帳專區所有品項？", () => {
-    ledgerRows = [];
-    renderLedger(); toast("已清除記帳資料");
-  });
+  showConfirm('確定要清除記帳專區所有品項？', ()=>{ ledgerRows=[]; renderLedger(); toast('已清除記帳資料'); });
 }
+
 function ledgerCopy() {
   collectLedger();
-  const el = document.getElementById("ledger-preview");
-  if (!el || el.textContent === "（尚未有品項）") { toast("尚未有任何品項！"); return; }
-  const text = el.textContent;
-  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(() => toast("已複製！")).catch(() => fbCopyText(text));
+  const el=document.getElementById('ledger-preview');
+  if(!el||el.textContent==='（尚未有品項）'){ toast('尚未有任何品項！'); return; }
+  const text=el.textContent;
+  if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(text).then(()=>toast('已複製！')).catch(()=>fbCopyText(text));
   else fbCopyText(text);
-}
-function fbCopyText(text) {
-  const ta = document.createElement("textarea");
-  ta.value = text; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, 99999);
-  try { document.execCommand("copy"); toast("已複製！"); } catch { toast("複製失敗，請手動選取"); }
-  document.body.removeChild(ta);
 }
 function ledgerLine() {
   collectLedger();
-  const el = document.getElementById("ledger-preview");
-  if (!el || el.textContent === "（尚未有品項）") { toast("尚未有任何品項！"); return; }
-  const text = el.textContent;
-  navigator.clipboard && navigator.clipboard.writeText(text).catch(() => {});
-  toast("正在開啟 LINE…");
-  setTimeout(() => window.open("https://line.me/R/msg/text/?" + encodeURIComponent(text), "_blank"), 300);
+  const el=document.getElementById('ledger-preview');
+  if(!el||el.textContent==='（尚未有品項）'){ toast('尚未有任何品項！'); return; }
+  const text=el.textContent;
+  navigator.clipboard&&navigator.clipboard.writeText(text).catch(()=>{});
+  toast('正在開啟 LINE…');
+  setTimeout(()=>window.open('https://line.me/R/msg/text/?'+encodeURIComponent(text),'_blank'),300);
+}
+function fbCopyText(text) {
+  const ta=document.createElement('textarea'); ta.value=text;
+  document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,99999);
+  try{document.execCommand('copy');toast('已複製！');}catch{toast('複製失敗');}
+  document.body.removeChild(ta);
 }
 
-render();
+/* ── Toast ── */
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+/* ── 初始化 ── */
+renderOrder();
 </script>
 </body>
 </html>
