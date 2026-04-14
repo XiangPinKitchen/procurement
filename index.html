@@ -582,7 +582,7 @@ function onSearch(kw) {
     html += `<div class="card"><div class="btn-group">`;
     res.forEach(({vi, j, it}) => {
       const on = orderRows[vi].some(r => r.ji===j && (r.qty||0)>0);
-      html += `<button class="ibtn g${on?' on':''}" onclick="orderQuickAdd(${vi},${j})">${VENDORS[vi].vendor} / ${it.name}</button>`;
+      html += `<button class="ibtn g${on?' on':''}" onclick="orderQuickAdd(${vi},${j})">${it.name}</button>`;
     });
     html += `</div></div>`;
     // 已選清單
@@ -625,7 +625,7 @@ function renderOrder() {
   v.items.forEach((it, j) => {
     const on  = orderRows[vi].some(r => r.ji===j && (r.qty||0)>0);
     const dis = blocked ? ' style="opacity:.35;pointer-events:none"' : '';
-    html += `<button class="ibtn g${on?' on':''}" id="ibtn-${vi}-${j}" onclick="orderQuickAdd(${vi},${j})"${dis}>${v.vendor} / ${it.name}</button>`;
+    html += `<button class="ibtn g${on?' on':''}" id="ibtn-${vi}-${j}" onclick="orderQuickAdd(${vi},${j})"${dis}>${it.name}</button>`;
   });
   html += `</div></div>`;
 
@@ -888,7 +888,7 @@ function renderLedger() {
   VENDORS.forEach(v => {
     btns += `<div class="group-lbl">${v.vendor}</div><div class="btn-group" style="margin-bottom:4px">`;
     v.items.forEach(it => {
-      const label = `${v.vendor} / ${it.name}`;
+      const label = it.name;
       btns += `<button class="ibtn a" onclick="ledgerQuickAdd('${label.replace(/'/g,"\\'")}')"> ${label}</button>`;
     });
     btns += `</div>`;
