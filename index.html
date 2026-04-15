@@ -244,41 +244,54 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
   pointer-events: none; white-space: nowrap; }
 .toast.show { opacity: 1; }
 .search-hint { text-align: center; color: #bbb; padding: 40px 0; font-size: 1rem; }
+
+/* ── 訂貨品項卡片按鈕 ── */
+.icard-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 7px; }
+.icard { border: 1.5px solid var(--green-mid); background: var(--green-lt); border-radius: 10px;
+  padding: 8px 10px; cursor: pointer; text-align: left; transition: background .1s;
+  display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.icard:active { background: #c8ebd8; }
+.icard.on { background: var(--green); border-color: var(--green); }
+.icard-name { font-size: .95rem; font-weight: 700; color: var(--green);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+.icard.on .icard-name { color: var(--white); }
+.icard-meta { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; margin-top: 1px; }
+.icard-unit  { font-size: .78rem; color: #888; background: rgba(0,0,0,.05);
+  border-radius: 4px; padding: 1px 5px; }
+.icard.on .icard-unit { background: rgba(255,255,255,.25); color: rgba(255,255,255,.85); }
+.icard-price { font-size: .78rem; font-weight: 700; color: var(--red); }
+.icard.on .icard-price { color: #fde68a; }
+.icard-note  { font-size: .75rem; color: #aaa; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; }
+.icard.on .icard-note  { color: rgba(255,255,255,.7); }
 </style>
 </head>
 <body>
 
 <!-- ═══════════════════════════════════════════════════════════
-  ★★★  可修改設定區  ★★★
+  ★★★  可修改設定區  ★★★  只改這裡，其他地方請勿動。
   ═══════════════════════════════════════════════════════════
 
-  本檔案只需修改這個 <script> 區塊，其他地方請勿動。
-
   ┌─────────────────────────────────────────────────────────┐
-  │ 【A】店家資料                                           │
-  │   直接改引號內的文字即可。                              │
+  │ 【A】店家資料  →  直接改引號內的文字即可               │
   ├─────────────────────────────────────────────────────────┤
-  │ 【B】廠商與品項                                         │
+  │ 【B】訂貨廠商與品項  →  📦 叫貨 頁籤顯示              │
   │                                                         │
   │  每筆品項格式：                                         │
   │    { name:"品名", unit:"單位", price:數字, note:"備註" }│
+  │  ‣ note、price 選填；unit 常用：斤包條箱瓶罐盒顆把桶   │
+  │  ★ 新增廠商：在最後 }, 後貼上整個 { vendor:… } 區塊   │
+  │  ★ 新增品項：在該廠商 items 最後一個 }, 後加新一行     │
+  │  ★ 刪除：把整個 { … }, 連同逗號一起刪掉               │
+  ├─────────────────────────────────────────────────────────┤
+  │ 【C】記帳快速品項  →  📒 記帳 頁籤的快速按鈕          │
+  │  （與訂貨完全獨立，互不影響）                           │
   │                                                         │
-  │  ‣ note  → 選填，灰色小字。沒有備註可以整行省略。       │
-  │  ‣ price → 整數金額。不知道填 0。                       │
-  │  ‣ unit  → 常用：斤 包 條 箱 瓶 罐 盒 顆 把 桶 捲 袋   │
-  │                                                         │
-  │  ★ 新增廠商：在最後一個 }, 後面貼上：                   │
-  │      { vendor:"廠商名稱", items: [                      │
-  │        { name:"品名", unit:"包", price: 0 },            │
-  │      ]},                                                │
-  │                                                         │
-  │  ★ 新增品項：在該廠商 items 最後一個 }, 後加一行：       │
-  │      { name:"新品項", unit:"斤", price: 80 },           │
-  │                                                         │
-  │  ★ 刪除廠商或品項：把整個 { … }, 連同逗號一起刪掉。     │
-  │                                                         │
-  │  ⚠️ 記帳按鈕會自動從這裡的廠商品項產生，                │
-  │     不需要另外維護一份清單！                             │
+  │  每筆格式：  { name:"品名", price:金額 },               │
+  │  ‣ price 選填；有填會自動帶入金額，沒填需自行輸入       │
+  │  ★ 新增群組：在最後 }, 後貼上 { group:"…", items:[…] } │
+  │  ★ 新增品項：在該群組 items 裡加  { name:"品名" },     │
+  │  ★ 刪除：把整行連同逗號一起刪掉                        │
   └─────────────────────────────────────────────────────────┘
 ═══════════════════════════════════════════════════════════ -->
 <script>
@@ -454,6 +467,158 @@ const VENDORS = [
   ]},
 
 ];
+
+/* ── 【C】記帳快速品項（與訂貨完全獨立） ── */
+// 格式：{ name:"品名", price:金額 }  → 有金額會自動帶入
+//       { name:"品名" }              → 無金額，點後自行輸入
+const LEDGER_ITEMS = [
+
+  { group: "雜貨-富陽行", items: [
+    { name: "602扁碗",              price: 1000 },
+    { name: "C-165平蓋",            price: 320  },
+    { name: "C-165凸蓋",            price: 75   },
+    { name: "750紙湯杯",             price: 60   },
+    { name: "750紙湯杯蓋",           price: 50   },
+    { name: "1000紙湯杯",            price: 100  },
+    { name: "850CC湯杯蓋",           price: 38   },
+    { name: "260紙湯杯",             price: 30   },
+    { name: "2632蓋",               price: 30   },
+    { name: "902圓碗",              price: 75   },
+    { name: "免洗筷",               price: 25   },
+    { name: "彎形湯匙",             price: 480  },
+    { name: "邦提圈",               price: 30   },
+    { name: "四兩-耐熱袋",          price: 33   },
+    { name: "六兩-耐熱袋",          price: 33   },
+    { name: "半斤-耐熱袋",          price: 33   },
+    { name: "一斤-耐熱袋",          price: 33   },
+    { name: "兩斤-耐熱袋",          price: 155  },
+    { name: "三斤-耐熱袋",          price: 155  },
+    { name: "五斤-耐熱袋",          price: 155  },
+    { name: "四兩-提袋",            price: 25   },
+    { name: "半斤-提袋",            price: 25   },
+    { name: "一斤-提袋",            price: 25   },
+    { name: "兩斤-提袋",            price: 25   },
+    { name: "三斤-提袋",            price: 25   },
+    { name: "五斤-提袋",            price: 25   },
+    { name: "七斤-提袋",            price: 25   },
+    { name: "6吋防油紙墊",          price: 100  },
+    { name: "醬油碟",               price: 65   },
+    { name: "2號夾鏈袋",            price: 12   },
+    { name: "國寶-美國米",          price: 1225 },
+    { name: "福懋-沙拉油",          price: 840  },
+    { name: "鹽巴",                 price: 18   },
+    { name: "味精",                 price: 85   },
+    { name: "油蔥酥",               price: 60   },
+    { name: "蒜頭酥",               price: 60   },
+    { name: "老公仔-胡椒粉",        price: 120  },
+    { name: "老公仔-胡椒鹽粉",      price: 190  },
+    { name: "辣椒粉",               price: 90   },
+    { name: "小磨坊-印度咖哩粉",    price: 145  },
+    { name: "烹大師-鰹魚粉",        price: 290  },
+    { name: "金味王-醬油(10斤)",     price: 220  },
+    { name: "金蘭-甘醇油膏(10斤)",   price: 225  },
+    { name: "萬家鄉-香菇素蠔油(5L)", price: 250  },
+    { name: "牛頭牌-沙茶醬(3Kg)",   price: 540  },
+    { name: "可果美-番茄醬(塑膠桶)", price: 210  },
+    { name: "可果美-番茄醬(鐵桶)",  price: 215  },
+    { name: "工研烏醋(600ml)",      price: 50   },
+    { name: "工研白醋(5L)",         price: 200  },
+    { name: "福華牌-泰雞醬",        price: 75   },
+    { name: "燈燦香油",             price: 270  },
+    { name: "豆瓣醬(5斤)",          price: 130  },
+    { name: "飯友-切角鳳梨",        price: 220  },
+    { name: "世宇-單顆沙拉",        price: 50   },
+    { name: "圓紫菜",               price: 100  },
+    { name: "料理米酒",             price: 15   },
+    { name: "黑木耳絲",             price: 170  },
+    { name: "乾辣椒(切段)",         price: 180  },
+    { name: "辣油(2.4L)",           price: 210  },
+    { name: "八角粒" },
+    { name: "花椒粒" },
+    { name: "太白粉(5斤)",          price: 175  },
+    { name: "地瓜粉(5斤)",          price: 125  },
+    { name: "黏師傅",               price: 80   },
+    { name: "吉士粉",               price: 62   },
+    { name: "二號砂糖(5斤)",        price: 100  },
+    { name: "特砂(白糖)" },
+    { name: "黑豆豉",               price: 45   },
+    { name: "洗碗精",               price: 45   },
+    { name: "漂白水",               price: 65   },
+    { name: "去油劑",               price: 220  },
+    { name: "礦泉水(1500ml)",       price: 70   },
+    { name: "嫩精",                 price: 130  },
+    { name: "枸杞",                 price: 195  },
+    { name: "人蔘鬚",               price: 75   },
+    { name: "冬粉翅",               price: 500  },
+    { name: "熟白芝麻(半斤)",       price: 50   },
+  ]},
+
+  { group: "台北-聯和", items: [
+    { name: "魷魚清肉(10k)",        price: 2100 },
+    { name: "白蝦-南美(6/7)",       price: 210  },
+    { name: "帶殼海瓜子(500g)",     price: 75   },
+    { name: "冷凍蚵仔(600g)",       price: 160  },
+    { name: "蚵仔(1斤)-大",         price: 130  },
+    { name: "蛤仔(活)-大(8分)",     price: 80   },
+    { name: "割背蝦仁(2號-16/20)",  price: 1200 },
+    { name: "紅糟鰻(600g)",         price: 155  },
+    { name: "月亮蝦餅(蝦怪)",       price: 55   },
+    { name: "鮭魚碎肉A藍袋-1KG",    price: 600  },
+    { name: "虱目魚肚-無刺(進口)",  price: 40   },
+    { name: "鹿茸烏骨雞(金)",       price: 300  },
+    { name: "蒲燒鯛魚排(110P)",     price: 1350 },
+    { name: "金目鱸魚(蝴蝶切)",     price: 120  },
+    { name: "佛跳牆(金)",           price: 280  },
+  ]},
+
+  { group: "中壢-聯合", items: [
+    { name: "豬肉絲",   price: 500 },
+    { name: "牛炒片",   price: 630 },
+    { name: "羊炒片",   price: 830 },
+    { name: "香腸片",   price: 380 },
+    { name: "白蝦仁",   price: 730 },
+    { name: "A大貢丸",  price: 450 },
+    { name: "鱈魚丸",   price: 350 },
+    { name: "虱目魚肚", price: 65  },
+    { name: "玉米粒",   price: 70  },
+    { name: "雞胸清肉", price: 93  },
+    { name: "大雞腿",   price: 75  },
+  ]},
+
+  { group: "中壢-昇暉製麵", items: [
+    { name: "烏龍麵(5斤)", price: 80  },
+    { name: "豆菜麵(5斤)", price: 80  },
+    { name: "魚板絲",      price: 300 },
+    { name: "魚板片",      price: 350 },
+  ]},
+
+  { group: "中壢-富昌", items: [
+    { name: "五花肉", price: 140 },
+    { name: "軟骨排", price: 140 },
+  ]},
+
+  { group: "永溢麵食", items: [
+    { name: "豆菜麵(5斤)", price: 90  },
+    { name: "烏龍麵(5斤)", price: 100 },
+  ]},
+
+  { group: "三信蛋行", items: [
+    { name: "雞蛋(⚠️要「大」顆的‼️)" },
+    { name: "皮蛋" },
+    { name: "鹹蛋黃" },
+  ]},
+
+  { group: "市場(阿潭)", items: [
+    { name: "空心菜" }, { name: "高麗菜" }, { name: "地瓜葉" },
+    { name: "菠菜" },   { name: "炒麵菜" }, { name: "水蓮" },
+    { name: "洋蔥" },   { name: "紅蘿蔔" }, { name: "九層塔" },
+    { name: "蔥" },     { name: "蒜末" },   { name: "辣椒" },
+    { name: "薑絲" },   { name: "芹菜" },   { name: "豆腐" },
+    { name: "皮蛋" },   { name: "乾菜脯" }, { name: "蒜味花生" },
+    { name: "蛤蜊" },   { name: "豆菜麵(1斤)" }, { name: "烏龍麵(1斤)" },
+  ]},
+
+];
 </script>
 <!-- ═══════════════════════════════════════════════════════════
   ★★★  設定區結束，以下請勿修改  ★★★
@@ -579,10 +744,17 @@ function onSearch(kw) {
   if (!res.length) {
     html += `<div class="search-hint">找不到相關品項</div>`;
   } else {
-    html += `<div class="card"><div class="btn-group">`;
+    html += `<div class="card"><div class="icard-group">`;
     res.forEach(({vi, j, it}) => {
       const on = orderRows[vi].some(r => r.ji===j && (r.qty||0)>0);
-      html += `<button class="ibtn g${on?' on':''}" onclick="orderQuickAdd(${vi},${j})">${it.name}</button>`;
+      html += `<button class="icard${on?' on':''}" onclick="orderQuickAdd(${vi},${j})">
+        <div class="icard-name">${it.name}</div>
+        <div class="icard-meta">
+          ${it.unit  ? `<span class="icard-unit">${it.unit}</span>` : ''}
+          ${it.price ? `<span class="icard-price">$${it.price.toLocaleString('zh-TW')}</span>` : ''}
+        </div>
+        ${it.note ? `<div class="icard-note">${it.note}</div>` : ''}
+      </button>`;
     });
     html += `</div></div>`;
     // 已選清單
@@ -620,12 +792,19 @@ function renderOrder() {
   let html = `<div class="card">
     <div class="card-head g"><div class="card-title g">${v.vendor}</div></div>
     ${blocked ? `<div class="warn on">⚠️ 已有【${VENDORS[conflict].vendor}】的訂貨，請先確認傳送或清除後，再叫其他廠商。</div>` : ''}
-    <div class="btn-group">`;
+    <div class="icard-group">`;
 
   v.items.forEach((it, j) => {
     const on  = orderRows[vi].some(r => r.ji===j && (r.qty||0)>0);
     const dis = blocked ? ' style="opacity:.35;pointer-events:none"' : '';
-    html += `<button class="ibtn g${on?' on':''}" id="ibtn-${vi}-${j}" onclick="orderQuickAdd(${vi},${j})"${dis}>${it.name}</button>`;
+    html += `<button class="icard${on?' on':''}" id="ibtn-${vi}-${j}" onclick="orderQuickAdd(${vi},${j})"${dis}>
+      <div class="icard-name">${it.name}</div>
+      <div class="icard-meta">
+        ${it.unit  ? `<span class="icard-unit">${it.unit}</span>` : ''}
+        ${it.price ? `<span class="icard-price">$${it.price.toLocaleString('zh-TW')}</span>` : ''}
+      </div>
+      ${it.note ? `<div class="icard-note">${it.note}</div>` : ''}
+    </button>`;
   });
   html += `</div></div>`;
 
@@ -883,13 +1062,15 @@ function fbCopy(el) {
 function renderLedger() {
   const d=new Date(), mm=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
 
-  // 品項按鈕：直接從 VENDORS 產生，按廠商分組
+  // 品項按鈕：從獨立的 LEDGER_ITEMS 產生
   let btns = '';
-  VENDORS.forEach(v => {
-    btns += `<div class="group-lbl">${v.vendor}</div><div class="btn-group" style="margin-bottom:4px">`;
-    v.items.forEach(it => {
-      const label = it.name;
-      btns += `<button class="ibtn a" onclick="ledgerQuickAdd('${label.replace(/'/g,"\\'")}')"> ${label}</button>`;
+  LEDGER_ITEMS.forEach(g => {
+    btns += `<div class="group-lbl">${g.group}</div><div class="btn-group" style="margin-bottom:4px">`;
+    g.items.forEach(it => {
+      const name  = it.name.replace(/'/g,"\\'");
+      const price = it.price || 0;
+      const label = it.price ? `${it.name} <span style="font-size:.8em;opacity:.7">$${it.price}</span>` : it.name;
+      btns += `<button class="ibtn a" onclick="ledgerQuickAdd('${name}',${price})">${label}</button>`;
     });
     btns += `</div>`;
   });
@@ -987,11 +1168,17 @@ function ledgerAddRow() {
   renderLedger();
   setTimeout(()=>{ const rows=document.querySelectorAll('#ledger-rows .lrow'); rows[rows.length-1]?.querySelector('.lrow-name')?.focus(); },50);
 }
-function ledgerQuickAdd(name) {
+function ledgerQuickAdd(name, price) {
   collectLedger();
-  ledgerRows.push({name, qty:1, unitPrice:0});
+  ledgerRows.push({name, qty:1, unitPrice: price||0});
   renderLedger();
-  setTimeout(()=>{ const rows=document.querySelectorAll('#ledger-rows .lrow'); rows[rows.length-1]?.querySelector('.lrow-price')?.focus(); },50);
+  setTimeout(()=>{
+    const rows=document.querySelectorAll('#ledger-rows .lrow');
+    const last=rows[rows.length-1];
+    // 有金額 → 跳到數量欄；無金額 → 跳到金額欄
+    if(price) last?.querySelector('.qn')?.focus();
+    else      last?.querySelector('.lrow-price')?.focus();
+  },50);
 }
 
 function calcLedger(skipCollect) {
