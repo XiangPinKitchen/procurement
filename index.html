@@ -47,15 +47,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
 .mode-tab.active.order-tab  { color: var(--green); border-bottom-color: var(--green); }
 .mode-tab.active.ledger-tab { color: var(--amber); border-bottom-color: var(--amber); }
 
-/* 廠商橫列 */
-.vendor-scroll { background: var(--white); border-bottom: 1px solid var(--border);
-  overflow-x: auto; display: flex; gap: 6px; padding: 7px 10px;
-  scrollbar-width: none; white-space: nowrap; }
-.vendor-scroll::-webkit-scrollbar { display: none; }
-.vtab { padding: 6px 13px; border-radius: 16px; border: 1.5px solid var(--border);
+/* 廠商/群組按鈕列（換行顯示，不橫向滑動）*/
+.vendor-wrap { background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.vtab { padding: 6px 12px; border-radius: 16px; border: 1.5px solid var(--border);
   font-size: 13px; font-weight: 600; color: var(--gray);
-  cursor: pointer; background: var(--white); flex-shrink: 0; transition: all .15s; }
-.vtab.active { background: var(--green); border-color: var(--green); color: var(--white); }
+  cursor: pointer; background: var(--white); transition: all .15s; }
+/* 叫貨廠商 → 綠色 */
+.vtab.order-vtab.active { background: var(--green); border-color: var(--green); color: var(--white); }
+/* 記帳群組 → 琥珀色 */
+.vtab.ledger-vtab.active { background: var(--amber); border-color: var(--amber); color: var(--white); }
 
 /* 內容區 */
 .content     { padding: 8px; max-width: 700px; margin: 0 auto; padding-bottom: 130px; }
@@ -485,40 +486,40 @@ const LEDGER_ITEMS = [
     { name: "三斤-提袋",            price: 25   }, { name: "五斤-提袋",            price: 25   },
     { name: "七斤-提袋",            price: 25   }, { name: "6吋防油紙墊",          price: 100  },
     { name: "醬油碟",               price: 65   }, { name: "2號夾鏈袋",            price: 12   },
-    { name: "國寶-美國米",          price: 1225 }, { name: "福懋-沙拉油",          price: 840  },
+    { name: "美國米",          price: 1225 }, { name: "沙拉油",          price: 840  },
     { name: "鹽巴",                 price: 18   }, { name: "味精",                 price: 85   },
     { name: "油蔥酥",               price: 60   }, { name: "蒜頭酥",               price: 60   },
-    { name: "老公仔-胡椒粉",        price: 120  }, { name: "老公仔-胡椒鹽粉",      price: 190  },
-    { name: "辣椒粉",               price: 90   }, { name: "小磨坊-印度咖哩粉",    price: 145  },
-    { name: "烹大師-鰹魚粉",        price: 290  }, { name: "金味王-醬油(10斤)",     price: 220  },
-    { name: "金蘭-甘醇油膏(10斤)",   price: 225  }, { name: "萬家鄉-香菇素蠔油(5L)", price: 250  },
-    { name: "牛頭牌-沙茶醬(3Kg)",   price: 540  }, { name: "可果美-番茄醬(塑膠桶)", price: 210  },
-    { name: "可果美-番茄醬(鐵桶)",  price: 215  }, { name: "工研烏醋(600ml)",      price: 50   },
-    { name: "工研白醋(5L)",         price: 200  }, { name: "福華牌-泰雞醬",        price: 75   },
-    { name: "燈燦香油",             price: 270  }, { name: "豆瓣醬(5斤)",          price: 130  },
-    { name: "飯友-切角鳳梨",        price: 220  }, { name: "世宇-單顆沙拉",        price: 50   },
+    { name: "胡椒粉",        price: 120  }, { name: "胡椒鹽粉",      price: 190  },
+    { name: "辣椒粉",               price: 90   }, { name: "印度咖哩粉",    price: 145  },
+    { name: "鰹魚粉",        price: 290  }, { name: "醬油",     price: 220  },
+    { name: "甘醇油膏",   price: 225  }, { name: "香菇素蠔油", price: 250  },
+    { name: "沙茶醬",   price: 540  }, { name: "番茄醬(塑)", price: 210  },
+    { name: "番茄醬(鐵)",  price: 215  }, { name: "工研烏醋",      price: 50   },
+    { name: "工研白醋",         price: 200  }, { name: "泰雞醬",        price: 75   },
+    { name: "燈燦香油",             price: 270  }, { name: "豆瓣醬",          price: 130  },
+    { name: "切角鳳梨",        price: 220  }, { name: "單顆沙拉",        price: 50   },
     { name: "圓紫菜",               price: 100  }, { name: "料理米酒",             price: 15   },
-    { name: "黑木耳絲",             price: 170  }, { name: "乾辣椒(切段)",         price: 180  },
-    { name: "辣油(2.4L)",           price: 210  }, { name: "八角粒"               }, { name: "花椒粒" },
-    { name: "太白粉(5斤)",          price: 175  }, { name: "地瓜粉(5斤)",          price: 125  },
+    { name: "黑木耳絲",             price: 170  }, { name: "乾辣椒",         price: 180  },
+    { name: "辣油",           price: 210  }, { name: "八角粒"               }, { name: "花椒粒" },
+    { name: "太白粉",          price: 175  }, { name: "地瓜粉",          price: 125  },
     { name: "黏師傅",               price: 80   }, { name: "吉士粉",               price: 62   },
-    { name: "二號砂糖(5斤)",        price: 100  }, { name: "特砂(白糖)"            }, { name: "黑豆豉", price: 45 },
+    { name: "二號砂糖",        price: 100  }, { name: "特砂(白糖)"            }, { name: "黑豆豉", price: 45 },
     { name: "洗碗精",               price: 45   }, { name: "漂白水",               price: 65   },
-    { name: "去油劑",               price: 220  }, { name: "礦泉水(1500ml)",       price: 70   },
+    { name: "去油劑",               price: 220  }, { name: "礦泉水",       price: 70   },
     { name: "嫩精",                 price: 130  }, { name: "枸杞",                 price: 195  },
     { name: "人蔘鬚",               price: 75   }, { name: "冬粉翅",               price: 500  },
-    { name: "熟白芝麻(半斤)",       price: 50   },
+    { name: "熟白芝麻",       price: 50   },
   ]},
 
   { group: "台北-聯和", items: [
-    { name: "魷魚清肉(10k)",        price: 2100 }, { name: "白蝦-南美(6/7)",       price: 210  },
-    { name: "帶殼海瓜子(500g)",     price: 75   }, { name: "冷凍蚵仔(600g)",       price: 160  },
-    { name: "蚵仔(1斤)-大",         price: 130  }, { name: "蛤仔(活)-大(8分)",     price: 80   },
-    { name: "割背蝦仁(2號-16/20)",  price: 1200 }, { name: "紅糟鰻(600g)",         price: 155  },
-    { name: "月亮蝦餅(蝦怪)",       price: 55   }, { name: "鮭魚碎肉A藍袋-1KG",    price: 600  },
-    { name: "虱目魚肚-無刺(進口)",  price: 40   }, { name: "鹿茸烏骨雞(金)",       price: 300  },
-    { name: "蒲燒鯛魚排(110P)",     price: 1350 }, { name: "金目鱸魚(蝴蝶切)",     price: 120  },
-    { name: "佛跳牆(金)",           price: 280  },
+    { name: "魷魚清肉",        price: 2100 }, { name: "白蝦",       price: 210  },
+    { name: "帶殼海瓜子",     price: 75   }, { name: "冷凍蚵仔",       price: 160  },
+    { name: "蚵仔",         price: 130  }, { name: "蛤仔",     price: 80   },
+    { name: "割背蝦仁",  price: 1200 }, { name: "紅糟鰻",         price: 155  },
+    { name: "月亮蝦餅",       price: 55   }, { name: "鮭魚碎肉",    price: 600  },
+    { name: "虱目魚肚",  price: 40   }, { name: "鹿茸烏骨雞",       price: 300  },
+    { name: "蒲燒鯛魚排",     price: 1350 }, { name: "金目鱸魚",     price: 120  },
+    { name: "佛跳牆",           price: 280  },
   ]},
 
   { group: "中壢-聯合", items: [
@@ -542,7 +543,7 @@ const LEDGER_ITEMS = [
   ]},
 
   { group: "三信蛋行", items: [
-    { name: "雞蛋(⚠️要「大」顆的‼️)" }, { name: "皮蛋" }, { name: "鹹蛋黃" },
+    { name: "雞蛋" }, { name: "皮蛋" }, { name: "鹹蛋黃" },
   ]},
 
   { group: "市場(阿潭)", items: [
@@ -572,7 +573,8 @@ const LEDGER_ITEMS = [
   <div class="mode-tab ledger-tab"       id="modeLedger" onclick="switchMode('ledger')">📒 記帳</div>
 </div>
 
-<div class="vendor-scroll" id="vendorScroll"></div>
+<div class="vendor-wrap" id="vendorWrap"></div>
+<div class="vendor-wrap" id="ledgerWrap" style="display:none"></div>
 <div class="content"     id="orderPanel"><div id="itemList"></div></div>
 <div class="ledger-wrap" id="ledgerPanel" style="display:none;"></div>
 
@@ -587,7 +589,7 @@ const LEDGER_ITEMS = [
   </div>
 </div>
 
-<!-- 數量輸入 popup -->
+<!-- 數量輸入 popup（叫貨 & 記帳共用） -->
 <div class="qty-pop-ov" id="qtyPopOv" onclick="if(event.target===this)closeQtyPop()">
   <div class="qty-pop">
     <div class="qty-pop-name" id="qtyPopName"></div>
@@ -595,9 +597,17 @@ const LEDGER_ITEMS = [
     <div class="qty-pop-row">
       <span class="qty-pop-lbl">數量</span>
       <div class="qty-pop-qc">
-        <button class="qty-pop-qb" onclick="qtyPopAdj(-1)">−</button>
-        <input type="number" class="qty-pop-qn" id="qtyPopQty" min="0" inputmode="decimal" placeholder="0">
-        <button class="qty-pop-qb" onclick="qtyPopAdj(1)">+</button>
+        <button class="qty-pop-qb" onclick="qtyPopAdj('qty',-1)">−</button>
+        <input type="number" class="qty-pop-qn" id="qtyPopQty" min="0" inputmode="decimal" placeholder="1">
+        <button class="qty-pop-qb" onclick="qtyPopAdj('qty',1)">+</button>
+      </div>
+    </div>
+    <div class="qty-pop-row" id="qtyPopPriceRow">
+      <span class="qty-pop-lbl">金額</span>
+      <div class="qty-pop-qc">
+        <button class="qty-pop-qb" onclick="qtyPopAdj('price',-1)">−</button>
+        <input type="number" class="qty-pop-qn" id="qtyPopPrice" min="0" inputmode="decimal" placeholder="0">
+        <button class="qty-pop-qb" onclick="qtyPopAdj('price',1)">+</button>
       </div>
     </div>
     <div class="qty-pop-btns">
@@ -635,19 +645,28 @@ const LEDGER_ITEMS = [
 
 <script>
 /* ══ 狀態 ══ */
-let mode='order', curVendor=0, searchMode=false;
-let qtyPopState = null; // { vi, ji, ri } 記錄當前 popup 在操作哪個品項
+let mode='order', curVendor=0, curLedgerGroup=0, searchMode=false;
+let qtyPopState = null;
 const orderRows  = VENDORS.map(()=>[]);
 const extraItems = VENDORS.map(()=>[]);
 let ledgerRows = [];
 
-/* ══ 廠商頁籤 ══ */
+/* ══ 廠商頁籤（叫貨）══ */
 VENDORS.forEach((v,i)=>{
-  const b=document.createElement('div');
-  b.className='vtab'+(i===0?' active':'');
+  const b=document.createElement('button');
+  b.className='vtab order-vtab'+(i===0?' active':'');
   b.textContent=v.vendor;
   b.onclick=()=>{ curVendor=i; clearSearch(); renderOrder(); };
-  document.getElementById('vendorScroll').appendChild(b);
+  document.getElementById('vendorWrap').appendChild(b);
+});
+
+/* ══ 群組頁籤（記帳）══ */
+LEDGER_ITEMS.forEach((g,i)=>{
+  const b=document.createElement('button');
+  b.className='vtab ledger-vtab'+(i===0?' active':'');
+  b.textContent=g.group;
+  b.onclick=()=>{ curLedgerGroup=i; renderLedger(); };
+  document.getElementById('ledgerWrap').appendChild(b);
 });
 
 /* ══ 模式切換 ══ */
@@ -655,10 +674,11 @@ function switchMode(m) {
   mode=m;
   document.getElementById('modeOrder').classList.toggle('active',m==='order');
   document.getElementById('modeLedger').classList.toggle('active',m==='ledger');
-  document.getElementById('orderPanel').style.display   = m==='order'  ? '':'none';
-  document.getElementById('ledgerPanel').style.display  = m==='ledger' ? '':'none';
-  document.getElementById('vendorScroll').style.display = m==='order'  ? '':'none';
-  document.getElementById('bottomBar').style.display    = m==='order'  ? '':'none';
+  document.getElementById('orderPanel').style.display  = m==='order'  ? '':'none';
+  document.getElementById('ledgerPanel').style.display = m==='ledger' ? '':'none';
+  document.getElementById('vendorWrap').style.display  = m==='order'  ? '':'none';
+  document.getElementById('ledgerWrap').style.display  = m==='ledger' ? '':'none';
+  document.getElementById('bottomBar').style.display   = m==='order'  ? '':'none';
   m==='order' ? renderOrder() : renderLedger();
 }
 
@@ -669,7 +689,7 @@ function onSearch(kw) {
   if(!kw){ searchMode=false; renderOrder(); return; }
   if(mode==='ledger') switchMode('order');
   searchMode=true;
-  document.querySelectorAll('.vtab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.order-vtab').forEach(b=>b.classList.remove('active'));
   const res=[];
   VENDORS.forEach((v,vi)=>v.items.forEach((it,j)=>{ if(it.name.includes(kw)) res.push({vi,j,it}); }));
   let html=`<div style="font-size:12px;color:#aaa;padding:4px 2px 8px">搜尋「${kw}」共 ${res.length} 筆</div>`;
@@ -699,7 +719,7 @@ function buildIcard(vi,j,it,on,blocked) {
 }
 function renderOrder() {
   if(searchMode) return;
-  document.querySelectorAll('.vtab').forEach((b,i)=>b.classList.toggle('active',i===curVendor));
+  document.querySelectorAll('.order-vtab').forEach((b,i)=>b.classList.toggle('active',i===curVendor));
   const vi=curVendor, v=VENDORS[vi];
   const conflict=orderRows.findIndex((rows,i)=>i!==vi&&rows.some(r=>(r.qty||0)>0));
   const blocked=conflict!==-1;
@@ -755,7 +775,7 @@ function orderQuickAdd(vi,ji) {
   const it=VENDORS[vi].items[ji];
   let ri=orderRows[vi].findIndex(r=>r.ji===ji);
   if(ri===-1){
-    orderRows[vi].push({ji,name:it.name,unit:it.unit||'',price:it.price||0,note:it.note||'',qty:0});
+    orderRows[vi].push({ji,name:it.name,unit:it.unit||'',price:it.price||0,note:it.note||'',qty:1});
     ri=orderRows[vi].length-1;
   }
   openQtyPop(vi,ji,ri);
@@ -774,39 +794,72 @@ function eAdj(vi,ei,d)       { if(!extraItems[vi][ei]) return; extraItems[vi][ei
 function updEqc(vi,ei)       { const c=document.getElementById(`eqc-${vi}-${ei}`); if(c) c.className=`qc g${(extraItems[vi][ei]?.qty||0)>0?' on':''}`; }
 function collectExtras(vi)   { document.querySelectorAll(`#extra-section-${vi} .extra-row`).forEach((row,ei)=>{ if(!extraItems[vi][ei]) return; const inp=row.querySelectorAll('input'); extraItems[vi][ei].name=inp[0].value; extraItems[vi][ei].unit=inp[1].value; extraItems[vi][ei].qty=parseFloat(inp[2].value)||0; }); }
 
-/* ══ 數量 popup ══ */
+/* ══ 數量 popup（叫貨 & 記帳共用）══ */
 function openQtyPop(vi,ji,ri) {
+  // 叫貨模式
   const r=orderRows[vi][ri];
-  qtyPopState={vi,ji,ri};
+  qtyPopState={mode:'order',vi,ji,ri};
   document.getElementById('qtyPopName').textContent=r.name;
   const meta=[r.unit,r.price>0?'$'+r.price.toLocaleString('zh-TW'):''].filter(Boolean).join('・');
   document.getElementById('qtyPopMeta').textContent=meta||'';
-  document.getElementById('qtyPopQty').value=r.qty||'';
+  document.getElementById('qtyPopQty').value = r.qty||1;
+  document.getElementById('qtyPopPriceRow').style.display='none';
+  document.getElementById('qtyPopName').style.color='var(--green)';
+  document.getElementById('qtyPopOv').classList.add('open');
+  setTimeout(()=>document.getElementById('qtyPopQty').select(),80);
+}
+function openLedgerPop(ri) {
+  // 記帳模式
+  const r=ledgerRows[ri];
+  qtyPopState={mode:'ledger',ri};
+  document.getElementById('qtyPopName').textContent=r.name;
+  document.getElementById('qtyPopMeta').textContent='';
+  document.getElementById('qtyPopQty').value   = r.qty||1;
+  document.getElementById('qtyPopPrice').value = r.unitPrice>0 ? Math.round(r.qty*r.unitPrice)||'' : '';
+  document.getElementById('qtyPopPriceRow').style.display='';
+  document.getElementById('qtyPopName').style.color='var(--amber)';
   document.getElementById('qtyPopOv').classList.add('open');
   setTimeout(()=>document.getElementById('qtyPopQty').select(),80);
 }
 function closeQtyPop() { document.getElementById('qtyPopOv').classList.remove('open'); qtyPopState=null; }
-function qtyPopAdj(d) {
-  const inp=document.getElementById('qtyPopQty');
+function qtyPopAdj(field,d) {
+  const id=field==='qty'?'qtyPopQty':'qtyPopPrice';
+  const inp=document.getElementById(id);
   inp.value=Math.max(0,(parseFloat(inp.value)||0)+d)||'';
 }
 function qtyPopSave() {
   if(!qtyPopState) return;
-  const {vi,ri}=qtyPopState;
   const qty=Math.max(0,parseFloat(document.getElementById('qtyPopQty').value)||0);
-  orderRows[vi][ri].qty=qty;
-  if(qty===0) orderRows[vi].splice(ri,1);
-  closeQtyPop();
-  if(!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
-  calcTotal();
+  if(qtyPopState.mode==='order'){
+    const {vi,ri}=qtyPopState;
+    orderRows[vi][ri].qty=qty;
+    if(qty===0) orderRows[vi].splice(ri,1);
+    closeQtyPop();
+    if(!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
+    calcTotal();
+  } else {
+    const {ri}=qtyPopState;
+    const totalPrice=parseFloat(document.getElementById('qtyPopPrice').value)||0;
+    ledgerRows[ri].qty=qty;
+    ledgerRows[ri].unitPrice=totalPrice/(qty||1);
+    if(qty===0) ledgerRows.splice(ri,1);
+    closeQtyPop();
+    renderLedger();
+  }
 }
 function qtyPopDel() {
   if(!qtyPopState) return;
-  const {vi,ri}=qtyPopState;
-  orderRows[vi].splice(ri,1);
-  closeQtyPop();
-  if(!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
-  calcTotal();
+  if(qtyPopState.mode==='order'){
+    const {vi,ri}=qtyPopState;
+    orderRows[vi].splice(ri,1);
+    closeQtyPop();
+    if(!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
+    calcTotal();
+  } else {
+    ledgerRows.splice(qtyPopState.ri,1);
+    closeQtyPop();
+    renderLedger();
+  }
 }
 
 /* ══ 金額 ══ */
@@ -860,15 +913,15 @@ function fbCopy(el)      { el.select(); el.setSelectionRange(0,99999); try{docum
 /* ══ 記帳 ══ */
 function renderLedger() {
   const d=new Date(),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
-  let btns='';
-  LEDGER_ITEMS.forEach((g,gi)=>{
-    btns+=`<div class="group-lbl">${g.group}</div><div class="btn-group">`;
-    g.items.forEach((it,ii)=>{
-      const p=it.price||0;
-      btns+=`<button class="ibtn a" data-gi="${gi}" data-ii="${ii}" onclick="ledgerQuickAddByIndex(this)">${it.name}${p?` <span style="font-size:11px;opacity:.8;font-weight:700">$${p}</span>`:''}</button>`;
-    });
-    btns+=`</div>`;
+  // 更新分頁 active
+  document.querySelectorAll('.ledger-vtab').forEach((b,i)=>b.classList.toggle('active',i===curLedgerGroup));
+  const g=LEDGER_ITEMS[curLedgerGroup];
+  let btns='<div class="btn-group">';
+  g.items.forEach((it,ii)=>{
+    const p=it.price||0;
+    btns+=`<button class="ibtn a" data-gi="${curLedgerGroup}" data-ii="${ii}" onclick="ledgerOpenPop(this)">${it.name}${p?` <span style="font-size:11px;opacity:.8;font-weight:700">$${p}</span>`:''}</button>`;
   });
+  btns+=`</div>`;
   let html=`<div class="card">
     <div class="card-head a">
       <div class="card-title a">📒 記帳專區 ── ${mm}/${dd}</div>
@@ -896,6 +949,19 @@ function renderLedger() {
   </div>`;
   document.getElementById('ledgerPanel').innerHTML=html; calcLedger(true);
 }
+
+function ledgerOpenPop(btn) {
+  const gi=+btn.dataset.gi, ii=+btn.dataset.ii;
+  const it=LEDGER_ITEMS[gi]?.items[ii]; if(!it) return;
+  // 看是否已有這個品項
+  const ri=ledgerRows.findIndex(r=>r.name===it.name);
+  if(ri!==-1){
+    openLedgerPop(ri);
+  } else {
+    ledgerRows.push({name:it.name, qty:1, unitPrice:it.price||0});
+    openLedgerPop(ledgerRows.length-1);
+  }
+}
 function buildLRow(ri,r) {
   const on=(r.qty||0)>0, total=Math.round((r.qty||0)*(r.unitPrice||0));
   return `<div class="lrow" id="lr-${ri}">
@@ -916,9 +982,13 @@ function lSet(ri,f,v)         { if(ledgerRows[ri]){ ledgerRows[ri][f]=v; calcLed
 function lAdj(ri,d)           { if(!ledgerRows[ri]) return; ledgerRows[ri].qty=Math.max(0,(ledgerRows[ri].qty||0)+d); const qE=document.getElementById(`lq-${ri}`); if(qE) qE.value=ledgerRows[ri].qty||''; const t=Math.round(ledgerRows[ri].qty*(ledgerRows[ri].unitPrice||0)); const pE=document.getElementById(`lp-${ri}`); if(pE) pE.value=t||''; updLqc(ri); calcLedger(); }
 function updLqc(ri)           { const c=document.getElementById(`lqc-${ri}`); if(c) c.className=`qc a${(ledgerRows[ri]?.qty||0)>0?' on':''}`; }
 function lDel(ri)             { collectLedger(); ledgerRows.splice(ri,1); renderLedger(); }
-function ledgerAddRow()       { collectLedger(); ledgerRows.push({name:'',qty:1,unitPrice:0}); renderLedger(); setTimeout(()=>{ const rows=document.querySelectorAll('#ledger-rows .lrow'); rows[rows.length-1]?.querySelector('.lrow-name')?.focus(); },50); }
-function ledgerQuickAddByIndex(btn) { const gi=+btn.dataset.gi,ii=+btn.dataset.ii; const it=LEDGER_ITEMS[gi]?.items[ii]; if(!it) return; ledgerQuickAdd(it.name,it.price||0); }
-function ledgerQuickAdd(name,price) { collectLedger(); ledgerRows.push({name,qty:1,unitPrice:price||0}); renderLedger(); setTimeout(()=>{ const rows=document.querySelectorAll('#ledger-rows .lrow'); const last=rows[rows.length-1]; if(price) last?.querySelector('.qn')?.focus(); else last?.querySelector('.lrow-price')?.focus(); last?.scrollIntoView({behavior:'smooth',block:'center'}); },50); }
+function ledgerAddRow() {
+  collectLedger();
+  const ri=ledgerRows.length;
+  ledgerRows.push({name:'',qty:1,unitPrice:0});
+  renderLedger();
+  setTimeout(()=>{ const rows=document.querySelectorAll('#ledger-rows .lrow'); rows[rows.length-1]?.querySelector('.lrow-name')?.focus(); },50);
+}
 function calcLedger(skip) {
   if(!skip) collectLedger();
   const items=ledgerRows.filter(r=>r.name&&(r.qty||0)>0);
