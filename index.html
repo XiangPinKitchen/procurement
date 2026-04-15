@@ -72,30 +72,30 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
 .card-title.g { color: var(--green); }
 .card-title.a { color: var(--amber); }
 
-/* 叫貨品項卡片（4欄） */
-.icard-group { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 5px; }
+/* 叫貨品項卡片（自動欄數，最小130px不吃字） */
+.icard-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 6px; }
 .icard { border: 1.5px solid var(--green-md); background: var(--green-lt); border-radius: 8px;
-  padding: 6px 7px; cursor: pointer; text-align: left;
-  display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  padding: 7px 9px; cursor: pointer; text-align: left;
+  display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .icard:active { background: #c8ebd8; }
 .icard.on { background: var(--green); border-color: var(--green); }
-.icard-row1 { display: flex; align-items: baseline; gap: 3px; min-width: 0; }
-.icard-name { font-size: 12px; font-weight: 700; color: var(--green);
+.icard-row1 { display: flex; align-items: baseline; gap: 4px; min-width: 0; }
+.icard-name { font-size: 13px; font-weight: 700; color: var(--green);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex-shrink: 1; }
 .icard.on .icard-name { color: var(--white); }
-.icard-note { font-size: 10px; color: #999; white-space: nowrap; flex-shrink: 0; }
+.icard-note { font-size: 11px; color: #999; white-space: nowrap; flex-shrink: 0; }
 .icard.on .icard-note { color: rgba(255,255,255,.6); }
 .icard-row2 { display: flex; align-items: center; gap: 3px; min-width: 0; }
-.icard-unit  { font-size: 10px; color: #888; background: rgba(0,0,0,.06);
-  border-radius: 3px; padding: 1px 3px; white-space: nowrap; flex-shrink: 0; }
+.icard-unit  { font-size: 11px; color: #888; background: rgba(0,0,0,.06);
+  border-radius: 3px; padding: 1px 4px; white-space: nowrap; flex-shrink: 0; }
 .icard.on .icard-unit { background: rgba(255,255,255,.22); color: rgba(255,255,255,.85); }
-.icard-price { font-size: 10px; font-weight: 700; color: var(--red); white-space: nowrap; }
+.icard-price { font-size: 11px; font-weight: 700; color: var(--red); white-space: nowrap; }
 .icard.on .icard-price { color: #fde68a; }
 
-/* 記帳快速按鈕（auto-fill，塞越多越好） */
-.btn-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px,1fr)); gap: 5px; }
-.ibtn { font-size: 12px; padding: 5px 3px; border-radius: 8px; font-weight: 600;
-  cursor: pointer; text-align: center; line-height: 1.3;
+/* 記帳快速按鈕（小膠囊，flex自動換行） */
+.btn-group { display: flex; flex-wrap: wrap; gap: 5px; }
+.ibtn { font-size: 13px; padding: 5px 10px; border-radius: 14px; font-weight: 600;
+  white-space: nowrap; cursor: pointer;
   border: 1.5px solid var(--amber-md); background: var(--amber-lt); color: var(--amber); }
 .ibtn:active { background: #fde68a; }
 .group-lbl { font-size: 11px; color: #aaa; font-weight: 700; margin: 8px 0 3px; }
@@ -183,25 +183,37 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
 .line-btn { flex: 1; padding: 12px; border: none; border-radius: 8px;
   background: #06c755; color: var(--white); font-size: 15px; font-weight: 700; cursor: pointer; }
 
+/* 數量輸入 popup */
+.qty-pop-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  z-index: 250; align-items: flex-end; justify-content: center; }
+.qty-pop-ov.open { display: flex; }
+.qty-pop { background: var(--white); border-radius: 16px 16px 0 0; width: 100%;
+  max-width: 500px; padding: 20px 18px 28px; animation: slideUp .2s ease; }
+.qty-pop-name { font-size: 17px; font-weight: 800; color: var(--green); margin-bottom: 4px; }
+.qty-pop-meta { font-size: 13px; color: #aaa; margin-bottom: 18px; }
+.qty-pop-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.qty-pop-lbl { font-size: 14px; color: var(--gray); width: 32px; flex-shrink: 0; }
+.qty-pop-qc { display: flex; align-items: center; border: 1.5px solid var(--border);
+  border-radius: 8px; overflow: hidden; flex: 1; }
+.qty-pop-qb { width: 44px; height: 44px; border: none; background: var(--gray-lt);
+  font-size: 20px; font-weight: 700; cursor: pointer; color: #555;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.qty-pop-qb:active { background: #ddd; }
+.qty-pop-qn { flex: 1; height: 44px; border: none; border-inline: 1px solid var(--border);
+  background: var(--white); font-size: 18px; font-weight: 700; text-align: center;
+  color: var(--text); outline: none; -moz-appearance: textfield; }
+.qty-pop-qn::-webkit-inner-spin-button { -webkit-appearance: none; }
+.qty-pop-btns { display: flex; gap: 10px; margin-top: 6px; }
+.qty-pop-ok  { flex: 1; padding: 14px; border: none; border-radius: 10px;
+  background: var(--green); color: var(--white); font-size: 16px; font-weight: 700; cursor: pointer; }
+.qty-pop-del { padding: 14px 16px; border: 2px solid var(--red); border-radius: 10px;
+  background: var(--white); color: var(--red); font-size: 14px; font-weight: 700; cursor: pointer; }
+
 /* 底部列 */
 .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
   background: var(--white); border-top: 1px solid var(--border);
-  box-shadow: 0 -2px 12px rgba(0,0,0,.1); display: flex; flex-direction: column; }
-.sel-drawer { max-height: 36vh; overflow-y: auto; border-bottom: 1px solid var(--border); background: #f9fafb; }
-.sel-drawer-list { padding: 7px 10px; display: flex; flex-direction: column; gap: 4px; }
-.sel-row { display: flex; align-items: center; gap: 8px;
-  padding: 6px 8px; background: var(--white); border-radius: 8px; border: 1px solid var(--border); }
-.sel-row-name  { flex: 1; font-size: 14px; font-weight: 700; min-width: 0;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sel-row-qty   { font-size: 13px; font-weight: 700; color: var(--green);
-  background: var(--green-lt); border-radius: 6px; padding: 2px 7px; flex-shrink: 0; }
-.sel-row-price { font-size: 12px; color: var(--red); font-weight: 600; flex-shrink: 0; }
-.bottom-main { display: flex; align-items: center; padding: 9px 12px; gap: 8px; }
-.sel-toggle { flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
-  justify-content: center; width: 46px; height: 46px; border-radius: 10px;
-  border: 2px solid var(--green-md); background: var(--green-lt); cursor: pointer; }
-.sel-count { font-size: 16px; font-weight: 800; color: var(--green); line-height: 1.1; }
-.sel-arrow { font-size: 10px; color: var(--green); line-height: 1; }
+  box-shadow: 0 -2px 8px rgba(0,0,0,.08);
+  padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
 .bottom-amt { flex: 1; min-width: 0; }
 .bottom-amt .lbl { font-size: 12px; color: var(--gray); }
 .bottom-amt .amt { font-size: 22px; font-weight: 800; color: var(--green); }
@@ -565,21 +577,32 @@ const LEDGER_ITEMS = [
 <div class="ledger-wrap" id="ledgerPanel" style="display:none;"></div>
 
 <div class="bottom-bar" id="bottomBar">
-  <div class="sel-drawer" id="selDrawer" style="display:none">
-    <div class="sel-drawer-list" id="selDrawerList"></div>
+  <div class="bottom-amt">
+    <div class="lbl">總金額（僅供參考）</div>
+    <div class="amt" id="totalAmt">$0</div>
   </div>
-  <div class="bottom-main">
-    <button class="sel-toggle" id="selToggle" onclick="toggleDrawer()" style="display:none">
-      <span id="selCount" class="sel-count">0</span>
-      <span id="selArrow"  class="sel-arrow">▲</span>
-    </button>
-    <div class="bottom-amt">
-      <div class="lbl">總金額（僅供參考）</div>
-      <div class="amt" id="totalAmt">$0</div>
+  <div class="bar-btns">
+    <button class="bbtn outline" onclick="clearAll()">清除</button>
+    <button class="bbtn solid"   onclick="openModal()">📋 傳送</button>
+  </div>
+</div>
+
+<!-- 數量輸入 popup -->
+<div class="qty-pop-ov" id="qtyPopOv" onclick="if(event.target===this)closeQtyPop()">
+  <div class="qty-pop">
+    <div class="qty-pop-name" id="qtyPopName"></div>
+    <div class="qty-pop-meta" id="qtyPopMeta"></div>
+    <div class="qty-pop-row">
+      <span class="qty-pop-lbl">數量</span>
+      <div class="qty-pop-qc">
+        <button class="qty-pop-qb" onclick="qtyPopAdj(-1)">−</button>
+        <input type="number" class="qty-pop-qn" id="qtyPopQty" min="0" inputmode="decimal" placeholder="0">
+        <button class="qty-pop-qb" onclick="qtyPopAdj(1)">+</button>
+      </div>
     </div>
-    <div class="bar-btns">
-      <button class="bbtn outline" onclick="clearAll()">清除</button>
-      <button class="bbtn solid"   onclick="openModal()">📋 傳送</button>
+    <div class="qty-pop-btns">
+      <button class="qty-pop-del" onclick="qtyPopDel()">🗑 移除</button>
+      <button class="qty-pop-ok"  onclick="qtyPopSave()">✓ 確定</button>
     </div>
   </div>
 </div>
@@ -612,7 +635,8 @@ const LEDGER_ITEMS = [
 
 <script>
 /* ══ 狀態 ══ */
-let mode='order', curVendor=0, searchMode=false, drawerOpen=false;
+let mode='order', curVendor=0, searchMode=false;
+let qtyPopState = null; // { vi, ji, ri } 記錄當前 popup 在操作哪個品項
 const orderRows  = VENDORS.map(()=>[]);
 const extraItems = VENDORS.map(()=>[]);
 let ledgerRows = [];
@@ -729,18 +753,12 @@ function orderQuickAdd(vi,ji) {
   const conflict=orderRows.findIndex((rows,i)=>i!==vi&&rows.some(r=>(r.qty||0)>0));
   if(conflict!==-1){ toast(`⚠️ 請先清除【${VENDORS[conflict].vendor}】的訂貨`); return; }
   const it=VENDORS[vi].items[ji];
-  const existing=orderRows[vi].findIndex(r=>r.ji===ji);
-  if(existing!==-1){
-    if((orderRows[vi][existing].qty||0)===0) orderRows[vi][existing].qty=1;
-    if(!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
-    setTimeout(()=>document.getElementById(`oq-${vi}-${existing}`)?.focus(),60);
-    return;
+  let ri=orderRows[vi].findIndex(r=>r.ji===ji);
+  if(ri===-1){
+    orderRows[vi].push({ji,name:it.name,unit:it.unit||'',price:it.price||0,note:it.note||'',qty:0});
+    ri=orderRows[vi].length-1;
   }
-  orderRows[vi].push({ji,name:it.name,unit:it.unit||'',price:it.price||0,note:it.note||'',qty:1});
-  const ri=orderRows[vi].length-1;
-  if(!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
-  setTimeout(()=>{ const el=document.getElementById(`oq-${vi}-${ri}`); el?.focus(); el?.closest('.orow')?.scrollIntoView({behavior:'smooth',block:'center'}); },60);
-  calcTotal();
+  openQtyPop(vi,ji,ri);
 }
 function oAdj(vi,ri,d)       { if(!orderRows[vi][ri]) return; orderRows[vi][ri].qty=Math.max(0,(orderRows[vi][ri].qty||0)+d); const el=document.getElementById(`oq-${vi}-${ri}`); if(el) el.value=orderRows[vi][ri].qty||''; updOqc(vi,ri); syncBtn(vi,ri); calcTotal(); updateSub(vi); }
 function oQtyChange(vi,ri,v) { if(!orderRows[vi][ri]) return; orderRows[vi][ri].qty=Math.max(0,parseFloat(v)||0); updOqc(vi,ri); syncBtn(vi,ri); calcTotal(); updateSub(vi); }
@@ -756,24 +774,47 @@ function eAdj(vi,ei,d)       { if(!extraItems[vi][ei]) return; extraItems[vi][ei
 function updEqc(vi,ei)       { const c=document.getElementById(`eqc-${vi}-${ei}`); if(c) c.className=`qc g${(extraItems[vi][ei]?.qty||0)>0?' on':''}`; }
 function collectExtras(vi)   { document.querySelectorAll(`#extra-section-${vi} .extra-row`).forEach((row,ei)=>{ if(!extraItems[vi][ei]) return; const inp=row.querySelectorAll('input'); extraItems[vi][ei].name=inp[0].value; extraItems[vi][ei].unit=inp[1].value; extraItems[vi][ei].qty=parseFloat(inp[2].value)||0; }); }
 
-/* ══ 金額 + 抽屜 ══ */
+/* ══ 數量 popup ══ */
+function openQtyPop(vi,ji,ri) {
+  const r=orderRows[vi][ri];
+  qtyPopState={vi,ji,ri};
+  document.getElementById('qtyPopName').textContent=r.name;
+  const meta=[r.unit,r.price>0?'$'+r.price.toLocaleString('zh-TW'):''].filter(Boolean).join('・');
+  document.getElementById('qtyPopMeta').textContent=meta||'';
+  document.getElementById('qtyPopQty').value=r.qty||'';
+  document.getElementById('qtyPopOv').classList.add('open');
+  setTimeout(()=>document.getElementById('qtyPopQty').select(),80);
+}
+function closeQtyPop() { document.getElementById('qtyPopOv').classList.remove('open'); qtyPopState=null; }
+function qtyPopAdj(d) {
+  const inp=document.getElementById('qtyPopQty');
+  inp.value=Math.max(0,(parseFloat(inp.value)||0)+d)||'';
+}
+function qtyPopSave() {
+  if(!qtyPopState) return;
+  const {vi,ri}=qtyPopState;
+  const qty=Math.max(0,parseFloat(document.getElementById('qtyPopQty').value)||0);
+  orderRows[vi][ri].qty=qty;
+  if(qty===0) orderRows[vi].splice(ri,1);
+  closeQtyPop();
+  if(!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
+  calcTotal();
+}
+function qtyPopDel() {
+  if(!qtyPopState) return;
+  const {vi,ri}=qtyPopState;
+  orderRows[vi].splice(ri,1);
+  closeQtyPop();
+  if(!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
+  calcTotal();
+}
+
+/* ══ 金額 ══ */
 function calcTotal() {
   let t=0; VENDORS.forEach((_,vi)=>orderRows[vi].forEach(r=>{ t+=(r.qty||0)*(r.price||0); }));
   document.getElementById('totalAmt').textContent='$'+t.toLocaleString('zh-TW');
-  updateDrawer();
 }
 function updateSub(vi) { const el=document.getElementById(`vendor-sub-${vi}`); if(!el) return; let s=0; orderRows[vi].forEach(r=>{ s+=(r.qty||0)*(r.price||0); }); el.textContent='$'+s.toLocaleString('zh-TW'); }
-function toggleDrawer() { drawerOpen=!drawerOpen; document.getElementById('selDrawer').style.display=drawerOpen?'':'none'; document.getElementById('selArrow').textContent=drawerOpen?'▼':'▲'; }
-function updateDrawer() {
-  const all=[];
-  VENDORS.forEach((_,vi)=>{ orderRows[vi].forEach(r=>{ if((r.qty||0)>0) all.push(r); }); extraItems[vi].forEach(r=>{ if((r.qty||0)>0&&r.name) all.push(r); }); });
-  const toggle=document.getElementById('selToggle'), drawer=document.getElementById('selDrawer'), list=document.getElementById('selDrawerList');
-  if(!toggle) return;
-  if(!all.length){ toggle.style.display='none'; drawer.style.display='none'; drawerOpen=false; document.getElementById('selArrow').textContent='▲'; return; }
-  toggle.style.display='flex';
-  document.getElementById('selCount').textContent=all.length;
-  list.innerHTML=all.map(r=>{ const sub=(r.qty||0)*(r.price||0); return `<div class="sel-row"><span class="sel-row-name">${r.name}</span><span class="sel-row-qty">×${r.qty}</span>${sub>0?`<span class="sel-row-price">$${sub.toLocaleString('zh-TW')}</span>`:''}</div>`; }).join('');
-}
 
 /* ══ 確認彈窗 ══ */
 function showConfirm(msg,onOk) { document.getElementById('confirmMsg').textContent=msg; document.getElementById('confirmOv').classList.add('open'); document.getElementById('confirmOk').onclick=()=>{ document.getElementById('confirmOv').classList.remove('open'); onOk(); }; }
@@ -824,7 +865,7 @@ function renderLedger() {
     btns+=`<div class="group-lbl">${g.group}</div><div class="btn-group">`;
     g.items.forEach((it,ii)=>{
       const p=it.price||0;
-      btns+=`<button class="ibtn a" data-gi="${gi}" data-ii="${ii}" onclick="ledgerQuickAddByIndex(this)">${it.name}${p?`<br><span style="font-size:10px;font-weight:700">$${p}</span>`:''}</button>`;
+      btns+=`<button class="ibtn a" data-gi="${gi}" data-ii="${ii}" onclick="ledgerQuickAddByIndex(this)">${it.name}${p?` <span style="font-size:11px;opacity:.8;font-weight:700">$${p}</span>`:''}</button>`;
     });
     btns+=`</div>`;
   });
