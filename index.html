@@ -570,8 +570,8 @@ const LEDGER_ITEMS = [
     { name: "豆菜麵(1斤)" }, { name: "烏龍麵(1斤)" },
   ]},
 
-  { group: "瓦斯/電費", items: [
-    { name: "瓦斯", price: 610 }, { name: "電費" }
+  { group: "瓦斯", items: [
+    { name: "瓦斯" },
   ]},
 
   { group: "外帶自取", _takeout: true, items: [
@@ -1012,7 +1012,7 @@ function renderLedger() {
   </div>
   <div class="card">
     <div class="preview-lbl">📋 LINE 記帳訊息</div>
-    <div class="preview-box" id="ledger-preview">（尚未有品項）</div>
+    <textarea class="pre-textarea" id="ledger-preview" style="min-height:120px;width:100%;color:var(--green);background:var(--green-lt);border:1px solid var(--green-md);">（尚未有品項）</textarea>
     <div class="preview-actions">
       <button class="copy-btn" onclick="ledgerCopy()">📋 複製</button>
       <button class="line-btn" onclick="ledgerLine()">📤 傳送到 LINE</button>
@@ -1067,7 +1067,7 @@ function calcLedger(skip) {
   const grand=items.reduce((s,r)=>s+Math.round((r.qty||0)*(r.unitPrice||0)),0);
   const gEl=document.getElementById('ledger-grand'); if(gEl) gEl.textContent='$'+grand.toLocaleString('zh-TW');
   const pEl=document.getElementById('ledger-preview'); if(!pEl) return;
-  if(!items.length){ pEl.textContent='（尚未有品項）'; return; }
+  if(!items.length){ pEl.value='（尚未有品項）'; return; }
   const d=new Date(),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
 
   // 分離外帶自取與一般品項（_takeout旗標 或 品名為「外帶自取」都算）
@@ -1091,11 +1091,11 @@ function calcLedger(skip) {
 
   lines.push('');
   lines.push(`➡️合計：${grand.toLocaleString('zh-TW')}元。`);
-  pEl.textContent=lines.join('\n');
+  pEl.value=lines.join('\n');
 }
 function ledgerClearAll() { showConfirm('確定要清除記帳專區所有品項？',()=>{ ledgerRows=[]; renderLedger(); toast('已清除記帳資料'); }); }
-function ledgerCopy()     { collectLedger(); const el=document.getElementById('ledger-preview'); if(!el||el.textContent==='（尚未有品項）'){ toast('尚未有任何品項！'); return; } const t=el.textContent; if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(t).then(()=>toast('已複製！')).catch(()=>fbCopyText(t)); else fbCopyText(t); }
-function ledgerLine()     { collectLedger(); const el=document.getElementById('ledger-preview'); if(!el||el.textContent==='（尚未有品項）'){ toast('尚未有任何品項！'); return; } const t=el.textContent; navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{}); toast('正在開啟 LINE…'); setTimeout(()=>window.open('https://line.me/R/msg/text/?'+encodeURIComponent(t),'_blank'),300); }
+function ledgerCopy()     { collectLedger(); const el=document.getElementById('ledger-preview'); if(!el||el.value==='（尚未有品項）'){ toast('尚未有任何品項！'); return; } const t=el.value; if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(t).then(()=>toast('已複製！')).catch(()=>fbCopyText(t)); else fbCopyText(t); }
+function ledgerLine()     { collectLedger(); const el=document.getElementById('ledger-preview'); if(!el||el.value==='（尚未有品項）'){ toast('尚未有任何品項！'); return; } const t=el.value; navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{}); toast('正在開啟 LINE…'); setTimeout(()=>window.open('https://line.me/R/msg/text/?'+encodeURIComponent(t),'_blank'),300); }
 function fbCopyText(text) { const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,99999); try{document.execCommand('copy');toast('已複製！');}catch{toast('複製失敗');} document.body.removeChild(ta); }
 
 /* ══ Toast ══ */
