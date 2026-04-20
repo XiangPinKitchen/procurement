@@ -2,936 +2,1106 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>香品小食堂 點餐系統</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>香品小食堂</title>
 <style>
-/* ══ 重置 ══ */
-* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --green:    #2c7a4b;
+  --green-lt: #e8f5ee;
+  --green-md: #b2dfc4;
+  --amber:    #d97706;
+  --amber-lt: #fffbeb;
+  --amber-md: #fde68a;
+  --red:      #dc2626;
+  --gray:     #6b7280;
+  --gray-lt:  #f3f4f6;
+  --border:   #e5e7eb;
+  --white:    #ffffff;
+  --text:     #111827;
+  --radius:   10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
+       background: #f0f2f5; color: var(--text); font-size: 16px; }
 
-/* ══ 根字級：1rem = 16px，老人放大字型後 rem 自動跟著放 ══ */
-html { font-size:16px; }
-body { font-family:'Noto Sans TC',sans-serif; background:#f5f0e8; min-height:100vh; -webkit-text-size-adjust:100%; }
-button { touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+/* 頂部 */
+.topbar { position: sticky; top: 0; z-index: 50; background: var(--white);
+  border-bottom: 1px solid var(--border); padding: 8px 12px;
+  display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.topbar-title { font-size: 16px; font-weight: 800; color: var(--green); white-space: nowrap; }
+.search-box { flex: 1; display: flex; align-items: center; gap: 6px;
+  background: var(--gray-lt); border-radius: 20px; padding: 6px 12px;
+  border: 1.5px solid transparent; transition: border-color .2s; }
+.search-box:focus-within { border-color: var(--green); background: var(--white); }
+.search-box input { border: none; background: transparent; font-size: 16px; outline: none; flex: 1; color: var(--text); }
+.search-box input::placeholder { color: #aaa; }
+.search-clr { color: #bbb; cursor: pointer; font-size: 16px; display: none; }
+.search-clr.on { display: block; }
 
-/* ══ LAYOUT ══ */
-.app { display:flex; justify-content:center; }
-.phone-wrap { width:100%; max-width:480px; min-height:100vh; background:#f5f0e8; }
+/* 模式分頁 */
+.mode-tabs { display: flex; background: var(--white); border-bottom: 1px solid var(--border); }
+.mode-tab { flex: 1; padding: 11px 4px; font-size: 14px; font-weight: 700;
+  text-align: center; cursor: pointer; color: var(--gray);
+  border-bottom: 3px solid transparent; transition: all .2s; user-select: none; }
+.mode-tab.active.order-tab  { color: var(--green); border-bottom-color: var(--green); }
+.mode-tab.active.ledger-tab { color: var(--amber); border-bottom-color: var(--amber); }
 
-/* ══ HEADER ══ */
-.header { background:#1a2455; color:white; padding:.875rem 1rem .625rem; position:sticky; top:0; z-index:100; }
-.header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:.625rem; gap:.5rem; }
-.logo-area { display:flex; align-items:center; gap:.5rem; min-width:0; flex:1; }
-.shop-name { font-size:1.125rem; font-weight:700; letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+/* 廠商/群組按鈕列（換行顯示，不橫向滑動）*/
+.vendor-wrap { background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.vtab { padding: 6px 12px; border-radius: 16px; border: 1.5px solid var(--border);
+  font-size: 13px; font-weight: 600; color: var(--gray);
+  cursor: pointer; background: var(--white); transition: all .15s; }
+/* 叫貨廠商 → 綠色 */
+.vtab.order-vtab.active { background: var(--green); border-color: var(--green); color: var(--white); }
+/* 記帳群組 → 琥珀色 */
+.vtab.ledger-vtab.active { background: var(--amber); border-color: var(--amber); color: var(--white); }
 
-/* 購物車按鈕 — 加大觸控區域 */
-.cart-btn { position:relative; background:rgba(255,255,255,0.15); border:none; border-radius:1.25rem; padding:.5rem .875rem; color:white; cursor:pointer; font-size:.9375rem; display:flex; align-items:center; gap:.375rem; font-family:'Noto Sans TC',sans-serif; min-height:2.5rem; flex-shrink:0; }
-.cart-btn:active { background:rgba(255,255,255,0.3); }
-.cart-badge { position:absolute; top:-4px; right:-4px; background:#e8a020; color:white; border-radius:.625rem; font-size:.75rem; font-weight:700; padding:2px 6px; min-width:1.25rem; text-align:center; }
+/* 內容區 */
+.content     { padding: 8px; max-width: 700px; margin: 0 auto; padding-bottom: 130px; }
+.ledger-wrap { padding: 8px; max-width: 700px; margin: 0 auto; padding-bottom: 40px; }
 
-/* 分類 Tab */
-.cat-tabs { display:flex; gap:.375rem; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
-.cat-tabs::-webkit-scrollbar { display:none; }
-.cat-tab { flex-shrink:0; padding:.375rem .875rem; border-radius:.875rem; border:none; font-size:.875rem; cursor:pointer; font-family:'Noto Sans TC',sans-serif; min-height:2.25rem; }
-.cat-tab.active { background:#e8a020; color:white; font-weight:700; }
-.cat-tab:not(.active) { background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.9); }
+/* 卡片 */
+.card { background: var(--white); border-radius: var(--radius);
+  padding: 12px; margin-bottom: 8px; border: 1px solid var(--border); }
+.card-head { display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; padding-bottom: 8px; }
+.card-head.g { border-bottom: 2px solid var(--green-md); }
+.card-head.a { border-bottom: 2px solid var(--amber-md); }
+.card-title { font-size: 15px; font-weight: 800; }
+.card-title.g { color: var(--green); }
+.card-title.a { color: var(--amber); }
 
-/* ══ 公告 ══ */
-.announce { background:#fef3d0; border-left:3px solid #e8a020; margin:.75rem .75rem 0; border-radius:.375rem; padding:.5rem .75rem; font-size:.8125rem; color:#7a5200; line-height:1.5; word-break:break-all; }
+/* 叫貨品項卡片（自動欄數，最小130px不吃字） */
+.icard-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 6px; }
+.icard { border: 1.5px solid var(--green-md); background: var(--green-lt); border-radius: 8px;
+  padding: 7px 9px; cursor: pointer; text-align: left;
+  display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.icard:active { background: #c8ebd8; }
+.icard.on { background: var(--green); border-color: var(--green); }
+.icard-row1 { display: flex; align-items: baseline; gap: 4px; min-width: 0; }
+.icard-name { font-size: 13px; font-weight: 700; color: var(--green);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex-shrink: 1; }
+.icard.on .icard-name { color: var(--white); }
+.icard-note { font-size: 11px; color: #999; white-space: nowrap; flex-shrink: 0; }
+.icard.on .icard-note { color: rgba(255,255,255,.6); }
+.icard-row2 { display: flex; align-items: center; gap: 3px; min-width: 0; }
+.icard-unit  { font-size: 11px; color: #888; background: rgba(0,0,0,.06);
+  border-radius: 3px; padding: 1px 4px; white-space: nowrap; flex-shrink: 0; }
+.icard.on .icard-unit { background: rgba(255,255,255,.22); color: rgba(255,255,255,.85); }
+.icard-price { font-size: 11px; font-weight: 700; color: var(--red); white-space: nowrap; }
+.icard.on .icard-price { color: #fde68a; }
 
-/* ══ SECTION TITLE ══ */
-.section-title { padding:.875rem .875rem .375rem; font-size:.9375rem; font-weight:700; color:#1a2455; }
+/* 記帳快速按鈕（小膠囊，flex自動換行） */
+.btn-group { display: flex; flex-wrap: wrap; gap: 5px; }
+.ibtn { font-size: 13px; padding: 5px 10px; border-radius: 14px; font-weight: 600;
+  white-space: nowrap; cursor: pointer;
+  border: 1.5px solid var(--amber-md); background: var(--amber-lt); color: var(--amber); }
+.ibtn:active { background: #fde68a; }
+.group-lbl { font-size: 11px; color: #aaa; font-weight: 700; margin: 8px 0 3px; }
 
-/* ══ MENU LIST ══ */
-.menu-list { padding:0 .625rem 8rem; display:flex; flex-direction:column; gap:.5rem; }
-.menu-item { background:white; border-radius:.75rem; display:flex; align-items:center; padding:.75rem; gap:.75rem; border:1.5px solid transparent; min-height:5rem; }
-.menu-item.popular { border-color:#e8a020; }
-.menu-item.soldout { opacity:.5; }
-.item-emoji { width:3.5rem; height:3.5rem; border-radius:.625rem; background:#f5f0e8; display:flex; align-items:center; justify-content:center; font-size:1.875rem; flex-shrink:0; }
-.item-info { flex:1; min-width:0; }
-.item-name-row { display:flex; align-items:center; gap:.375rem; margin-bottom:.125rem; flex-wrap:wrap; }
-.item-name { font-size:1rem; font-weight:700; color:#1a2455; word-break:break-all; }
-.popular-tag { background:#fff3d0; color:#b87800; font-size:.6875rem; font-weight:700; padding:2px 6px; border-radius:.5rem; white-space:nowrap; }
-.sold-tag { background:#ffe8e8; color:#c4390a; font-size:.6875rem; font-weight:700; padding:2px 6px; border-radius:.5rem; white-space:nowrap; }
-.new-tag { background:#e0f0ff; color:#1060cc; font-size:.6875rem; font-weight:700; padding:2px 6px; border-radius:.5rem; white-space:nowrap; }
-.item-price { font-size:1rem; font-weight:700; color:#c4390a; }
+/* 欄位標題 */
+.col-hdr { display: flex; gap: 6px; margin: 10px 0 4px; }
+.col-hdr span { font-size: 11px; color: #bbb; }
+.col-hdr .cn { flex: 1; min-width: 0; }
+.col-hdr .cq { width: 108px; text-align: center; flex-shrink: 0; }
+.col-hdr .cd { width: 36px; flex-shrink: 0; }
 
-/* 加入按鈕 — 至少 44×44 觸控 */
-.add-btn { width:2.75rem; height:2.75rem; border-radius:50%; background:#1a2455; border:none; color:white; font-size:1.5rem; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:'Noto Sans TC',sans-serif; }
-.add-btn:active { opacity:.8; }
-.sold-btn { width:2.75rem; height:2.75rem; border-radius:50%; background:#ccc; border:none; color:white; font-size:.875rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:not-allowed; }
-.qty-control { display:flex; align-items:center; gap:.375rem; flex-shrink:0; }
-.qty-btn { width:2.25rem; height:2.25rem; border-radius:50%; border:1.5px solid #1a2455; background:white; color:#1a2455; font-size:1.25rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font-family:'Noto Sans TC',sans-serif; }
-.qty-btn.minus { color:#c4390a; border-color:#c4390a; }
-.qty-num { font-size:1rem; font-weight:700; color:#1a2455; min-width:1.375rem; text-align:center; }
+/* 叫貨明細列 */
+.orow { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
+.orow-info { flex: 1; min-width: 0; }
+.orow-line1 { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.orow-name  { font-size: 15px; font-weight: 700; }
+.orow-unit  { font-size: 12px; color: #aaa; }
+.orow-price { font-size: 12px; color: var(--red); font-weight: 600; }
+.orow-note  { font-size: 11px; color: #bbb; margin-top: 1px; }
 
-/* ══ CLOSED OVERLAY ══ */
-.closed-overlay { display:none; position:fixed; inset:0; background:rgba(20,20,20,0.93); z-index:150; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem; }
-.closed-overlay.open { display:flex; }
-.closed-icon { font-size:4rem; margin-bottom:1rem; }
-.closed-title { font-size:1.5rem; font-weight:700; color:white; margin-bottom:.625rem; }
-.closed-msg { font-size:1rem; color:rgba(255,255,255,.8); line-height:1.9; }
+/* 記帳明細列 */
+.lrow { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
+.lrow-name { flex: 1; border: 1px solid var(--border); border-radius: 7px;
+  font-size: 15px; padding: 8px 10px; outline: none; background: #fafafa; min-width: 0; }
+.lrow-name:focus { border-color: var(--amber); }
+.lrow-price { width: 74px; flex-shrink: 0; border: 1px solid var(--border); border-radius: 7px;
+  font-size: 15px; padding: 8px 6px; text-align: right; outline: none;
+  background: #fafafa; -moz-appearance: textfield; height: 40px; }
+.lrow-price::-webkit-inner-spin-button { -webkit-appearance: none; }
+.lrow-price:focus { border-color: var(--amber); }
 
-/* ══ BOTTOM BAR ══ */
-.bottom-bar { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:480px; background:white; border-top:1px solid #e0e0e0; padding:.5rem .875rem max(.875rem, env(safe-area-inset-bottom)); z-index:50; display:none; align-items:center; justify-content:space-between; gap:.5rem; }
-.bottom-total { font-size:.875rem; color:#666; white-space:nowrap; }
-.bottom-total span { font-size:1.125rem; font-weight:700; color:#c4390a; }
-.bottom-order-btn { background:#1a2455; color:white; border:none; border-radius:.625rem; padding:.625rem 1.25rem; font-size:1rem; font-weight:700; cursor:pointer; font-family:'Noto Sans TC',sans-serif; min-height:2.75rem; white-space:nowrap; }
+/* 加減器（共用） */
+.qc { display: inline-flex; align-items: center; border: 1.5px solid var(--border);
+  border-radius: 8px; overflow: hidden; flex-shrink: 0; width: 108px; }
+.qc.g.on { border-color: var(--green); }
+.qc.a.on { border-color: var(--amber); }
+.qb { width: 34px; height: 40px; border: none; background: var(--gray-lt);
+  font-size: 18px; font-weight: 700; cursor: pointer; color: #555;
+  display: flex; align-items: center; justify-content: center; user-select: none; flex-shrink: 0; }
+.qb:active { background: #ddd; }
+.qn { flex: 1; height: 40px; border: none; border-inline: 1px solid var(--border);
+  background: var(--white); font-size: 15px; font-weight: 700;
+  text-align: center; color: var(--text); outline: none; min-width: 0; -moz-appearance: textfield; }
+.qn::-webkit-inner-spin-button { -webkit-appearance: none; }
+.qc.g.on .qn { color: var(--green); }
+.qc.a.on .qn { color: var(--amber); }
 
-/* ══ SHEET 底部安全距離 ══ */
-.sheet-safe { padding-bottom:max(1.25rem, env(safe-area-inset-bottom)); }
+/* 刪除 */
+.del-btn { width: 36px; height: 40px; border: none; background: #fee2e2;
+  border-radius: 7px; font-size: 15px; color: var(--red); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.del-btn:active { background: #fcc; }
 
-/* ══ OPTIONS MODAL ══ */
-.options-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; justify-content:flex-end; flex-direction:column; align-items:center; }
-.options-overlay.open { display:flex; }
-.options-sheet { background:white; border-radius:1.25rem 1.25rem 0 0; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; }
-.options-header { padding:.25rem 1rem .875rem; border-bottom:1px solid #eee; }
-.options-title { font-size:1.0625rem; font-weight:700; color:#1a2455; line-height:1.4; }
-.options-price { font-size:.9375rem; color:#c4390a; font-weight:700; margin-top:2px; }
-.options-section { padding:.875rem 1rem 0; }
-.options-section-title { font-size:.875rem; font-weight:700; color:#888; margin-bottom:.625rem; }
-.option-row { display:flex; align-items:center; justify-content:space-between; padding:.75rem 0; border-bottom:1px solid #f5f5f5; min-height:3rem; }
-.option-label { font-size:1rem; color:#333; flex:1; margin-right:.5rem; }
-.option-price-tag { font-size:.875rem; color:#c4390a; font-weight:700; margin-left:.375rem; white-space:nowrap; }
-/* checkbox 加大 */
-.option-checkbox { width:1.625rem; height:1.625rem; accent-color:#1a2455; cursor:pointer; flex-shrink:0; }
-.sauce-btns { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.25rem; }
-.sauce-btn { padding:.5rem 1.125rem; border-radius:1.25rem; border:1.5px solid #1a2455; background:white; color:#1a2455; font-size:.9375rem; cursor:pointer; font-family:'Noto Sans TC',sans-serif; min-height:2.5rem; transition:all .15s; }
-.sauce-btn.sel { background:#1a2455; color:white; font-weight:700; }
+/* 臨時品項 */
+.extra-row  { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; }
+.extra-name { flex: 1; border: 1px solid var(--border); border-radius: 7px;
+  font-size: 15px; padding: 8px 10px; outline: none; background: #fafafa; min-width: 0; }
+.extra-name:focus { border-color: var(--green); }
+.extra-unit { width: 46px; border: 1px solid var(--border); border-radius: 7px;
+  font-size: 13px; padding: 8px 4px; text-align: center; outline: none; background: #fafafa; }
+.extra-unit:focus { border-color: var(--green); }
 
-/* ══ CART SHEET ══ */
-.cart-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; justify-content:flex-end; flex-direction:column; align-items:center; }
-.cart-overlay.open { display:flex; }
-.cart-sheet { background:white; border-radius:1.25rem 1.25rem 0 0; max-height:92vh; display:flex; flex-direction:column; width:100%; max-width:480px; overflow:hidden; }
-.cart-handle { text-align:center; padding:.625rem; cursor:pointer; }
-.cart-handle-bar { width:2.5rem; height:4px; background:#ddd; border-radius:2px; display:inline-block; }
-.cart-header { padding:0 1rem .75rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #eee; flex-shrink:0; }
-.cart-title { font-size:1.125rem; font-weight:700; color:#1a2455; }
-.clear-btn { font-size:.875rem; color:#c4390a; background:none; border:none; cursor:pointer; padding:.375rem .5rem; font-family:'Noto Sans TC',sans-serif; min-height:2.25rem; }
-.cart-body { overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; }
-.cart-items { padding:.625rem 1rem; }
-.cart-item { display:flex; align-items:center; gap:.625rem; padding:.625rem 0; border-bottom:1px solid #f0f0f0; }
-.cart-item-name { flex:1; font-size:.9375rem; font-weight:500; color:#1a2455; min-width:0; }
-.cart-item-price { font-size:.9375rem; font-weight:700; color:#c4390a; min-width:3.375rem; text-align:right; white-space:nowrap; }
-.cart-item-notes { font-size:.75rem; color:#888; }
-.empty-cart { text-align:center; padding:2rem; color:#aaa; font-size:.9375rem; }
-.cart-options { padding:.75rem 1rem .5rem; border-top:1px solid #eee; }
-.opt-title { font-size:.875rem; font-weight:700; color:#555; margin-bottom:.625rem; }
-.opt-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:.625rem; gap:.5rem; min-height:2.75rem; }
-.opt-label { font-size:.9375rem; color:#333; }
-.opt-toggle { display:flex; border:1.5px solid #1a2455; border-radius:.5rem; overflow:hidden; flex-shrink:0; }
-.opt-toggle button { padding:.375rem .75rem; border:none; font-size:.875rem; cursor:pointer; font-family:'Noto Sans TC',sans-serif; background:white; color:#1a2455; min-height:2.25rem; }
-.opt-toggle button.sel { background:#1a2455; color:white; font-weight:700; }
-.note-input { width:100%; border:1.5px solid #e0e0e0; border-radius:.5rem; padding:.5rem .625rem; font-size:1rem; font-family:'Noto Sans TC',sans-serif; color:#333; resize:none; margin-top:.25rem; }
-.note-input:focus { outline:none; border-color:#1a2455; }
-.cart-summary { padding:.625rem 1rem; background:#f9f9f9; border-top:1px solid #eee; flex-shrink:0; }
-.summary-row { display:flex; justify-content:space-between; font-size:.875rem; color:#666; margin-bottom:.25rem; }
-.summary-total { display:flex; justify-content:space-between; font-size:1.125rem; font-weight:700; color:#1a2455; margin-top:.5rem; }
-.checkout-btn { flex-shrink:0; margin:.75rem 1rem; background:#1a2455; color:white; border:none; border-radius:.75rem; padding:.875rem; font-size:1rem; font-weight:700; cursor:pointer; width:calc(100% - 2rem); font-family:'Noto Sans TC',sans-serif; min-height:3rem; }
-.checkout-btn:active { opacity:.85; }
+/* 按鈕 / 合計 */
+.add-btn { width: 100%; padding: 10px; border-radius: 8px; font-size: 15px;
+  font-weight: 700; cursor: pointer; margin-top: 5px; }
+.add-btn.g { border: 1.5px dashed var(--green-md); background: var(--green-lt); color: var(--green); }
+.add-btn.a { border: 1.5px dashed var(--amber-md); background: var(--amber-lt); color: var(--amber); }
+.clr-btn { padding: 7px 12px; border: 2px solid var(--red); border-radius: 8px;
+  background: var(--white); color: var(--red); font-size: 13px; font-weight: 700; cursor: pointer; }
+.total-row { display: flex; justify-content: flex-end; align-items: center; gap: 10px;
+  margin-top: 10px; padding-top: 10px; border-top: 2px solid var(--border); }
+.total-lbl { font-size: 14px; color: var(--gray); }
+.total-val  { font-size: 22px; font-weight: 800; }
+.total-val.g { color: var(--green); }
+.total-val.a { color: var(--amber); }
 
-/* ══ POPUP MODAL（公告彈窗）══
-   解決老人字大後無法關閉的問題：
-   - 卡片不限制固定高度，改用 max-height + overflow
-   - 關閉按鈕改成 full-width，超好點
-   - overlay 點擊背景也可關閉
-*/
-.popup-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:500; align-items:center; justify-content:center; padding:1rem; }
-.popup-overlay.open { display:flex; }
-.popup-card { background:white; border-radius:1.25rem; padding:1.5rem 1.25rem 1.25rem; width:100%; max-width:360px; max-height:85vh; display:flex; flex-direction:column; text-align:center; overflow:hidden; }
-.popup-icon { font-size:2.5rem; margin-bottom:.625rem; flex-shrink:0; }
-.popup-title { font-size:1.125rem; font-weight:700; color:#1a2455; margin-bottom:.625rem; flex-shrink:0; }
-.popup-body { font-size:.9375rem; color:#555; line-height:2; margin-bottom:1.25rem; text-align:left; overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; }
-/* 關閉按鈕全寬，老人一定點得到 */
-.popup-close { background:#1a2455; color:white; border:none; border-radius:.75rem; padding:.875rem 1rem; font-size:1.0625rem; font-weight:700; cursor:pointer; font-family:'Noto Sans TC',sans-serif; width:100%; min-height:3rem; flex-shrink:0; }
-.popup-close:active { opacity:.85; }
+/* 記帳預覽 */
+.preview-lbl { font-size: 14px; font-weight: 700; color: var(--gray); margin-bottom: 7px; }
+.preview-box { background: var(--green-lt); border-radius: 8px; padding: 11px;
+  font-size: 14px; color: var(--green); line-height: 2;
+  white-space: pre-wrap; word-break: break-all; border: 1px solid var(--green-md); margin-bottom: 9px; }
+.preview-actions { display: flex; gap: 8px; }
+.copy-btn { flex: 0 0 auto; padding: 12px 16px; border: none; border-radius: 8px;
+  background: #374151; color: var(--white); font-size: 15px; font-weight: 700; cursor: pointer; }
+.line-btn { flex: 1; padding: 12px; border: none; border-radius: 8px;
+  background: #06c755; color: var(--white); font-size: 15px; font-weight: 700; cursor: pointer; }
 
-/* ══ CONFIRM MODAL ══ */
-.confirm-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:500; align-items:center; justify-content:center; padding:1rem; }
-.confirm-overlay.open { display:flex; }
-.confirm-card { background:white; border-radius:1.25rem; padding:1.5rem 1.25rem 1.25rem; width:100%; max-width:360px; max-height:85vh; display:flex; flex-direction:column; overflow:hidden; }
-.confirm-title { font-size:1.0625rem; font-weight:700; color:#1a2455; margin-bottom:.875rem; text-align:center; flex-shrink:0; }
-.confirm-items { font-size:.875rem; color:#555; line-height:2; margin-bottom:.75rem; overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; }
-.confirm-total { font-size:1rem; font-weight:700; color:#c4390a; text-align:right; margin-bottom:1.125rem; flex-shrink:0; }
-.confirm-btns { display:flex; gap:.625rem; flex-shrink:0; }
-.confirm-cancel { flex:1; background:#f0ede6; color:#555; border:none; border-radius:.625rem; padding:.75rem; font-size:1rem; cursor:pointer; font-family:'Noto Sans TC',sans-serif; min-height:2.875rem; }
-.confirm-ok { flex:2; background:#1a2455; color:white; border:none; border-radius:.625rem; padding:.75rem; font-size:1rem; font-weight:700; cursor:pointer; font-family:'Noto Sans TC',sans-serif; min-height:2.875rem; }
+/* 數量輸入 popup */
+.qty-pop-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  z-index: 250; align-items: flex-end; justify-content: center; }
+.qty-pop-ov.open { display: flex; }
+.qty-pop { background: var(--white); border-radius: 16px 16px 0 0; width: 100%;
+  max-width: 500px; padding: 20px 18px 28px; animation: slideUp .2s ease; }
+.qty-pop-name { font-size: 17px; font-weight: 800; color: var(--green); margin-bottom: 4px; }
+.qty-pop-meta { font-size: 13px; color: #aaa; margin-bottom: 18px; }
+.qty-pop-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.qty-pop-lbl { font-size: 14px; color: var(--gray); width: 32px; flex-shrink: 0; }
+.qty-pop-qc { display: flex; align-items: center; border: 1.5px solid var(--border);
+  border-radius: 8px; overflow: hidden; flex: 1; }
+.qty-pop-qb { width: 44px; height: 44px; border: none; background: var(--gray-lt);
+  font-size: 20px; font-weight: 700; cursor: pointer; color: #555;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.qty-pop-qb:active { background: #ddd; }
+.qty-pop-qn { flex: 1; height: 44px; border: none; border-inline: 1px solid var(--border);
+  background: var(--white); font-size: 18px; font-weight: 700; text-align: center;
+  color: var(--text); outline: none; -moz-appearance: textfield; }
+.qty-pop-qn::-webkit-inner-spin-button { -webkit-appearance: none; }
+.qty-pop-btns { display: flex; gap: 10px; margin-top: 6px; }
+.qty-pop-ok  { flex: 1; padding: 14px; border: none; border-radius: 10px;
+  background: var(--green); color: var(--white); font-size: 16px; font-weight: 700; cursor: pointer; }
+.qty-pop-del { padding: 14px 16px; border: 2px solid var(--red); border-radius: 10px;
+  background: var(--white); color: var(--red); font-size: 14px; font-weight: 700; cursor: pointer; }
+
+/* 底部列 */
+.bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
+  background: var(--white); border-top: 1px solid var(--border);
+  box-shadow: 0 -2px 8px rgba(0,0,0,.08);
+  padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+.bottom-amt { flex: 1; min-width: 0; }
+.bottom-amt .lbl { font-size: 12px; color: var(--gray); }
+.bottom-amt .amt { font-size: 22px; font-weight: 800; color: var(--green); }
+.bar-btns { display: flex; gap: 7px; }
+.bbtn { padding: 11px 15px; border-radius: var(--radius); font-size: 14px;
+  font-weight: 700; cursor: pointer; border: none; white-space: nowrap; }
+.bbtn.outline { background: var(--white); color: var(--red); border: 2px solid var(--red); }
+.bbtn.solid   { background: var(--green); color: var(--white); }
+
+/* 防呆 */
+.warn { background: #fff7ed; border: 1.5px solid #fed7aa; border-radius: 8px;
+  padding: 9px 13px; font-size: 13px; color: #92400e; margin-bottom: 8px; display: none; }
+.warn.on { display: block; }
+
+/* 訂單彈窗 */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 200; align-items: flex-end; justify-content: center; }
+.overlay.open { display: flex; }
+.modal { background: var(--white); border-radius: 16px 16px 0 0; width: 100%;
+  max-width: 700px; max-height: 90vh; display: flex; flex-direction: column; animation: slideUp .2s ease; }
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.modal-head { padding: 13px 16px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.modal-title { font-size: 16px; font-weight: 700; }
+.modal-close { font-size: 28px; color: #bbb; cursor: pointer; line-height: 1; }
+.modal-body  { flex: 1; overflow-y: auto; padding: 13px 16px; }
+.modal-foot  { padding: 10px 14px; border-top: 1px solid var(--border); display: flex; gap: 10px; flex-shrink: 0; }
+.pre-vendor { font-size: 14px; font-weight: 700; color: var(--green);
+  margin: 12px 0 4px; border-bottom: 1px solid var(--green-lt); padding-bottom: 3px; }
+.pre-vendor:first-child { margin-top: 0; }
+.pre-item { display: flex; gap: 6px; align-items: baseline; padding: 5px 0; border-bottom: 1px dashed #f0f0f0; }
+.pre-num  { font-size: 12px; color: #bbb; min-width: 20px; flex-shrink: 0; }
+.pre-name { flex: 1; font-size: 15px; font-weight: 600; color: #333; }
+.pre-calc { font-size: 12px; color: #bbb; white-space: nowrap; }
+.pre-sub  { font-size: 14px; font-weight: 700; color: var(--green); white-space: nowrap; }
+.pre-qty  { font-size: 13px; color: #888; font-weight: 600; white-space: nowrap; }
+.pre-total { display: flex; justify-content: space-between; margin-top: 11px;
+  padding-top: 10px; border-top: 2px solid var(--border); font-size: 15px; font-weight: 700; }
+.pre-total span:last-child { color: var(--green); }
+.pre-text-wrap { margin-top: 11px; border-top: 1px solid var(--border); padding-top: 10px; }
+.pre-text-lbl  { font-size: 12px; color: #aaa; margin-bottom: 5px; }
+.pre-textarea  { width: 100%; height: 160px; padding: 10px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 14px; color: #444; resize: vertical; background: #fafafa; line-height: 1.9; outline: none; }
+
+/* 確認彈窗 */
+.confirm-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 300; align-items: center; justify-content: center; }
+.confirm-ov.open { display: flex; }
+.confirm-box { background: var(--white); border-radius: 14px; padding: 26px 22px 18px;
+  max-width: 290px; width: 88%; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.18); }
+.confirm-msg  { font-size: 16px; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+.confirm-btns { display: flex; gap: 10px; }
+.cbtn { flex: 1; padding: 13px; border-radius: 9px; font-size: 16px; font-weight: 700; border: none; cursor: pointer; }
+.cbtn.ok  { background: var(--red); color: var(--white); }
+.cbtn.can { background: var(--gray-lt); color: #555; }
+
+/* Toast */
+.toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  background: #1f2937; color: var(--white); padding: 10px 22px; border-radius: 8px;
+  font-size: 14px; z-index: 999; opacity: 0; transition: opacity .25s; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; }
+.search-hint { text-align: center; color: #bbb; padding: 36px 0; font-size: 14px; }
 </style>
 </head>
 <body>
-<div class="app">
-<div class="phone-wrap">
 
-  <div class="header">
-    <div class="header-top">
-      <div class="logo-area">
-        <img src="data:image/png;base64,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" width="44" height="44" style="border-radius:50%;object-fit:cover;" alt="logo">
-        <span class="shop-name">香品小食堂</span>
-      </div>
-      <button class="cart-btn" onclick="openCart()">
-        🛒 購物車
-        <span class="cart-badge" id="cart-badge" style="display:none">0</span>
-      </button>
-    </div>
-    <div class="cat-tabs" id="cat-tabs"></div>
-  </div>
+<!-- ════════════════════════════════════════════════════════
+  ★  可修改設定區  ★  只改這裡的內容，其他地方請勿動
+  ════════════════════════════════════════════════════════
 
-  <div class="announce" id="announce-bar"></div>
-  <div id="menu-content"></div>
+  【A】店家資料
+      直接改引號裡的文字即可。
 
-  <div class="bottom-bar" id="bottom-bar">
-    <div class="bottom-total">已選 <span id="bottom-price">$0</span></div>
-    <button class="bottom-order-btn" onclick="openCart()">查看訂單</button>
-  </div>
+  【B】📦 叫貨廠商與品項
+      格式：{ name:"品名", unit:"單位", price:金額, note:"備註" }
+      ‣ price（金額）、note（備註）可以不填
+      ‣ 常用單位：斤 包 條 箱 瓶 罐 盒 顆 把 桶 件 片 籃 袋 捲 罐
 
-</div>
+      ➕ 新增廠商：在最後一個 ]}, 的前面，貼上整段：
+            { vendor: "廠商名稱", items: [
+              { name: "品名", unit: "單位", price: 金額 },
+            ]},
 
-<!-- 公休遮罩 -->
-<div class="closed-overlay" id="closed-overlay">
-  <div class="closed-icon">🔒</div>
-  <div class="closed-title">目前休息中</div>
-  <div class="closed-msg">感謝您的光臨，目前非營業時間。<br>請於營業時段再來訂餐，謝謝！</div>
-</div>
+      ➕ 新增品項：在該廠商 items 的最後一筆後面加一行：
+            { name: "品名", unit: "單位", price: 金額 },
 
-<!-- 公告彈窗 -->
-<div class="popup-overlay" id="popup-overlay" onclick="if(event.target===this)document.getElementById('popup-overlay').classList.remove('open')">
-  <div class="popup-card">
-    <div class="popup-icon">📢</div>
-    <div class="popup-title">店家公告</div>
-    <div class="popup-body" id="popup-body"></div>
-    <button class="popup-close" onclick="document.getElementById('popup-overlay').classList.remove('open')">✓ 我知道了</button>
-  </div>
-</div>
+      ➖ 刪除廠商或品項：把整段 { … }, 連同逗號一起刪掉
 
-<!-- 確認下單視窗 -->
-<div class="confirm-overlay" id="confirm-overlay" onclick="if(event.target===this)document.getElementById('confirm-overlay').classList.remove('open')">
-  <div class="confirm-card">
-    <div class="confirm-title">確認訂單</div>
-    <div class="confirm-items" id="confirm-items"></div>
-    <div class="confirm-total" id="confirm-total"></div>
-    <div class="confirm-btns">
-      <button class="confirm-cancel" onclick="document.getElementById('confirm-overlay').classList.remove('open')">再看看</button>
-      <button class="confirm-ok" onclick="submitOrder()">確認送出 🚀</button>
-    </div>
-  </div>
-</div>
+  【C】📒 記帳群組與快速按鈕
+      格式：{ name:"品名", price:金額 }
+      ‣ price（金額）可以不填，不填的話按下按鈕後手動輸入
 
-<!-- 購物車 -->
-<div class="cart-overlay" id="cart-overlay" onclick="if(event.target===this)closeCart()">
-  <div class="cart-sheet">
-    <div class="cart-handle"><span class="cart-handle-bar"></span></div>
-    <div class="cart-header">
-      <span class="cart-title">我的訂單</span>
-      <button class="clear-btn" onclick="clearCart()">清空</button>
-    </div>
-    <div class="cart-body">
-      <div class="cart-items" id="cart-items"></div>
-      <div class="cart-options">
-        <div class="opt-title">訂單選項</div>
-        <div class="opt-row">
-          <span class="opt-label">💴 付款方式</span>
-          <span style="font-size:14px;font-weight:700;color:#1a2455;">現金</span>
-        </div>
-        <div class="opt-row">
-          <span class="opt-label">🥢 免洗餐具</span>
-          <div class="opt-toggle">
-            <button onclick="selOpt('cutlery','yes',this)">需要</button>
-            <button class="sel" onclick="selOpt('cutlery','no',this)">不需要</button>
-          </div>
-        </div>
-        <div class="opt-row">
-          <span class="opt-label">🧾 收據</span>
-          <div class="opt-toggle">
-            <button onclick="selOpt('receipt','yes',this)">需要</button>
-            <button class="sel" onclick="selOpt('receipt','no',this)">不需要</button>
-          </div>
-        </div>
-        <div style="margin-top:8px">
-          <div style="font-size:13px;color:#666;margin-bottom:6px;">🛍 取餐方式 <span style="color:#c4390a;font-weight:700;">*必填</span></div>
-          <div class="opt-toggle" style="margin-bottom:8px;width:100%;">
-            <button class="sel" onclick="selPickup('takeout',this)" style="flex:1;">外帶自取 9折</button>
-            <button onclick="selPickup('delivery',this)" style="flex:1;">外送</button>
-          </div>
-          <div id="delivery-hint" style="display:none;background:#fff0f0;border-radius:8px;padding:10px 12px;font-size:12px;color:#555;margin-bottom:8px;line-height:1.8;">
-            <span id="delivery-hint-line1"></span><br>
-            <span id="delivery-hint-line2" style="color:#c4390a;font-weight:700;"></span>
-          </div>
-          <div style="font-size:13px;color:#666;margin-bottom:4px;">📝 備註（口味調整、其他需求、外送地址...）</div>
-          <textarea class="note-input" rows="2" id="order-note"></textarea>
-        </div>
-      </div>
-    </div>
-    <div class="cart-summary">
-      <div class="summary-row"><span>總數量</span><span id="sum-qty">0 項</span></div>
-      <div class="summary-row"><span>小計</span><span id="sum-sub">$0</span></div>
-      <div id="sum-disc" style="display:none;justify-content:space-between;font-size:13px;color:#c4390a;margin-bottom:4px;"><span>外帶自取 9折</span><span id="sum-disc-val"></span></div>
-      <div class="summary-total"><span>合計</span><span id="sum-total">$0</span></div>
-    </div>
-    <button class="checkout-btn" onclick="placeOrder()">確認下單</button>
-  </div>
-</div>
+      ➕ 新增群組：在最後一個 ]}, 的前面，貼上整段：
+            { group: "群組名稱", items: [
+              { name: "品名", price: 金額 },
+            ]},
 
-<!-- 加購選項 Modal -->
-<div class="options-overlay" id="options-overlay" onclick="if(event.target===this)closeOptionsModal()">
-  <div class="options-sheet">
-    <div class="cart-handle"><span class="cart-handle-bar"></span></div>
-    <div class="options-header" id="options-header"></div>
-    <div class="options-body" id="options-body"></div>
-    <div style="padding:12px 16px 8px;display:flex;align-items:center;justify-content:center;gap:16px;">
-      <button class="qty-btn minus" onclick="changeQtyModal(-1)">−</button>
-      <span id="modal-qty" style="font-size:20px;font-weight:700;color:#1a2455;min-width:28px;text-align:center;">1</span>
-      <button class="qty-btn" onclick="changeQtyModal(1)">+</button>
-    </div>
-    <div style="padding:0 1rem max(1.5rem,env(safe-area-inset-bottom));">
-      <button class="checkout-btn" style="margin:0;width:100%;" onclick="confirmAddToCart()">加入購物車</button>
-    </div>
-  </div>
-</div>
+      ➕ 新增品項：在 items 裡面加一行：
+            { name: "品名", price: 金額 },
 
-</div><!-- .app -->
+      ➖ 刪除群組或品項：把整行連同逗號一起刪掉
 
+      ⚠️ 特殊群組（請勿修改名稱）：
+         「瓦斯」    → 一般記帳格式（🔆）
+         「外帶自取」→ 特殊格式（🔺），只輸入金額，無臨時品項按鈕
+
+════════════════════════════════════════════════════════ -->
 <script>
-// ══════════════════════════════════════════════════════════════════════
-//  【區塊 1】營運參數 ── 這裡是最常需要改動的設定區
-//
-//  📋 可以在這裡修改的項目：
-//    1. isOpen            → 營業 / 休息 切換
-//    2. announcementText  → 頂部跑馬燈公告文字
-//    3. popupLines        → 開啟時彈窗公告內容
-//    4. defaultNote       → 備註欄的灰色提示文字
-//    5. deliveryHintLine1 → 外送說明框第一行文字
-//    6. deliveryHintLine2 → 外送說明框第二行（紅色警示）文字
-// ══════════════════════════════════════════════════════════════════════
-const STORE_CONFIG = {
 
-  // ── 營業狀態 ──────────────────────────────────────────────────────
-  // true  = 營業中（客人可以正常點餐）
-  // false = 休息中（客人看到「目前休息中」的遮罩，無法點餐）
-  isOpen: true,
+/* ══ 【A】店家資料 ══ */
+const SHOP_NAME     = "香品小食堂";
+const DELIVERY_ADDR = "平鎮區龍南路666巷1-2號1樓";
+const DELIVERY_NOTE = "抵達請致電，人員會出去接應";
+const TEL_MAIN      = "03-4505582";
+const TEL_B1        = "0916-550855";
+const TEL_B2        = "0938-582828";
 
-  // ── 頂部跑馬燈公告 ────────────────────────────────────────────────
-  // 修改方式：把單引號 ' ' 裡面的文字換成你要的公告即可
-  announcementText: '📢外帶自取享９折優惠❗3公里內/訂單金額滿$600 即可外送🛵',
+/* ══ 【B】訂貨廠商與品項 ══ */
+const VENDORS = [
 
-  // ── 開啟彈窗公告 ──────────────────────────────────────────────────
-  // 修改方式：每一行就是彈窗裡的一行文字
-  //   • 把引號 '' 裡的文字直接改掉
-  //   • 空字串 '' 代表空一行（當分隔用）
-  //   • 新增一行：在最後一行逗號後按 Enter，照格式貼上 '新文字',
-  //   • 完全不要彈窗：把中間所有行刪掉，只留 popupLines: [],
-  popupLines: [
-    '🍱歡迎光臨【香品小食堂🍲】',
-    '堅持現點現做，完美滋味值得您耐心等待⏳',
-    '',
-    '💡貼心小提醒：',
-    '量多請提前預約，為您保留美味並節省時間⏰',
-    '如有外送需求，請先洽詢店家🛵',
-  ],
+  { vendor: "雜貨-富陽行", items: [
+    { name: "602扁碗",              unit: "箱",  price: 1000, note: "炒碗" },
+    { name: "C-165平蓋",            unit: "箱",  price: 320,  note: "炒碗-蓋" },
+    { name: "C-165凸蓋",            unit: "條",  price: 75,   note: "炸物-蓋" },
+    { name: "750紙湯杯",             unit: "條",  price: 60,   note: "湯碗" },
+    { name: "750紙湯杯蓋",           unit: "條",  price: 50,   note: "湯碗-蓋" },
+    { name: "1000紙湯杯",            unit: "條",  price: 100,  note: "湯麵/粥碗" },
+    { name: "850CC湯杯蓋",           unit: "條",  price: 38,   note: "湯麵/粥碗-蓋" },
+    { name: "260紙湯杯",             unit: "條",  price: 30,   note: "白飯碗" },
+    { name: "2632蓋",               unit: "條",  price: 30,   note: "白飯碗-蓋" },
+    { name: "902圓碗",              unit: "條",  price: 75,   note: "加麵碗" },
+    { name: "免洗筷",               unit: "包",  price: 25 },
+    { name: "彎形湯匙",             unit: "箱",  price: 480 },
+    { name: "邦提圈",               unit: "包",  price: 30 },
+    { name: "四兩-耐熱袋",          unit: "包",  price: 33 },
+    { name: "六兩-耐熱袋",          unit: "包",  price: 33 },
+    { name: "半斤-耐熱袋",          unit: "包",  price: 33 },
+    { name: "一斤-耐熱袋",          unit: "包",  price: 33 },
+    { name: "兩斤-耐熱袋",          unit: "捲",  price: 155 },
+    { name: "三斤-耐熱袋",          unit: "捲",  price: 155 },
+    { name: "五斤-耐熱袋",          unit: "捲",  price: 155 },
+    { name: "四兩-提袋",            unit: "包",  price: 25 },
+    { name: "半斤-提袋",            unit: "包",  price: 25 },
+    { name: "一斤-提袋",            unit: "包",  price: 25 },
+    { name: "兩斤-提袋",            unit: "包",  price: 25 },
+    { name: "三斤-提袋",            unit: "包",  price: 25 },
+    { name: "五斤-提袋",            unit: "包",  price: 25 },
+    { name: "七斤-提袋",            unit: "包",  price: 25 },
+    { name: "6吋防油紙墊",          unit: "包",  price: 100 },
+    { name: "醬油碟",               unit: "條",  price: 65 },
+    { name: "2號夾鏈袋",            unit: "包",  price: 12 },
+    { name: "國寶-美國米",          unit: "袋",  price: 1225 },
+    { name: "福懋-沙拉油",          unit: "桶",  price: 840 },
+    { name: "鹽巴",                 unit: "包",  price: 18 },
+    { name: "味精",                 unit: "包",  price: 85 },
+    { name: "油蔥酥",               unit: "包",  price: 60 },
+    { name: "蒜頭酥",               unit: "包",  price: 60 },
+    { name: "老公仔-胡椒粉",        unit: "盒",  price: 120 },
+    { name: "老公仔-胡椒鹽粉",      unit: "盒",  price: 190 },
+    { name: "辣椒粉",               unit: "包",  price: 90 },
+    { name: "小磨坊-印度咖哩粉",    unit: "罐",  price: 145 },
+    { name: "烹大師-鰹魚粉",        unit: "包",  price: 290 },
+    { name: "金味王-醬油(10斤)",     unit: "桶",  price: 220 },
+    { name: "金蘭-甘醇油膏(10斤)",   unit: "桶",  price: 225 },
+    { name: "萬家鄉-香菇素蠔油(5L)", unit: "桶",  price: 250 },
+    { name: "牛頭牌-沙茶醬(3Kg)",   unit: "罐",  price: 540 },
+    { name: "可果美-番茄醬(塑膠桶)", unit: "瓶",  price: 210 },
+    { name: "可果美-番茄醬(鐵桶)",  unit: "桶",  price: 215 },
+    { name: "工研烏醋(600ml)",      unit: "瓶",  price: 50 },
+    { name: "工研白醋(5L)",         unit: "瓶",  price: 200 },
+    { name: "福華牌-泰雞醬",        unit: "瓶",  price: 75 },
+    { name: "燈燦香油",             unit: "瓶",  price: 270 },
+    { name: "豆瓣醬(5斤)",          unit: "桶",  price: 130 },
+    { name: "飯友-切角鳳梨",        unit: "罐",  price: 220 },
+    { name: "世宇-單顆沙拉",        unit: "顆",  price: 50 },
+    { name: "圓紫菜",               unit: "包",  price: 100 },
+    { name: "料理米酒",             unit: "罐",  price: 15 },
+    { name: "黑木耳絲",             unit: "包",  price: 170 },
+    { name: "乾辣椒(切段)",         unit: "包",  price: 180 },
+    { name: "辣油(2.4L)",           unit: "瓶",  price: 210 },
+    { name: "八角粒",               unit: "包" },
+    { name: "花椒粒",               unit: "包" },
+    { name: "太白粉(5斤)",          unit: "包",  price: 175 },
+    { name: "地瓜粉(5斤)",          unit: "包",  price: 125 },
+    { name: "黏師傅",               unit: "包",  price: 80 },
+    { name: "吉士粉",               unit: "包",  price: 62 },
+    { name: "二號砂糖(5斤)",        unit: "包",  price: 100 },
+    { name: "特砂(白糖)",           unit: "台斤" },
+    { name: "黑豆豉",               unit: "斤",  price: 45 },
+    { name: "洗碗精",               unit: "罐",  price: 45 },
+    { name: "漂白水",               unit: "罐",  price: 65 },
+    { name: "去油劑",               unit: "罐",  price: 220 },
+    { name: "礦泉水(1500ml)",       unit: "箱",  price: 70 },
+    { name: "嫩精",                 unit: "罐",  price: 130 },
+    { name: "枸杞",                 unit: "包",  price: 195 },
+    { name: "人蔘鬚",               unit: "把",  price: 75 },
+    { name: "冬粉翅",               unit: "包",  price: 500 },
+    { name: "熟白芝麻(半斤)",       unit: "包",  price: 50 },
+  ]},
 
-  // ── 備註欄的灰色提示文字 ──────────────────────────────────────────
-  // 就是客人還沒打字時，備註欄裡顯示的淡灰色文字
-  // 修改方式：把單引號 ' ' 裡面的文字換掉即可
-  defaultNote: '例：口味調整、其他需求 / 外送地址：...',
+  { vendor: "台北-聯和", items: [
+    { name: "魷魚清肉(10k)",        unit: "件",  price: 2100 },
+    { name: "白蝦-南美(6/7)",       unit: "盒",  price: 210 },
+    { name: "帶殼海瓜子(500g)",     unit: "包",  price: 75 },
+    { name: "蚵仔(1斤)-大",         unit: "包",  price: 130 },
+    { name: "蛤仔(活)-大(8分)",     unit: "斤",  price: 80 },
+    { name: "割背蝦仁(2號-16/20)",  unit: "包",  price: 1200 },
+    { name: "紅糟鰻(600g)",         unit: "包",  price: 155 },
+    { name: "月亮蝦餅(蝦怪)",       unit: "片",  price: 55 },
+    { name: "鮭魚碎肉A藍袋-1KG",    unit: "包",  price: 300 },
+    { name: "虱目魚肚-無刺(進口)",  unit: "包",  price: 40 },
+    { name: "鹿茸烏骨雞(金)",       unit: "包",  price: 300 },
+    { name: "蒲燒鯛魚排(110P)",     unit: "盒",  price: 1350 },
+    { name: "金目鱸魚(蝴蝶切)",     unit: "尾",  price: 120 },
+    { name: "佛跳牆(金)",           unit: "盒",  price: 280 },
+  ]},
 
-  // ── 外送說明框文字 ────────────────────────────────────────────────
-  // 就是客人選「外送」後，出現的粉紅色說明框裡的文字
-  //
-  // 【修改方式】
-  //   • 這裡有「兩行」文字，分別對應說明框的第一行和第二行
-  //   • 直接把單引號 ' ' 裡面的內容換成你要的文字即可
-  //   • 第一行（deliveryHintLine1）：一般說明，例如距離、金額限制
-  //   • 第二行（deliveryHintLine2）：紅字警示，例如請填地址
-  //
-  // 【範例】
-  //   deliveryHintLine1: '🔺5公里內/訂單金額滿$800（請先洽詢店家）',
-  //   deliveryHintLine2: '*外送地址請填入下方備註欄',
-  //
-  deliveryHintLine1: '🔺訂單滿600元、距離3公里內即可外送（請先洽詢店家）',
-  deliveryHintLine2: '*請於下方備註欄內填入外送地址/聯絡電話',
-};
+  { vendor: "中壢-聯合", items: [
+    { name: "豬肉絲",   unit: "包", price: 500 },
+    { name: "牛炒片",   unit: "包", price: 630 },
+    { name: "羊炒片",   unit: "包", price: 830 },
+    { name: "香腸片",   unit: "包", price: 380 },
+    { name: "白蝦仁",   unit: "包", price: 730 },
+    { name: "A大貢丸",  unit: "包", price: 450 },
+    { name: "鱈魚丸",   unit: "包", price: 350 },
+    { name: "虱目魚肚", unit: "包", price: 65 },
+    { name: "玉米粒",   unit: "包", price: 70 },
+    { name: "雞胸清肉", unit: "斤", price: 93 },
+    { name: "大雞腿",   unit: "斤", price: 75 },
+  ]},
 
-// ══════════════════════════════════════════════════════════════════════
-//  【區塊 2】菜單資料
-// ══════════════════════════════════════════════════════════════════════
-//
-//  ┌──────────────────────────────────────────────────────────────────┐
-//  │  📌 每道菜有 10 個欄位，逐一說明如下：                          │
-//  └──────────────────────────────────────────────────────────────────┘
-//
-//  【欄位 1】id
-//    • 每道菜的「唯一編號」，不可重複
-//    • 新增菜色請從 201 開始往上加（201、202、203…）
-//
-//  【欄位 2】cat（分類）
-//    • 決定這道菜出現在哪個分類頁籤
-//    • 目前可用的分類：炒飯、炒麵、炒烏龍麵、烏龍湯麵、粥品、熱炒類、時蔬類、酥炸類、湯品
-//
-//  【欄位 3】name（菜名）
-//    • 直接改成你要的菜名文字即可
-//
-//  【欄位 4】price（售價）
-//    • 填數字，不要加 $ 符號
-//
-//  【欄位 5】emoji（圖示）
-//    • 選一個符合菜色的 emoji 替換即可
-//    • 常用：🍚炒飯 / 🍝炒麵 / 🍜湯麵 / 🥣粥湯 / 🍳熱炒 / 🥬蔬菜 / 🟡酥炸
-//
-//  ┌──────────────────────────────────────────────────────────────────┐
-//  │  🔥 【欄位 6】popular —— 熱銷標籤                               │
-//  │                                                                  │
-//  │    popular:true   → 顯示「熱銷」橘色標籤 + 外框變成金色邊框   │
-//  │    popular:false  → 不顯示熱銷標籤（正常狀態）                 │
-//  │                                                                  │
-//  │    改法：把 popular:false 改成 popular:true 即出現熱銷標籤     │
-//  └──────────────────────────────────────────────────────────────────┘
-//
-//  ┌──────────────────────────────────────────────────────────────────┐
-//  │  ✕ 【欄位 7】isSoldOut —— 完售 / 售完                           │
-//  │                                                                  │
-//  │    isSoldOut:true   → 顯示「已售完」紅色標籤                   │
-//  │                        加入按鈕變灰色，客人無法加入購物車        │
-//  │    isSoldOut:false  → 正常販售（正常狀態）                      │
-//  │                                                                  │
-//  │    改法：把 isSoldOut:false 改成 isSoldOut:true 即完售          │
-//  │    恢復：再改回 isSoldOut:false 即可                             │
-//  └──────────────────────────────────────────────────────────────────┘
-//
-//  【欄位 8】isNew（新品標籤）
-//    isNew:true   → 顯示「新品」藍色標籤
-//    isNew:false  → 不顯示新品標籤
-//
-//  【欄位 9】isHidden（隱藏 / 下架）
-//    isHidden:true   → 菜單上完全看不見此道菜（暫時下架用）
-//    isHidden:false  → 正常顯示
-//
-//  【欄位 10】extras（加購選項 — 結帳前彈窗讓客人勾選）
-//    格式：[{label:'選項名稱', price:加價金額}, ...]
-//    • 免費加購 → price:0
-//    • 付費加購 → price:20（填數字）
-//    • 不需要加購選項 → 填 []
-//
-//  【欄位 11】sauce（醬料選擇 — 結帳前彈窗讓客人選）
-//    格式：['醬料A', '醬料B']
-//    • 不需要醬料選擇 → 填 []
-//
-//  ┌──────────────────────────────────────────────────────────────────┐
-//  │  ➕ 新增一道菜（複製下面這行，貼到對應分類最後一道的後面）      │
-//  │                                                                  │
-//  │  { id:201, cat:'熱炒類', name:'新菜名', price:180, emoji:'🍳', │
-//  │    popular:false, isSoldOut:false, isNew:true, isHidden:false,  │
-//  │    extras:[{label:'加辣🌶️',price:0}], sauce:[] },               │
-//  │                                                                  │
-//  │  ⚠️ id 每次新增請 +1（201、202、203…），絕對不能重複           │
-//  └──────────────────────────────────────────────────────────────────┘
-const MENU_DATA = [
-  // ┌─────────────────────────────────────────────────────────────────────┐
-  // │ 炒飯                                                                │
-  // │ 新增炒飯品項 → 在最後一道（咖哩羊肉炒飯）後面加一行               │
-  // └─────────────────────────────────────────────────────────────────────┘
-  //   id    分類      菜名               售價   圖示
-  //         🔥popular:true=熱銷  ✕isSoldOut:true=完售  🆕isNew:true=新品  👁isHidden:true=下架
-  //         extras=加購選項  sauce=醬料選擇
-  { id:1,  cat:'炒飯', name:'香腸炒飯',     price:105, emoji:'🍚', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加飯',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:2,  cat:'炒飯', name:'豬肉炒飯',     price:105, emoji:'🍚', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加飯',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:3,  cat:'炒飯', name:'牛肉炒飯',     price:110, emoji:'🍚', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加飯',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:4,  cat:'炒飯', name:'羊肉炒飯',     price:110, emoji:'🍚', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加飯',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:5,  cat:'炒飯', name:'蝦仁炒飯',     price:115, emoji:'🍚', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加飯',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:6,  cat:'炒飯', name:'鮭魚炒飯',     price:160, emoji:'🍚', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加飯',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:7,  cat:'炒飯', name:'咖哩豬肉炒飯', price:115, emoji:'🍚', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加飯',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:8,  cat:'炒飯', name:'咖哩牛肉炒飯', price:120, emoji:'🍚', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加飯',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:9,  cat:'炒飯', name:'咖哩羊肉炒飯', price:120, emoji:'🍚', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加飯',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  // ┌─────────────────────────────────────────────────────────────────────┐
-  // │ 炒麵                                                                │
-  // │ 新增炒麵品項 → 在最後一道（咖哩海鮮炒麵）後面加一行               │
-  // └─────────────────────────────────────────────────────────────────────┘
-  { id:10, cat:'炒麵', name:'豬肉炒麵',     price:105, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:11, cat:'炒麵', name:'牛肉炒麵',     price:110, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:12, cat:'炒麵', name:'羊肉炒麵',     price:110, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:13, cat:'炒麵', name:'海鮮炒麵',     price:125, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:14, cat:'炒麵', name:'咖哩豬肉炒麵', price:115, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:15, cat:'炒麵', name:'咖哩牛肉炒麵', price:120, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:16, cat:'炒麵', name:'咖哩羊肉炒麵', price:120, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:17, cat:'炒麵', name:'咖哩海鮮炒麵', price:135, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  // ┌─────────────────────────────────────────────────────────────────────┐
-  // │ 炒烏龍麵                                                            │
-  // │ 新增品項 → 在最後一道（咖哩海鮮炒烏龍麵）後面加一行               │
-  // └─────────────────────────────────────────────────────────────────────┘
-  { id:18, cat:'炒烏龍麵', name:'豬肉炒烏龍麵',     price:105, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:19, cat:'炒烏龍麵', name:'牛肉炒烏龍麵',     price:110, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:20, cat:'炒烏龍麵', name:'羊肉炒烏龍麵',     price:110, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:21, cat:'炒烏龍麵', name:'海鮮炒烏龍麵',     price:125, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:22, cat:'炒烏龍麵', name:'咖哩豬肉炒烏龍麵', price:115, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:23, cat:'炒烏龍麵', name:'咖哩牛肉炒烏龍麵', price:120, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:24, cat:'炒烏龍麵', name:'咖哩羊肉炒烏龍麵', price:120, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:25, cat:'炒烏龍麵', name:'咖哩海鮮炒烏龍麵', price:135, emoji:'🍝', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  // ┌─────────────────────────────────────────────────────────────────────┐
-  // │ 烏龍湯麵                                                            │
-  // │ 新增品項 → 在最後一道（海鮮烏龍湯麵）後面加一行                   │
-  // └─────────────────────────────────────────────────────────────────────┘
-  { id:26, cat:'烏龍湯麵', name:'沙茶豬肉烏龍湯麵', price:110, emoji:'🍜', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:27, cat:'烏龍湯麵', name:'沙茶牛肉烏龍湯麵', price:115, emoji:'🍜', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:28, cat:'烏龍湯麵', name:'沙茶羊肉烏龍湯麵', price:115, emoji:'🍜', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:29, cat:'烏龍湯麵', name:'海鮮烏龍湯麵',     price:130, emoji:'🍜', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加麵',price:20},{label:'加辣🌶️',price:0}], sauce:[] },
-  // ┌─────────────────────────────────────────────────────────────────────┐
-  // │ 粥品                                                                │
-  // │ 新增品項 → 在最後一道（虱目魚肚粥）後面加一行                     │
-  // └─────────────────────────────────────────────────────────────────────┘
-  { id:30, cat:'粥品', name:'玉米瘦肉粥', price:105, emoji:'🥣', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:31, cat:'粥品', name:'滑蛋牛肉粥', price:110, emoji:'🥣', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:32, cat:'粥品', name:'皮蛋瘦肉粥', price:115, emoji:'🥣', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:33, cat:'粥品', name:'海鮮總匯粥', price:120, emoji:'🥣', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:34, cat:'粥品', name:'虱目魚肚粥', price:135, emoji:'🥣', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  // ┌─────────────────────────────────────────────────────────────────────┐
-  // │ 熱炒類                                                              │
-  // │ 新增品項 → 在最後一道（金沙蝦球）後面加一行                       │
-  // └─────────────────────────────────────────────────────────────────────┘
-  { id:100, cat:'熱炒類', name:'白飯',         price:20,  emoji:'🍚', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
-  { id:35,  cat:'熱炒類', name:'塔香烘蛋',     price:135, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:36,  cat:'熱炒類', name:'青蔥烘蛋',     price:135, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:37,  cat:'熱炒類', name:'菜脯蛋',       price:135, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:38,  cat:'熱炒類', name:'蚵仔煎蛋',     price:160, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:39,  cat:'熱炒類', name:'番茄炒蛋',     price:180, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:40,  cat:'熱炒類', name:'麻婆豆腐🌶️',  price:180, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
-  { id:41,  cat:'熱炒類', name:'豆豉鮮蚵',     price:180, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:42,  cat:'熱炒類', name:'豆豉排骨',     price:195, emoji:'🍳', popular:false, isSoldOut:false, isNew:true, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:43,  cat:'熱炒類', name:'蠔油雞丁',     price:180, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:44,  cat:'熱炒類', name:'宮保雞丁🌶️',  price:180, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
-  { id:45,  cat:'熱炒類', name:'宮保中卷🌶️',  price:180, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
-  { id:46,  cat:'熱炒類', name:'熱炒豬肉',     price:180, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:47,  cat:'熱炒類', name:'熱炒牛肉',     price:190, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:48,  cat:'熱炒類', name:'熱炒羊肉',     price:190, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:49,  cat:'熱炒類', name:'蒜泥五花肉',   price:185, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:50,  cat:'熱炒類', name:'炒蛤蜊',       price:185, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:51,  cat:'熱炒類', name:'炒海瓜子',     price:185, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:52,  cat:'熱炒類', name:'滑蛋牛肉',     price:190, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:53,  cat:'熱炒類', name:'滑蛋蝦仁',     price:190, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:54,  cat:'熱炒類', name:'川燙中卷',     price:195, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:['醬油芥末','蒜蓉醬'] }, // sauce 有值 → 結帳前讓客人選醬料
-  { id:55,  cat:'熱炒類', name:'白灼蝦',       price:195, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
-  { id:56,  cat:'熱炒類', name:'糖醋雞丁',     price:185, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:57,  cat:'熱炒類', name:'糖醋排骨',     price:195, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:58,  cat:'熱炒類', name:'糖醋蝦球',     price:195, emoji:'🍳', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:59,  cat:'熱炒類', name:'金沙豆腐',     price:190, emoji:'🍳', popular:false, isSoldOut:false, isNew:true, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:60,  cat:'熱炒類', name:'金沙中卷',     price:210, emoji:'🍳', popular:false, isSoldOut:false, isNew:true, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:61,  cat:'熱炒類', name:'金沙蝦球',     price:210, emoji:'🍳', popular:false, isSoldOut:false, isNew:true, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  // ┌─────────────────────────────────────────────────────────────────────┐
-  // │ 時蔬類                                                              │
-  // │ 新增品項 → 在最後一道（地瓜葉皮蛋）後面加一行                     │
-  // └─────────────────────────────────────────────────────────────────────┘
-  { id:62, cat:'時蔬類', name:'炒菠菜',     price:110, emoji:'🥬', popular:false, isSoldOut:true, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:63, cat:'時蔬類', name:'炒地瓜葉',   price:110, emoji:'🥬', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:64, cat:'時蔬類', name:'炒空心菜',   price:110, emoji:'🥬', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:65, cat:'時蔬類', name:'炒高麗菜',   price:110, emoji:'🥬', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:66, cat:'時蔬類', name:'肉絲水蓮',   price:150, emoji:'🥬', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:67, cat:'時蔬類', name:'地瓜葉皮蛋', price:150, emoji:'🥬', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  // ┌─────────────────────────────────────────────────────────────────────┐
-  // │ 酥炸類                                                              │
-  // │ 新增品項 → 在最後一道（鳳梨蝦球）後面加一行                       │
-  // └─────────────────────────────────────────────────────────────────────┘
-  { id:68, cat:'酥炸類', name:'招牌黃金豆腐', price:170, emoji:'🟡', popular:false, isSoldOut:false, isNew:true, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:69, cat:'酥炸類', name:'招牌紅糟鰻',   price:190, emoji:'🟡', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:70, cat:'酥炸類', name:'鹽酥鮮蚵',     price:190, emoji:'🟡', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:71, cat:'酥炸類', name:'月亮蝦餅',     price:190, emoji:'🟡', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
-  { id:72, cat:'酥炸類', name:'椒鹽排骨',     price:190, emoji:'🟡', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:73, cat:'酥炸類', name:'鹽酥蝦',       price:190, emoji:'🟡', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:74, cat:'酥炸類', name:'椒鹽中卷',     price:200, emoji:'🟡', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[{label:'加辣🌶️',price:0}], sauce:[] },
-  { id:75, cat:'酥炸類', name:'鳳梨蝦球',     price:200, emoji:'🟡', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
-  // ┌─────────────────────────────────────────────────────────────────────┐
-  // │ 湯品                                                                │
-  // │ 新增品項 → 在最後一道（薑絲鮮蚵湯）後面加一行                     │
-  // └─────────────────────────────────────────────────────────────────────┘
-  { id:76, cat:'湯品', name:'紫菜蛋花湯', price:50, emoji:'🥣', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
-  { id:77, cat:'湯品', name:'貢丸湯',     price:55, emoji:'🥣', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
-  { id:78, cat:'湯品', name:'魚丸湯',     price:55, emoji:'🥣', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
-  { id:79, cat:'湯品', name:'番茄蛋花湯', price:65, emoji:'🥣', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
-  { id:80, cat:'湯品', name:'薑絲蛤蜊湯', price:65, emoji:'🥣', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
-  { id:81, cat:'湯品', name:'薑絲鮮蚵湯', price:70, emoji:'🥣', popular:false, isSoldOut:false, isNew:false, isHidden:false, extras:[], sauce:[] },
+  { vendor: "中壢-昇暉製麵", items: [
+    { name: "烏龍麵(5斤)", unit: "包", price: 80 },
+    { name: "豆菜麵(5斤)", unit: "包", price: 80 },
+    { name: "魚板絲",      unit: "包", price: 300 },
+    { name: "魚板片",      unit: "包", price: 350 },
+  ]},
+
+  { vendor: "中壢-富昌", items: [
+    { name: "五花肉", unit: "斤", price: 140 },
+    { name: "軟骨排", unit: "斤", price: 130 },
+  ]},
+
+  { vendor: "永溢麵食", items: [
+    { name: "豆菜麵(5斤)", unit: "包", price: 90 },
+    { name: "烏龍麵(5斤)", unit: "包", price: 100 },
+  ]},
+
+  { vendor: "三信蛋行", items: [
+    { name: "雞蛋(⚠️「大」顆的‼️)", unit: "籃" },
+    { name: "皮蛋",                    unit: "顆" },
+    { name: "鹹蛋黃",                  unit: "顆" },
+  ]},
+
+  { vendor: "市場(阿潭)", items: [
+    { name: "空心菜", unit: "把" }, { name: "高麗菜", unit: "顆" }, { name: "地瓜葉" },
+    { name: "菠菜",   unit: "把" }, { name: "炒麵菜", unit: "把" }, { name: "水蓮", unit: "包" },
+    { name: "洋蔥",   unit: "顆" }, { name: "紅蘿蔔", unit: "條" }, { name: "九層塔" },
+    { name: "蔥" },                  { name: "蒜末",   unit: "包" }, { name: "辣椒" },
+    { name: "薑絲",   unit: "包" }, { name: "芹菜" },               { name: "豆腐", unit: "盒" },
+    { name: "皮蛋",   unit: "顆" }, { name: "乾菜脯" },             { name: "蒜味花生" },
+    { name: "蛤蜊",   unit: "斤" }, { name: "豆菜麵(1斤)", unit: "包" }, { name: "烏龍麵(1斤)", unit: "包" },
+  ]},
+
 ];
 
-// ══════════════════════════════
-//  執行時狀態
-// ══════════════════════════════
-const menu = MENU_DATA.filter(i => !i.isHidden);
-let cart = {};
-let opts = {cutlery:'no', receipt:'no', pickup:'takeout'};
-let selCat = '全部';
-const ALL_CATS = ['全部','炒飯','炒麵','炒烏龍麵','烏龍湯麵','粥品','熱炒類','時蔬類','酥炸類','湯品'];
+/* ══ 【C】記帳快速品項（與訂貨完全獨立）══ */
+const LEDGER_ITEMS = [
 
-// ══════════════════════════════
-//  菜單渲染
-// ══════════════════════════════
-function renderTabs(){
-  document.getElementById('cat-tabs').innerHTML = ALL_CATS.map(c =>
-    `<button class="cat-tab${c===selCat?' active':''}" onclick="selCategory('${c}')">${c}</button>`
-  ).join('');
-}
+  { group: "雜貨-富陽行", items: [
+    { name: "602扁碗",              price: 1000 }, { name: "C-165平蓋",            price: 320  },
+    { name: "C-165凸蓋",            price: 75   }, { name: "750紙湯杯",             price: 60   },
+    { name: "750紙湯杯蓋",           price: 50   }, { name: "1000紙湯杯",            price: 100  },
+    { name: "850CC湯杯蓋",           price: 38   }, { name: "260紙湯杯",             price: 30   },
+    { name: "2632蓋",               price: 30   }, { name: "902圓碗",              price: 75   },
+    { name: "免洗筷",               price: 25   }, { name: "彎形湯匙",             price: 480  },
+    { name: "邦提圈",               price: 30   }, { name: "四兩-耐熱袋",          price: 33   },
+    { name: "六兩-耐熱袋",          price: 33   }, { name: "半斤-耐熱袋",          price: 33   },
+    { name: "一斤-耐熱袋",          price: 33   }, { name: "兩斤-耐熱袋",          price: 155  },
+    { name: "三斤-耐熱袋",          price: 155  }, { name: "五斤-耐熱袋",          price: 155  },
+    { name: "四兩-提袋",            price: 25   }, { name: "半斤-提袋",            price: 25   },
+    { name: "一斤-提袋",            price: 25   }, { name: "兩斤-提袋",            price: 25   },
+    { name: "三斤-提袋",            price: 25   }, { name: "五斤-提袋",            price: 25   },
+    { name: "七斤-提袋",            price: 25   }, { name: "6吋防油紙墊",          price: 100  },
+    { name: "醬油碟",               price: 65   }, { name: "2號夾鏈袋",            price: 12   },
+    { name: "美國米",          price: 1225 }, { name: "沙拉油",          price: 840  },
+    { name: "鹽巴",                 price: 18   }, { name: "味精",                 price: 85   },
+    { name: "油蔥酥",               price: 60   }, { name: "蒜頭酥",               price: 60   },
+    { name: "胡椒粉",        price: 120  }, { name: "胡椒鹽粉",      price: 190  },
+    { name: "辣椒粉",               price: 90   }, { name: "印度咖哩粉",    price: 145  },
+    { name: "鰹魚粉",        price: 290  }, { name: "醬油",     price: 220  },
+    { name: "甘醇油膏",   price: 225  }, { name: "香菇素蠔油", price: 250  },
+    { name: "沙茶醬",   price: 540  }, { name: "番茄醬(塑)", price: 210  },
+    { name: "番茄醬(鐵)",  price: 215  }, { name: "工研烏醋",      price: 50   },
+    { name: "工研白醋",         price: 200  }, { name: "泰雞醬",        price: 75   },
+    { name: "燈燦香油",             price: 270  }, { name: "豆瓣醬",          price: 130  },
+    { name: "切角鳳梨",        price: 220  }, { name: "單顆沙拉",        price: 50   },
+    { name: "圓紫菜",               price: 100  }, { name: "料理米酒",             price: 15   },
+    { name: "黑木耳絲",             price: 170  }, { name: "乾辣椒",         price: 180  },
+    { name: "辣油",           price: 210  }, { name: "八角粒"               }, { name: "花椒粒" },
+    { name: "太白粉",          price: 175  }, { name: "地瓜粉",          price: 125  },
+    { name: "黏師傅",               price: 80   }, { name: "吉士粉",               price: 62   },
+    { name: "二號砂糖",        price: 100  }, { name: "特砂(白糖)"            }, { name: "黑豆豉", price: 45 },
+    { name: "洗碗精",               price: 45   }, { name: "漂白水",               price: 65   },
+    { name: "去油劑",               price: 220  }, { name: "礦泉水",       price: 70   },
+    { name: "嫩精",                 price: 130  }, { name: "枸杞",                 price: 195  },
+    { name: "人蔘鬚",               price: 75   }, { name: "冬粉翅",               price: 500  },
+    { name: "熟白芝麻",       price: 50   },
+  ]},
 
-function selCategory(c){ selCat=c; renderTabs(); renderMenu(); }
+  { group: "台北-聯和", items: [
+    { name: "魷魚清肉",        price: 2100 }, { name: "白蝦",       price: 210  },
+    { name: "帶殼海瓜子",     price: 75   }, { name: "冷凍蚵仔",       price: 160  },
+    { name: "蚵仔",         price: 130  }, { name: "蛤仔",     price: 80   },
+    { name: "割背蝦仁",  price: 1200 }, { name: "紅糟鰻",         price: 155  },
+    { name: "月亮蝦餅",       price: 55   }, { name: "鮭魚碎肉",    price: 300  },
+    { name: "虱目魚肚",  price: 40   }, { name: "鹿茸烏骨雞",       price: 300  },
+    { name: "蒲燒鯛魚排",     price: 1350 }, { name: "金目鱸魚",     price: 120  },
+    { name: "佛跳牆",           price: 280  },
+  ]},
 
-function renderMenu(){
-  const items = selCat==='全部' ? menu : menu.filter(i=>i.cat===selCat);
-  const byCat = {};
-  items.forEach(i=>{ if(!byCat[i.cat]) byCat[i.cat]=[]; byCat[i.cat].push(i); });
-  let html = '<div class="menu-list">';
-  if(selCat !== '全部'){
-    html += items.length===0
-      ? '<div style="text-align:center;padding:40px 20px;color:#aaa;font-size:14px;">此分類尚無品項</div>'
-      : items.map(renderItem).join('');
-  } else {
-    ALL_CATS.filter(c=>c!=='全部').forEach(cat=>{
-      const catItems = byCat[cat]||[];
-      if(!catItems.length) return;
-      html += `<div class="section-title">${cat}</div>` + catItems.map(renderItem).join('');
-    });
-  }
-  document.getElementById('menu-content').innerHTML = html + '</div>';
-}
+  { group: "中壢-聯合", items: [
+    { name: "豬肉絲",   price: 500 }, { name: "牛炒片",   price: 630 }, { name: "羊炒片",   price: 830 },
+    { name: "香腸片",   price: 380 }, { name: "白蝦仁",   price: 730 }, { name: "A大貢丸",  price: 450 },
+    { name: "鱈魚丸",   price: 350 }, { name: "虱目魚肚", price: 65  }, { name: "玉米粒",   price: 70  },
+    { name: "雞胸清肉", price: 93  }, { name: "大雞腿",   price: 75  },
+  ]},
 
-function renderItem(item){
-  const q = cart[item.id]||0;
-  let ctrl = '';
-  if(item.isSoldOut){
-    ctrl = '<div class="sold-btn">✕</div>';
-  } else if(q>0){
-    ctrl = `<div class="qty-control">
-      <button class="qty-btn minus" onclick="changeQty(${item.id},-1)">−</button>
-      <span class="qty-num">${q}</span>
-      <button class="qty-btn" onclick="changeQty(${item.id},1)">+</button>
-    </div>`;
-  } else {
-    ctrl = `<button class="add-btn" onclick="changeQty(${item.id},1)">+</button>`;
-  }
-  return `<div class="menu-item${item.popular?' popular':''}${item.isSoldOut?' soldout':''}">
-    <div class="item-emoji">${item.emoji}</div>
-    <div class="item-info">
-      <div class="item-name-row">
-        <span class="item-name">${item.name}</span>
-        ${item.popular?'<span class="popular-tag">熱銷</span>':''}
-        ${item.isNew?'<span class="new-tag">新品</span>':''}
-        ${item.isSoldOut?'<span class="sold-tag">已售完</span>':''}
+  { group: "中壢-昇暉製麵", items: [
+    { name: "烏龍麵(5斤)", price: 80  }, { name: "豆菜麵(5斤)", price: 80  },
+    { name: "魚板絲",      price: 300 }, { name: "魚板片",      price: 350 },
+  ]},
+
+  { group: "中壢-富昌", items: [
+    { name: "五花肉", price: 140 }, { name: "軟骨排", price: 140 },
+  ]},
+
+  { group: "永溢麵食", items: [
+    { name: "豆菜麵(5斤)", price: 90 }, { name: "烏龍麵(5斤)", price: 100 },
+  ]},
+
+  { group: "三信蛋行", items: [
+    { name: "雞蛋" }, { name: "皮蛋" }, { name: "鹹蛋黃" },
+  ]},
+
+  { group: "市場(阿潭)", items: [
+    { name: "空心菜" }, { name: "高麗菜" }, { name: "地瓜葉" }, { name: "菠菜" },
+    { name: "炒麵菜" }, { name: "水蓮"   }, { name: "洋蔥"   }, { name: "紅蘿蔔" },
+    { name: "九層塔" }, { name: "蔥"     }, { name: "蒜末"   }, { name: "辣椒" },
+    { name: "薑絲"   }, { name: "芹菜"   }, { name: "豆腐"   }, { name: "皮蛋" },
+    { name: "乾菜脯" }, { name: "蒜味花生" }, { name: "蛤蜊" },
+    { name: "豆菜麵(1斤)" }, { name: "烏龍麵(1斤)" },
+  ]},
+
+  { group: "瓦斯", items: [
+    { name: "瓦斯", price: 610 },
+  ]},
+
+  { group: "外帶自取", _takeout: true, items: [
+    { name: "外帶自取" },
+  ]},
+
+];
+</script>
+<!-- 設定區結束 -->
+
+<div class="topbar">
+  <div class="topbar-title">🍱 香品小食堂</div>
+  <div class="search-box">
+    <span style="color:#aaa">🔍</span>
+    <input id="searchInput" type="text" placeholder="搜尋品項…" oninput="onSearch(this.value)">
+    <span class="search-clr" id="searchClr" onclick="clearSearch()">✕</span>
+  </div>
+</div>
+
+<div class="mode-tabs">
+  <div class="mode-tab order-tab active" id="modeOrder"  onclick="switchMode('order')">📦 叫貨</div>
+  <div class="mode-tab ledger-tab"       id="modeLedger" onclick="switchMode('ledger')">📒 記帳</div>
+</div>
+
+<div class="vendor-wrap" id="vendorWrap"></div>
+<div class="vendor-wrap" id="ledgerWrap" style="display:none"></div>
+<div class="content"     id="orderPanel"><div id="itemList"></div></div>
+<div class="ledger-wrap" id="ledgerPanel" style="display:none;"></div>
+
+<div class="bottom-bar" id="bottomBar">
+  <div class="bottom-amt">
+    <div class="lbl">總金額（僅供參考）</div>
+    <div class="amt" id="totalAmt">$0</div>
+  </div>
+  <div class="bar-btns">
+    <button class="bbtn outline" onclick="clearAll()">清除</button>
+    <button class="bbtn solid"   onclick="openModal()">📋 傳送</button>
+  </div>
+</div>
+
+<!-- 數量輸入 popup（叫貨 & 記帳共用） -->
+<div class="qty-pop-ov" id="qtyPopOv" onclick="if(event.target===this)closeQtyPop()">
+  <div class="qty-pop">
+    <div class="qty-pop-name" id="qtyPopName"></div>
+    <div class="qty-pop-meta" id="qtyPopMeta"></div>
+    <div class="qty-pop-row">
+      <span class="qty-pop-lbl">數量</span>
+      <div class="qty-pop-qc">
+        <button class="qty-pop-qb" onclick="qtyPopAdj('qty',-1)">−</button>
+        <input type="number" class="qty-pop-qn" id="qtyPopQty" min="0" inputmode="decimal" placeholder="1">
+        <button class="qty-pop-qb" onclick="qtyPopAdj('qty',1)">+</button>
       </div>
-      <div class="item-price">$${item.price}</div>
     </div>
-    ${ctrl}
-  </div>`;
-}
+    <div class="qty-pop-row" id="qtyPopPriceRow">
+      <span class="qty-pop-lbl">金額</span>
+      <div class="qty-pop-qc">
+        <button class="qty-pop-qb" onclick="qtyPopAdj('price',-1)">−</button>
+        <input type="number" class="qty-pop-qn" id="qtyPopPrice" min="0" inputmode="decimal" placeholder="0">
+        <button class="qty-pop-qb" onclick="qtyPopAdj('price',1)">+</button>
+      </div>
+    </div>
+    <div class="qty-pop-btns">
+      <button class="qty-pop-del" onclick="qtyPopDel()">🗑 移除</button>
+      <button class="qty-pop-ok"  onclick="qtyPopSave()">✓ 確定</button>
+    </div>
+  </div>
+</div>
 
-// ══════════════════════════════
-//  加購選項 Modal
-// ══════════════════════════════
-let pendingItem=null, pendingExtras={}, pendingSauce=null, pendingQty=1;
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📦 訂貨明細確認</div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="bbtn" style="background:#374151;color:#fff;flex:0 0 auto" onclick="copyOrderText()">📋 複製</button>
+      <button class="bbtn solid" style="flex:1;text-align:center" onclick="lineOrder()">📤 傳送到 LINE</button>
+    </div>
+  </div>
+</div>
 
-function changeQty(id, delta){
-  const item = menu.find(i=>i.id===id);
-  if(!item || item.isSoldOut) return;
-  if(delta>0 && ((item.extras&&item.extras.length)||(item.sauce&&item.sauce.length))){
-    openOptionsModal(item); return;
+<div class="confirm-ov" id="confirmOv">
+  <div class="confirm-box">
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-btns">
+      <button class="cbtn can" onclick="confirmCancel()">取消</button>
+      <button class="cbtn ok"  id="confirmOk">確定清除</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══ 狀態 ══ */
+let mode='order', curVendor=0, curLedgerGroup=0, searchMode=false;
+let qtyPopState = null;
+const orderRows  = VENDORS.map(()=>[]);
+const extraItems = VENDORS.map(()=>[]);
+let ledgerRows = [];
+
+/* ══ 廠商頁籤（叫貨）══ */
+VENDORS.forEach((v,i)=>{
+  const b=document.createElement('button');
+  b.className='vtab order-vtab'+(i===0?' active':'');
+  b.textContent=v.vendor;
+  b.onclick=()=>{ curVendor=i; clearSearch(); renderOrder(); };
+  document.getElementById('vendorWrap').appendChild(b);
+});
+
+/* ══ 群組頁籤（記帳）══ */
+LEDGER_ITEMS.forEach((g,i)=>{
+  const b=document.createElement('button');
+  b.className='vtab ledger-vtab'+(i===0?' active':'');
+  b.textContent=g._takeout ? '🛍️'+g.group : g.group;
+  if(g._takeout){
+    b.style.cssText='border-color:#e879f9;color:#a21caf;';
+    b.addEventListener('mouseenter',()=>{ if(!b.classList.contains('active')) b.style.background='#fdf4ff'; });
+    b.addEventListener('mouseleave',()=>{ if(!b.classList.contains('active')) b.style.background=''; });
   }
-  const next = (cart[id]||0)+delta;
-  if(next<=0) delete cart[id]; else cart[id]=next;
-  renderMenu(); updateBadge(); updateBottomBar();
-}
-
-function openOptionsModal(item){
-  pendingItem=item; pendingExtras={}; pendingQty=1;
-  pendingSauce = item.sauce&&item.sauce.length ? item.sauce[0] : null;
-  document.getElementById('options-header').innerHTML =
-    `<div class="options-title">${item.emoji} ${item.name}</div>
-     <div class="options-price">$${item.price}</div>`;
-  let body='';
-  if(item.extras&&item.extras.length){
-    body += '<div class="options-section"><div class="options-section-title">加購選項</div>';
-    item.extras.forEach((ex,i)=>{
-      const tag = ex.price>0
-        ? `<span class="option-price-tag">+$${ex.price}</span>`
-        : '<span class="option-price-tag" style="color:#888">免費</span>';
-      body += `<div class="option-row">
-        <span class="option-label">${ex.label}${tag}</span>
-        <input type="checkbox" class="option-checkbox" id="ex-${i}" onchange="toggleExtra(${i})">
-      </div>`;
-    });
-    body += '</div>';
-  }
-  if(item.sauce&&item.sauce.length){
-    body += '<div class="options-section" style="padding-bottom:14px;"><div class="options-section-title">醬料選擇</div><div class="sauce-btns">';
-    item.sauce.forEach((s,i)=>{
-      body += `<button class="sauce-btn${i===0?' sel':''}" onclick="selSauce('${s}',this)">${s}</button>`;
-    });
-    body += '</div></div>';
-  }
-  document.getElementById('options-body').innerHTML = body;
-  document.getElementById('options-overlay').classList.add('open');
-  document.getElementById('modal-qty').textContent = pendingQty;
-}
-
-function toggleExtra(i){ pendingExtras[i] = document.getElementById('ex-'+i).checked; }
-
-function selSauce(s, btn){
-  pendingSauce=s;
-  btn.closest('.sauce-btns').querySelectorAll('.sauce-btn').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
-}
-
-function changeQtyModal(delta){
-  pendingQty = Math.max(1, pendingQty+delta);
-  document.getElementById('modal-qty').textContent = pendingQty;
-}
-
-function closeOptionsModal(){
-  document.getElementById('options-overlay').classList.remove('open');
-  pendingItem=null;
-}
-
-function confirmAddToCart(){
-  if(!pendingItem) return;
-  const notes=[], prices=[];
-  pendingItem.extras&&pendingItem.extras.forEach((ex,i)=>{
-    if(pendingExtras[i]){ notes.push(ex.label); prices.push(ex.price); }
-  });
-  if(pendingSauce) notes.push(pendingSauce);
-  const extraPrice = prices.reduce((a,b)=>a+b,0);
-  const key = pendingItem.id + (notes.length?'__'+notes.join('_'):'');
-  if(!cart[key]) cart[key]={itemId:pendingItem.id, qty:0, notes:notes.join('、'), extraPrice};
-  cart[key].qty += pendingQty;
-  closeOptionsModal(); renderMenu(); updateBadge(); updateBottomBar();
-}
-
-// ══════════════════════════════
-//  購物車
-// ══════════════════════════════
-function openCart(){ renderCartItems(); updateSummary(); document.getElementById('cart-overlay').classList.add('open'); }
-function closeCart(){ document.getElementById('cart-overlay').classList.remove('open'); }
-
-function clearCart(){
-  if(!Object.keys(cart).length) return;
-  cart={};
-  renderCartItems(); updateBadge(); updateBottomBar(); updateSummary();
-}
-
-function qtyCtrl(key, qty){
-  return `<div class="qty-control">
-    <button class="qty-btn minus" onclick="changeCartQty('${key}',-1)">−</button>
-    <span class="qty-num">${qty}</span>
-    <button class="qty-btn" onclick="changeCartQty('${key}',1)">+</button>
-  </div>`;
-}
-
-function renderCartItems(){
-  const el=document.getElementById('cart-items');
-  const keys=Object.keys(cart);
-  if(!keys.length){ el.innerHTML='<div class="empty-cart">🍜<br>還沒有選任何品項</div>'; return; }
-  el.innerHTML=keys.map(key=>{
-    const val=cart[key];
-    if(typeof val==='object'){
-      const item=menu.find(i=>i.id===val.itemId);
-      const unitPrice=item.price+val.extraPrice;
-      let notesHtml='';
-      if(val.notes){
-        const parts=val.notes.split('、').map(n=>{
-          const ex=item.extras&&item.extras.find(e=>e.label===n);
-          return ex&&ex.price>0?`${n} +$${ex.price}`:n;
-        });
-        notesHtml=`<div class="cart-item-notes">${parts.join('、')}</div>`;
-      }
-      return `<div class="cart-item">
-        ${qtyCtrl(key,val.qty)}
-        <div style="flex:1">
-          <div class="cart-item-name">${item.emoji} ${item.name}</div>
-          ${notesHtml}
-        </div>
-        <span class="cart-item-price">$${unitPrice*val.qty}</span>
-      </div>`;
-    } else {
-      const item=menu.find(i=>i.id==key);
-      return `<div class="cart-item">
-        ${qtyCtrl(key,val)}
-        <span class="cart-item-name">${item.emoji} ${item.name}</span>
-        <span class="cart-item-price">$${item.price*val}</span>
-      </div>`;
+  b.onclick=()=>{
+    // 防呆：有其他群組品項時，不允許切換
+    const hasOther = ledgerRows.some(r => r._gi !== undefined && r._gi !== i && (r.qty||0) > 0);
+    if(hasOther){
+      const activeName = LEDGER_ITEMS[curLedgerGroup].group;
+      toast(`⚠️ 已有【${activeName}】的品項，請先清除後再切換`);
+      return;
     }
-  }).join('');
+    curLedgerGroup=i; renderLedger();
+  };
+  document.getElementById('ledgerWrap').appendChild(b);
+});
+
+/* ══ 模式切換 ══ */
+function switchMode(m) {
+  mode=m;
+  document.getElementById('modeOrder').classList.toggle('active',m==='order');
+  document.getElementById('modeLedger').classList.toggle('active',m==='ledger');
+  document.getElementById('orderPanel').style.display  = m==='order'  ? '':'none';
+  document.getElementById('ledgerPanel').style.display = m==='ledger' ? '':'none';
+  document.getElementById('vendorWrap').style.display  = m==='order'  ? '':'none';
+  document.getElementById('ledgerWrap').style.display  = m==='ledger' ? '':'none';
+  document.getElementById('bottomBar').style.display   = m==='order'  ? '':'none';
+  m==='order' ? renderOrder() : renderLedger();
 }
 
-function changeCartQty(key, delta){
-  const val=cart[key];
-  if(typeof val==='object'){
-    val.qty+=delta; if(val.qty<=0) delete cart[key];
+/* ══ 搜尋 ══ */
+function onSearch(kw) {
+  kw=kw.trim();
+  document.getElementById('searchClr').classList.toggle('on',kw.length>0);
+  if(!kw){ searchMode=false; renderOrder(); return; }
+  if(mode==='ledger') switchMode('order');
+  searchMode=true;
+  document.querySelectorAll('.order-vtab').forEach(b=>b.classList.remove('active'));
+  const res=[];
+  VENDORS.forEach((v,vi)=>v.items.forEach((it,j)=>{ if(it.name.includes(kw)) res.push({vi,j,it}); }));
+  let html=`<div style="font-size:12px;color:#aaa;padding:4px 2px 8px">搜尋「${kw}」共 ${res.length} 筆</div>`;
+  if(!res.length){ html+=`<div class="search-hint">找不到相關品項</div>`; }
+  else {
+    html+=`<div class="card"><div class="icard-group">`;
+    res.forEach(({vi,j,it})=>{ html+=buildIcard(vi,j,it,orderRows[vi].some(r=>r.ji===j&&(r.qty||0)>0),false); });
+    html+=`</div></div>`;
+    const sel=res.filter(({vi,j})=>orderRows[vi].some(r=>r.ji===j&&(r.qty||0)>0));
+    if(sel.length){
+      html+=`<div class="card"><div class="col-hdr"><span class="cn">品項</span><span class="cq">數量</span><span class="cd"></span></div><div>`;
+      sel.forEach(({vi,j})=>{ const ri=orderRows[vi].findIndex(r=>r.ji===j); if(ri!==-1) html+=buildORow(vi,ri,orderRows[vi][ri]); });
+      html+=`</div></div>`;
+    }
+  }
+  document.getElementById('itemList').innerHTML=html; calcTotal();
+}
+function clearSearch(){ document.getElementById('searchInput').value=''; document.getElementById('searchClr').classList.remove('on'); searchMode=false; }
+
+/* ══ 叫貨 ══ */
+function buildIcard(vi,j,it,on,blocked) {
+  const d=blocked?' style="opacity:.35;pointer-events:none"':'';
+  return `<button class="icard${on?' on':''}" id="ibtn-${vi}-${j}" onclick="orderQuickAdd(${vi},${j})"${d}>
+    <div class="icard-row1"><span class="icard-name">${it.name}</span>${it.note?`<span class="icard-note">${it.note}</span>`:''}</div>
+    <div class="icard-row2">${it.unit?`<span class="icard-unit">${it.unit}</span>`:''}${it.price?`<span class="icard-price">$${it.price.toLocaleString('zh-TW')}</span>`:''}</div>
+  </button>`;
+}
+function renderOrder() {
+  if(searchMode) return;
+  document.querySelectorAll('.order-vtab').forEach((b,i)=>b.classList.toggle('active',i===curVendor));
+  const vi=curVendor, v=VENDORS[vi];
+  const conflict=orderRows.findIndex((rows,i)=>i!==vi&&rows.some(r=>(r.qty||0)>0));
+  const blocked=conflict!==-1;
+  let html=`<div class="card">
+    <div class="card-head g"><div class="card-title g">${v.vendor}</div></div>
+    ${blocked?`<div class="warn on">⚠️ 已有【${VENDORS[conflict].vendor}】的訂貨，請先確認傳送或清除後，再叫其他廠商。</div>`:''}
+    <div class="icard-group">`;
+  v.items.forEach((it,j)=>{ html+=buildIcard(vi,j,it,orderRows[vi].some(r=>r.ji===j&&(r.qty||0)>0),blocked); });
+  html+=`</div></div><div class="card">
+    <div class="col-hdr"><span class="cn">品項 / 備註</span><span class="cq">數量</span><span class="cd"></span></div>
+    <div id="order-rows-${vi}">`;
+  orderRows[vi].forEach((r,ri)=>{ html+=buildORow(vi,ri,r); });
+  html+=`</div>${buildExtraSection(vi)}
+    <div class="total-row"><span class="total-lbl">本廠商小計</span><span class="total-val g" id="vendor-sub-${vi}">$0</span></div>
+  </div>`;
+  document.getElementById('itemList').innerHTML=html; calcTotal(); updateSub(vi);
+}
+function buildORow(vi,ri,r) {
+  const on=(r.qty||0)>0;
+  const meta=[r.unit?`<span class="orow-unit">${r.unit}</span>`:'', r.price>0?`<span class="orow-price">$${r.price.toLocaleString('zh-TW')}</span>`:''].filter(Boolean).join('');
+  return `<div class="orow" id="orow-${vi}-${ri}">
+    <div class="orow-info">
+      <div class="orow-line1"><span class="orow-name">${r.name}</span>${meta}</div>
+      ${r.note?`<div class="orow-note">${r.note}</div>`:''}
+    </div>
+    <div class="qc g${on?' on':''}" id="oqc-${vi}-${ri}">
+      <button class="qb" onclick="oAdj(${vi},${ri},-1)">−</button>
+      <input type="number" class="qn" id="oq-${vi}-${ri}" min="0" inputmode="decimal" value="${r.qty||''}" placeholder="0" oninput="oQtyChange(${vi},${ri},this.value)">
+      <button class="qb" onclick="oAdj(${vi},${ri},1)">+</button>
+    </div>
+    <button class="del-btn" onclick="oDelRow(${vi},${ri})">🗑</button>
+  </div>`;
+}
+function buildExtraSection(vi) {
+  const rows=extraItems[vi].map((r,ei)=>`
+    <div class="extra-row" id="er-${vi}-${ei}">
+      <input class="extra-name" placeholder="品項名稱" value="${r.name}" oninput="setExtra(${vi},${ei},'name',this.value)">
+      <input class="extra-unit" placeholder="單位" value="${r.unit}" oninput="setExtra(${vi},${ei},'unit',this.value)">
+      <div class="qc g${r.qty>0?' on':''}" id="eqc-${vi}-${ei}">
+        <button class="qb" onclick="eAdj(${vi},${ei},-1)">−</button>
+        <input type="number" class="qn" id="eq-${vi}-${ei}" min="0" inputmode="decimal" value="${r.qty||''}" placeholder="0" oninput="setExtra(${vi},${ei},'qty',this.value);updEqc(${vi},${ei})">
+        <button class="qb" onclick="eAdj(${vi},${ei},1)">+</button>
+      </div>
+      <button class="del-btn" onclick="delExtra(${vi},${ei})">🗑</button>
+    </div>`).join('');
+  return `<div id="extra-section-${vi}">${rows}</div><button class="add-btn g" onclick="addExtra(${vi})">＋ 新增臨時品項</button>`;
+}
+
+/* ══ 叫貨操作 ══ */
+function orderQuickAdd(vi,ji) {
+  const conflict=orderRows.findIndex((rows,i)=>i!==vi&&rows.some(r=>(r.qty||0)>0));
+  if(conflict!==-1){ toast(`⚠️ 請先清除【${VENDORS[conflict].vendor}】的訂貨`); return; }
+  const it=VENDORS[vi].items[ji];
+  let ri=orderRows[vi].findIndex(r=>r.ji===ji);
+  if(ri===-1){
+    orderRows[vi].push({ji,name:it.name,unit:it.unit||'',price:it.price||0,note:it.note||'',qty:1});
+    ri=orderRows[vi].length-1;
+  }
+  openQtyPop(vi,ji,ri);
+}
+function oAdj(vi,ri,d)       { if(!orderRows[vi][ri]) return; orderRows[vi][ri].qty=Math.max(0,(orderRows[vi][ri].qty||0)+d); const el=document.getElementById(`oq-${vi}-${ri}`); if(el) el.value=orderRows[vi][ri].qty||''; updOqc(vi,ri); syncBtn(vi,ri); calcTotal(); updateSub(vi); }
+function oQtyChange(vi,ri,v) { if(!orderRows[vi][ri]) return; orderRows[vi][ri].qty=Math.max(0,parseFloat(v)||0); updOqc(vi,ri); syncBtn(vi,ri); calcTotal(); updateSub(vi); }
+function updOqc(vi,ri)       { const c=document.getElementById(`oqc-${vi}-${ri}`); if(c) c.className=`qc g${(orderRows[vi][ri]?.qty||0)>0?' on':''}`; }
+function syncBtn(vi,ri)      { const ji=orderRows[vi][ri]?.ji; if(ji==null) return; const btn=document.getElementById(`ibtn-${vi}-${ji}`); if(btn) btn.classList.toggle('on',(orderRows[vi][ri]?.qty||0)>0); }
+function oDelRow(vi,ri)      { orderRows[vi].splice(ri,1); if(!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value); calcTotal(); }
+
+/* ══ 臨時品項 ══ */
+function addExtra(vi)        { collectExtras(vi); extraItems[vi].push({name:'',unit:'',qty:0}); renderOrder(); setTimeout(()=>{ const rows=document.querySelectorAll(`#extra-section-${vi} .extra-row`); rows[rows.length-1]?.querySelector('.extra-name')?.focus(); },50); }
+function delExtra(vi,ei)     { collectExtras(vi); extraItems[vi].splice(ei,1); renderOrder(); }
+function setExtra(vi,ei,f,v) { if(!extraItems[vi][ei]) return; extraItems[vi][ei][f]=f==='qty'?(parseFloat(v)||0):v; calcTotal(); updateSub(vi); }
+function eAdj(vi,ei,d)       { if(!extraItems[vi][ei]) return; extraItems[vi][ei].qty=Math.max(0,(extraItems[vi][ei].qty||0)+d); const el=document.getElementById(`eq-${vi}-${ei}`); if(el) el.value=extraItems[vi][ei].qty||''; updEqc(vi,ei); calcTotal(); updateSub(vi); }
+function updEqc(vi,ei)       { const c=document.getElementById(`eqc-${vi}-${ei}`); if(c) c.className=`qc g${(extraItems[vi][ei]?.qty||0)>0?' on':''}`; }
+function collectExtras(vi)   { document.querySelectorAll(`#extra-section-${vi} .extra-row`).forEach((row,ei)=>{ if(!extraItems[vi][ei]) return; const inp=row.querySelectorAll('input'); extraItems[vi][ei].name=inp[0].value; extraItems[vi][ei].unit=inp[1].value; extraItems[vi][ei].qty=parseFloat(inp[2].value)||0; }); }
+
+/* ══ 數量 popup（叫貨 & 記帳共用）══ */
+function openQtyPop(vi,ji,ri) {
+  // 叫貨模式
+  const r=orderRows[vi][ri];
+  qtyPopState={mode:'order',vi,ji,ri};
+  document.getElementById('qtyPopName').textContent=r.name;
+  const meta=[r.unit,r.price>0?'$'+r.price.toLocaleString('zh-TW'):''].filter(Boolean).join('・');
+  document.getElementById('qtyPopMeta').textContent=meta||'';
+  document.getElementById('qtyPopQty').value = r.qty||1;
+  document.getElementById('qtyPopPriceRow').style.display='none';
+  document.getElementById('qtyPopName').style.color='var(--green)';
+  document.getElementById('qtyPopOv').classList.add('open');
+  setTimeout(()=>document.getElementById('qtyPopQty').select(),80);
+}
+function openLedgerPop(ri, isTakeout) {
+  // 記帳模式
+  const r=ledgerRows[ri];
+  const takeout = isTakeout !== undefined ? isTakeout : !!r._takeout;
+  qtyPopState={mode:'ledger',ri,isTakeout:takeout};
+  document.getElementById('qtyPopName').textContent= takeout ? '🛍️ '+r.name : r.name;
+  document.getElementById('qtyPopMeta').textContent= takeout ? '請輸入外帶自取金額' : '';
+  if(takeout){
+    // 外帶自取：只顯示金額，隱藏數量
+    document.getElementById('qtyPopQty').value = 1;
+    document.getElementById('qtyPopPrice').value = r.unitPrice>0 ? Math.round(r.unitPrice)||'' : '';
+    document.getElementById('qtyPopPriceRow').style.display='';
+    // 隱藏數量列
+    const qtyRow=document.getElementById('qtyPopQty').closest('.qty-pop-row');
+    if(qtyRow) qtyRow.style.display='none';
+    document.getElementById('qtyPopName').style.color='#a21caf';
   } else {
-    const next=val+delta; if(next<=0) delete cart[key]; else cart[key]=next;
+    document.getElementById('qtyPopQty').value   = r.qty||1;
+    document.getElementById('qtyPopPrice').value = r.unitPrice>0 ? Math.round(r.qty*r.unitPrice)||'' : '';
+    document.getElementById('qtyPopPriceRow').style.display='';
+    const qtyRow=document.getElementById('qtyPopQty').closest('.qty-pop-row');
+    if(qtyRow) qtyRow.style.display='';
+    document.getElementById('qtyPopName').style.color='var(--amber)';
   }
-  renderCartItems(); updateBadge(); updateBottomBar(); updateSummary();
+  document.getElementById('qtyPopOv').classList.add('open');
+  setTimeout(()=>{
+    if(takeout) document.getElementById('qtyPopPrice').select();
+    else document.getElementById('qtyPopQty').select();
+  },80);
 }
-
-function selOpt(key,val,btn){
-  opts[key]=val;
-  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
-  updateSummary();
+function closeQtyPop() { document.getElementById('qtyPopOv').classList.remove('open'); qtyPopState=null; }
+function qtyPopAdj(field,d) {
+  const id=field==='qty'?'qtyPopQty':'qtyPopPrice';
+  const inp=document.getElementById(id);
+  inp.value=Math.max(0,(parseFloat(inp.value)||0)+d)||'';
 }
-
-function selPickup(val,btn){
-  opts.pickup=val;
-  btn.closest('.opt-toggle').querySelectorAll('button').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
-  document.getElementById('delivery-hint').style.display=val==='delivery'?'block':'none';
-  updateSummary();
-}
-
-// ══════════════════════════════
-//  計算金額
-// ══════════════════════════════
-function calcSub(){
-  return Object.entries(cart).reduce((s,[key,val])=>{
-    if(typeof val==='object'){
-      const item=menu.find(i=>i.id===val.itemId);
-      return s+(item?(item.price+val.extraPrice)*val.qty:0);
+function qtyPopSave() {
+  if(!qtyPopState) return;
+  const qty=Math.max(0,parseFloat(document.getElementById('qtyPopQty').value)||0);
+  if(qtyPopState.mode==='order'){
+    const {vi,ri}=qtyPopState;
+    orderRows[vi][ri].qty=qty;
+    if(qty===0) orderRows[vi].splice(ri,1);
+    closeQtyPop();
+    if(!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
+    calcTotal();
+  } else {
+    const {ri, isTakeout}=qtyPopState;
+    const totalPrice=parseFloat(document.getElementById('qtyPopPrice').value)||0;
+    if(isTakeout){
+      ledgerRows[ri].qty=1;
+      ledgerRows[ri].unitPrice=totalPrice;
+      ledgerRows[ri]._takeout=true;
+      if(totalPrice===0) ledgerRows.splice(ri,1);
+    } else {
+      ledgerRows[ri].qty=qty;
+      ledgerRows[ri].unitPrice=totalPrice/(qty||1);
+      if(qty===0) ledgerRows.splice(ri,1);
     }
-    const item=menu.find(i=>i.id==key);
-    return s+(item?item.price*val:0);
-  },0);
+    closeQtyPop();
+    renderLedger();
+  }
+}
+function qtyPopDel() {
+  if(!qtyPopState) return;
+  if(qtyPopState.mode==='order'){
+    const {vi,ri}=qtyPopState;
+    orderRows[vi].splice(ri,1);
+    closeQtyPop();
+    if(!searchMode) renderOrder(); else onSearch(document.getElementById('searchInput').value);
+    calcTotal();
+  } else {
+    ledgerRows.splice(qtyPopState.ri,1);
+    closeQtyPop();
+    renderLedger();
+  }
 }
 
-function calcTotal(){
-  const sub=calcSub();
-  return opts.pickup==='takeout' ? Math.round(sub*0.9) : sub;
+/* ══ 金額 ══ */
+function calcTotal() {
+  let t=0; VENDORS.forEach((_,vi)=>orderRows[vi].forEach(r=>{ t+=(r.qty||0)*(r.price||0); }));
+  document.getElementById('totalAmt').textContent='$'+t.toLocaleString('zh-TW');
 }
+function updateSub(vi) { const el=document.getElementById(`vendor-sub-${vi}`); if(!el) return; let s=0; orderRows[vi].forEach(r=>{ s+=(r.qty||0)*(r.price||0); }); el.textContent='$'+s.toLocaleString('zh-TW'); }
 
-function updateBadge(){
-  const total=Object.values(cart).reduce((a,b)=>typeof b==='object'?a+b.qty:a+b,0);
-  const badge=document.getElementById('cart-badge');
-  badge.textContent=total;
-  badge.style.display=total>0?'block':'none';
-}
+/* ══ 確認彈窗 ══ */
+function showConfirm(msg,onOk) { document.getElementById('confirmMsg').textContent=msg; document.getElementById('confirmOv').classList.add('open'); document.getElementById('confirmOk').onclick=()=>{ document.getElementById('confirmOv').classList.remove('open'); onOk(); }; }
+function confirmCancel() { document.getElementById('confirmOv').classList.remove('open'); }
+function clearAll() { showConfirm('確定要清除所有訂貨數量？',()=>{ VENDORS.forEach((_,vi)=>{ orderRows[vi]=[]; extraItems[vi]=[]; }); renderOrder(); toast('已清除所有數量'); }); }
 
-function updateBottomBar(){
-  const sub=calcSub();
-  const bar=document.getElementById('bottom-bar');
-  if(sub>0){ bar.style.display='flex'; document.getElementById('bottom-price').textContent='$'+calcTotal(); }
-  else { bar.style.display='none'; }
-}
-
-function updateSummary(){
-  const sub=calcSub(), total=calcTotal();
-  const qty=Object.values(cart).reduce((s,v)=>s+(typeof v==='object'?v.qty:v),0);
-  document.getElementById('sum-qty').textContent=qty+' 項';
-  document.getElementById('sum-sub').textContent='$'+sub;
-  const discEl=document.getElementById('sum-disc');
-  if(opts.pickup==='takeout'&&sub>0){
-    discEl.style.display='flex';
-    document.getElementById('sum-disc-val').textContent='-$'+(sub-total);
-  } else { discEl.style.display='none'; }
-  document.getElementById('sum-total').textContent='$'+total;
-  const bp=document.getElementById('bottom-price');
-  if(bp) bp.textContent='$'+total;
-}
-
-// ══════════════════════════════
-//  下單確認
-// ══════════════════════════════
-function buildItems(){
-  return Object.entries(cart).map(([key,val])=>{
-    if(typeof val==='object'){
-      const item=menu.find(i=>i.id===val.itemId);
-      return {name:item.name, notes:val.notes||'', qty:val.qty, price:item.price+val.extraPrice, emoji:item.emoji};
-    }
-    const item=menu.find(i=>i.id==key);
-    return {name:item.name, notes:'', qty:val, price:item.price, emoji:item.emoji};
+/* ══ 訂單文字 & 彈窗 ══ */
+function buildOrderMsg() {
+  VENDORS.forEach((_,vi)=>collectExtras(vi));
+  const d=new Date(),roc=d.getFullYear()-1911,mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+  const sep='━━━━━━━━━━━━━━';
+  let lines=[`📦${SHOP_NAME}-訂貨單 (${roc}/${mm}/${dd})`,sep],num=1,has=false;
+  VENDORS.forEach((v,vi)=>{
+    const vl=[];
+    orderRows[vi].forEach(r=>{ const q=r.qty||0; if(!q) return; vl.push(`${num++}. ${r.name}${r.unit?' × '+q+' '+r.unit:' × '+q}`); has=true; });
+    extraItems[vi].forEach(r=>{ if(!r.qty||!r.name) return; vl.push(`${num++}. ${r.name}${r.unit?' × '+r.qty+' '+r.unit:' × '+r.qty}`); has=true; });
+    if(vl.length){ lines.push(`【${v.vendor}】`,''); lines=lines.concat(vl); lines.push(''); }
   });
+  if(!has) return null;
+  lines.push(sep,'🏠 配送地址：',DELIVERY_ADDR,`(${DELIVERY_NOTE})`,'','☎️ 聯繫資訊：',`- 市話優先（${TEL_MAIN}）`,'- 無人接再撥',`（${TEL_B1} / ${TEL_B2}）`,'','謝謝您，辛苦了！🙏');
+  return lines.join('\n');
 }
-
-function placeOrder(){
-  if(!Object.keys(cart).length) return;
-  const items=buildItems(), sub=calcSub(), total=calcTotal();
-  const note=document.getElementById('order-note').value.trim();
-  const cutlery=opts.cutlery==='yes'?'需要':'不需要';
-  const receipt=opts.receipt==='yes'?'需要':'不需要';
-  const pickupLabel={takeout:'外帶自取（9折）',delivery:'外送'}[opts.pickup];
-  document.getElementById('confirm-items').innerHTML=
-    `<div>🛍 ${pickupLabel}</div><br>`+
-    items.map(i=>`${i.emoji} ${i.name} ×${i.qty}　$${i.price*i.qty}`+
-      (i.notes?`<br>　<span style="color:#888;font-size:12px;">└ ${i.notes}</span>`:'')).join('<br>')+
-    (opts.pickup==='takeout'?`<br><span style="color:#c4390a;font-size:12px;">小計$${sub} × 9折 = $${total}</span>`:'')+
-    `<br><br>餐具：${cutlery}　收據：${receipt}`+
-    (note?`<br>備註：${note}`:'');
-  document.getElementById('confirm-total').textContent=`合計 $${total}（共 ${items.reduce((s,i)=>s+i.qty,0)} 項）`;
-  document.getElementById('confirm-overlay').classList.add('open');
-}
-
-function genOrderId(now){
-  const mmdd=`${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
-  const hhmm=`${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
-  return mmdd+hhmm+String(Math.floor(Math.random()*900)+100);
-}
-
-function submitOrder(){
-  document.getElementById('confirm-overlay').classList.remove('open');
-  const items=buildItems(), sub=calcSub(), total=calcTotal();
-  const note=document.getElementById('order-note').value.trim();
-  const cutlery=opts.cutlery==='yes'?'需要':'不需要';
-  const receipt=opts.receipt==='yes'?'需要':'不需要';
-  const now=new Date();
-  const timeStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  const orderId=genOrderId(now);
-  const pickupLabel=opts.pickup==='takeout'?'外帶自取（9折）':'外送';
-  const totalLine=opts.pickup==='takeout'&&sub!==total
-    ?`💰 合計：$${total}（原價 $${sub}）`:`💰 合計：$${total}`;
-  const itemLines=[];
-  items.forEach(i=>{
-    itemLines.push(`${i.emoji} ${i.name} ×${i.qty}　$${i.price*i.qty}`);
-    if(i.notes) itemLines.push(`     └ ${i.notes}`);
+function openModal() {
+  VENDORS.forEach((_,vi)=>collectExtras(vi));
+  const msg=buildOrderMsg(); if(!msg){ toast('尚未填寫任何數量！'); return; }
+  let html='',grand=0,num=1;
+  VENDORS.forEach((v,vi)=>{
+    let vh='';
+    orderRows[vi].forEach(r=>{ const q=r.qty||0; if(!q) return; const p=r.price||0,sub=q*p; grand+=sub; vh+=`<div class="pre-item"><div class="pre-num">${num++}.</div><div class="pre-name">${r.name}${r.unit?'（'+r.unit+'）':''}</div><div class="pre-calc">${p>0?'$'+p+' × '+q:''}</div><div class="${sub>0?'pre-sub':'pre-qty'}">${sub>0?'$'+sub.toLocaleString('zh-TW'):q+(r.unit?' '+r.unit:'')}</div></div>`; });
+    extraItems[vi].forEach(r=>{ if(!r.qty||!r.name) return; vh+=`<div class="pre-item"><div class="pre-num">${num++}.</div><div class="pre-name">${r.name}${r.unit?'（'+r.unit+'）':''}</div><div class="pre-calc"></div><div class="pre-qty">${r.qty}${r.unit?' '+r.unit:''}</div></div>`; });
+    if(vh) html+=`<div class="pre-vendor">${v.vendor}</div>${vh}`;
   });
-  const msgText=[
-    '🍱 香品小食堂｜新訂單通知','─────────────',
-    `💡 訂單編號：${orderId}`,`⏰ 訂餐時間：${timeStr}`,`🛍 取餐方式：${pickupLabel}`,
-    '─────────────',...itemLines,'',
-    `📦 共 ${items.reduce((s,i)=>s+i.qty,0)} 項`,totalLine,
-    '─────────────',`🥢 免洗餐具：${cutlery}`,`🧾 收據：${receipt}`,`💬 備註：${note||'無'}`,
-  ].join('\n');
-  cart={};
-  updateBadge(); updateBottomBar(); closeCart();
-  document.getElementById('order-note').value='';
-  if(!liff.isInClient()){ alert('請於 LINE App 內開啟'); return; }
-  liff.sendMessages([{type:'text', text:msgText}])
-    .then(()=>liff.closeWindow())
-    .catch(err=>{ console.error('sendMessages error:', err); alert('訊息傳送失敗，請重試。'); });
+  html+=`<div class="pre-total"><span>訂貨總金額（僅供參考）</span><span>${grand>0?'$'+grand.toLocaleString('zh-TW'):'（未設定價格）'}</span></div>`;
+  html+=`<div class="pre-text-wrap"><div class="pre-text-lbl">傳送文字預覽（可手動修改）</div><textarea class="pre-textarea" id="preText">${msg}</textarea></div>`;
+  document.getElementById('modalBody').innerHTML=html;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal()    { document.getElementById('overlay').classList.remove('open'); }
+function copyOrderText() { const el=document.getElementById('preText'); if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(el.value).then(()=>toast('已複製！')).catch(()=>fbCopy(el)); else fbCopy(el); }
+function lineOrder()     { const t=document.getElementById('preText').value; navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{}); toast('正在開啟 LINE…'); setTimeout(()=>window.open('https://line.me/R/msg/text/?'+encodeURIComponent(t),'_blank'),300); }
+function fbCopy(el)      { el.select(); el.setSelectionRange(0,99999); try{document.execCommand('copy');toast('已複製！');}catch{toast('複製失敗，請手動選取');} }
+
+/* ══ 記帳 ══ */
+function renderLedger() {
+  const d=new Date(),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
+  // 更新分頁 active
+  document.querySelectorAll('.ledger-vtab').forEach((b,i)=>b.classList.toggle('active',i===curLedgerGroup));
+  const g=LEDGER_ITEMS[curLedgerGroup];
+  const isTakeout = !!g._takeout;
+  // 防呆：檢查是否有其他群組品項
+  const conflictGi = ledgerRows.find(r => r._gi !== undefined && r._gi !== curLedgerGroup && (r.qty||0) > 0)?._gi;
+  const hasConflict = conflictGi !== undefined;
+  const conflictName = hasConflict ? LEDGER_ITEMS[conflictGi].group : '';
+
+  let btns='<div class="btn-group">';
+  g.items.forEach((it,ii)=>{
+    const p=it.price||0;
+    const extraStyle = isTakeout ? ' style="border-color:#e879f9;background:#fdf4ff;color:#a21caf;font-size:14px;padding:8px 16px;"' : '';
+    const label = isTakeout ? `🛍️ ${it.name}` : it.name;
+    const blocked = hasConflict ? ' disabled style="opacity:.35;pointer-events:none"' : (isTakeout ? ' style="border-color:#e879f9;background:#fdf4ff;color:#a21caf;font-size:14px;padding:8px 16px;"' : '');
+    btns+=`<button class="ibtn a" data-gi="${curLedgerGroup}" data-ii="${ii}" onclick="ledgerOpenPop(this)"${hasConflict ? ' disabled style="opacity:.35;pointer-events:none"' : extraStyle}>${label}${p?` <span style="font-size:11px;opacity:.8;font-weight:700">$${p}</span>`:''}</button>`;
+  });
+  btns+=`</div>`;
+  let html=`<div class="card">
+    <div class="card-head a">
+      <div class="card-title a">📒 記帳專區 ── ${mm}/${dd}</div>
+      <button class="clr-btn" onclick="ledgerClearAll()">清除全部</button>
+    </div>
+    ${hasConflict ? `<div class="warn on">⚠️ 已有【${conflictName}】的品項，請先清除後再記其他廠商。</div>` : ''}
+    ${btns}
+    <div class="col-hdr" style="margin-top:12px">
+      <span class="cn">品項名稱</span><span class="cq">數量</span>
+      <span style="width:74px;text-align:right;flex-shrink:0;font-size:11px;color:#bbb">金額</span>
+      <span style="width:36px;flex-shrink:0"></span>
+    </div>
+    <div id="ledger-rows">`;
+  ledgerRows.forEach((r,ri)=>{ html+=buildLRow(ri,r); });
+  html+=`</div>
+    ${isTakeout ? '' : `<button class="add-btn a" onclick="ledgerAddRow()" ${hasConflict?'disabled style="opacity:.35;pointer-events:none"':''}>＋ 其他臨時品項</button>`}
+    <div class="total-row"><span class="total-lbl">本日合計</span><span class="total-val a" id="ledger-grand">$0</span></div>
+  </div>
+  <div class="card">
+    <div class="preview-lbl">📋 LINE 記帳訊息</div>
+    <textarea class="pre-textarea" id="ledger-preview" style="min-height:120px;width:100%;color:var(--green);background:var(--green-lt);border:1px solid var(--green-md);">（尚未有品項）</textarea>
+    <div class="preview-actions">
+      <button class="copy-btn" onclick="ledgerCopy()">📋 複製</button>
+      <button class="line-btn" onclick="ledgerLine()">📤 傳送到 LINE</button>
+    </div>
+  </div>`;
+  document.getElementById('ledgerPanel').innerHTML=html; calcLedger(true);
 }
 
-// ══════════════════════════════
-//  初始化
-// ══════════════════════════════
-// ══════════════════════════════════════════════════════════════════════
-//  【區塊 3】防快取版本號
-//  每次修改完上傳到 LINE 後，請更新這個日期（格式：YYYYMMDD）
-//  例如今天是 2025/05/01 → 改成 '20250501'
-//  這樣可以確保客人看到的是最新版菜單，而不是舊的快取版本
-// ══════════════════════════════════════════════════════════════════════
-const LIFF_ID = '2009693763-bOg2whDg';
-
-// ★ 防快取：每次上傳後請更新 VER（格式：YYYYMMDD）
-(function(){
-  const VER='20250409';
-  const url=new URL(location.href);
-  if(url.searchParams.get('v')!==VER){ url.searchParams.set('v',VER); location.replace(url.toString()); }
-})();
-
-renderTabs();
-renderMenu();
-document.getElementById('announce-bar').textContent=STORE_CONFIG.announcementText;
-document.getElementById('order-note').placeholder=STORE_CONFIG.defaultNote;
-document.getElementById('delivery-hint-line1').textContent=STORE_CONFIG.deliveryHintLine1;
-document.getElementById('delivery-hint-line2').textContent=STORE_CONFIG.deliveryHintLine2;
-
-if(!STORE_CONFIG.isOpen){
-  document.getElementById('closed-overlay').classList.add('open');
-} else if(STORE_CONFIG.popupLines&&STORE_CONFIG.popupLines.length){
-  document.getElementById('popup-body').innerHTML=
-    STORE_CONFIG.popupLines.map(l=>l===''?'<br>':`<span>${l}</span><br>`).join('');
-  document.getElementById('popup-overlay').classList.add('open');
+function ledgerOpenPop(btn) {
+  const gi=+btn.dataset.gi, ii=+btn.dataset.ii;
+  const it=LEDGER_ITEMS[gi]?.items[ii]; if(!it) return;
+  const isTakeout=!!LEDGER_ITEMS[gi]._takeout;
+  // 看是否已有這個品項
+  const ri=ledgerRows.findIndex(r=>r.name===it.name);
+  if(ri!==-1){
+    openLedgerPop(ri, isTakeout);
+  } else {
+    ledgerRows.push({name:it.name, qty:isTakeout?1:1, unitPrice:it.price||0, _takeout:isTakeout, _gi:gi});
+    openLedgerPop(ledgerRows.length-1, isTakeout);
+  }
 }
+function buildLRow(ri,r) {
+  const on=(r.qty||0)>0, total=Math.round((r.qty||0)*(r.unitPrice||0));
+  return `<div class="lrow" id="lr-${ri}">
+    <input class="lrow-name" placeholder="品項名稱" value="${(r.name||'').replace(/"/g,'&quot;')}" oninput="lSet(${ri},'name',this.value)">
+    <div class="qc a${on?' on':''}" id="lqc-${ri}">
+      <button class="qb" onclick="lAdj(${ri},-1)">−</button>
+      <input type="number" class="qn" id="lq-${ri}" min="0" inputmode="decimal" value="${r.qty||''}" placeholder="0" oninput="lQtyChange(${ri},this.value)">
+      <button class="qb" onclick="lAdj(${ri},1)">+</button>
+    </div>
+    <input class="lrow-price" type="number" min="0" inputmode="decimal" placeholder="金額" id="lp-${ri}" value="${total||''}" oninput="lPriceChange(${ri},this.value)">
+    <button class="del-btn" onclick="lDel(${ri})">🗑</button>
+  </div>`;
+}
+function collectLedger() { document.querySelectorAll('#ledger-rows .lrow').forEach((row,ri)=>{ if(!ledgerRows[ri]) return; ledgerRows[ri].name=row.querySelector('.lrow-name')?.value||''; ledgerRows[ri].qty=parseFloat(row.querySelector('.qn')?.value)||0; const t=parseFloat(row.querySelector('.lrow-price')?.value)||0; ledgerRows[ri].unitPrice=t/(ledgerRows[ri].qty||1); if(ledgerRows[ri].name==='外帶自取') ledgerRows[ri]._takeout=true; if(ledgerRows[ri]._gi===undefined) ledgerRows[ri]._gi=curLedgerGroup; }); }
+function lQtyChange(ri,val)   { if(!ledgerRows[ri]) return; ledgerRows[ri].qty=Math.max(0,parseFloat(val)||0); updLqc(ri); const t=Math.round(ledgerRows[ri].qty*(ledgerRows[ri].unitPrice||0)); const p=document.getElementById(`lp-${ri}`); if(p) p.value=t||''; calcLedger(); }
+function lPriceChange(ri,val) { if(!ledgerRows[ri]) return; ledgerRows[ri].unitPrice=(parseFloat(val)||0)/(ledgerRows[ri].qty||1); calcLedger(); }
+function lSet(ri,f,v)         { if(ledgerRows[ri]){ ledgerRows[ri][f]=v; calcLedger(); } }
+function lAdj(ri,d)           { if(!ledgerRows[ri]) return; ledgerRows[ri].qty=Math.max(0,(ledgerRows[ri].qty||0)+d); const qE=document.getElementById(`lq-${ri}`); if(qE) qE.value=ledgerRows[ri].qty||''; const t=Math.round(ledgerRows[ri].qty*(ledgerRows[ri].unitPrice||0)); const pE=document.getElementById(`lp-${ri}`); if(pE) pE.value=t||''; updLqc(ri); calcLedger(); }
+function updLqc(ri)           { const c=document.getElementById(`lqc-${ri}`); if(c) c.className=`qc a${(ledgerRows[ri]?.qty||0)>0?' on':''}`; }
+function lDel(ri)             { collectLedger(); ledgerRows.splice(ri,1); renderLedger(); }
+function ledgerAddRow() {
+  collectLedger();
+  const ri=ledgerRows.length;
+  ledgerRows.push({name:'',qty:1,unitPrice:0,_gi:curLedgerGroup});
+  renderLedger();
+  setTimeout(()=>{ const rows=document.querySelectorAll('#ledger-rows .lrow'); rows[rows.length-1]?.querySelector('.lrow-name')?.focus(); },50);
+}
+function calcLedger(skip) {
+  if(!skip) collectLedger();
+  const items=ledgerRows.filter(r=>r.name&&(r.qty||0)>0);
+  const grand=items.reduce((s,r)=>s+Math.round((r.qty||0)*(r.unitPrice||0)),0);
+  const gEl=document.getElementById('ledger-grand'); if(gEl) gEl.textContent='$'+grand.toLocaleString('zh-TW');
+  const pEl=document.getElementById('ledger-preview'); if(!pEl) return;
+  if(!items.length){ pEl.value='（尚未有品項）'; return; }
+  const d=new Date(),mm=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');
 
-liff.init({liffId:LIFF_ID})
-  .then(()=>{ if(!liff.isLoggedIn()) liff.login(); })
-  .catch(err=>console.warn('LIFF init failed:',err));
+  // 分離外帶自取與一般品項（_takeout旗標 或 品名為「外帶自取」都算）
+  const isTakeoutRow = r => r._takeout || r.name==='外帶自取';
+  const takeoutItems=items.filter(r=>isTakeoutRow(r));
+  const normalItems=items.filter(r=>!isTakeoutRow(r));
+
+  let lines=[];
+
+  // 一般品項
+  if(normalItems.length){
+    const str=normalItems.map((r,i)=>{ const q=r.qty||0,t=Math.round(q*(r.unitPrice||0)); return `${r.name}${q>1?'*'+q:''}${t>0?'('+t.toLocaleString('zh-TW')+'元)':''}${i===normalItems.length-1&&!takeoutItems.length?'。':''}`;}).join('、');
+    lines.push(`🔆${mm}/${dd}購買品項：${str}`);
+  }
+
+  // 外帶自取（每筆獨立一行，特殊格式）
+  takeoutItems.forEach(r=>{
+    const t=Math.round((r.qty||0)*(r.unitPrice||0));
+    lines.push(`🔺${mm}/${dd}外帶自取：${t.toLocaleString('zh-TW')}元。`);
+  });
+
+  lines.push('');
+  lines.push(`➡️合計：${grand.toLocaleString('zh-TW')}元。`);
+  pEl.value=lines.join('\n');
+}
+function ledgerClearAll() { showConfirm('確定要清除記帳專區所有品項？',()=>{ ledgerRows=[]; renderLedger(); toast('已清除記帳資料'); }); }
+function ledgerCopy()     { collectLedger(); const el=document.getElementById('ledger-preview'); if(!el||el.value==='（尚未有品項）'){ toast('尚未有任何品項！'); return; } const t=el.value; if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(t).then(()=>toast('已複製！')).catch(()=>fbCopyText(t)); else fbCopyText(t); }
+function ledgerLine()     { collectLedger(); const el=document.getElementById('ledger-preview'); if(!el||el.value==='（尚未有品項）'){ toast('尚未有任何品項！'); return; } const t=el.value; navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{}); toast('正在開啟 LINE…'); setTimeout(()=>window.open('https://line.me/R/msg/text/?'+encodeURIComponent(t),'_blank'),300); }
+function fbCopyText(text) { const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,99999); try{document.execCommand('copy');toast('已複製！');}catch{toast('複製失敗');} document.body.removeChild(ta); }
+
+/* ══ Toast ══ */
+function toast(msg) { const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2500); }
+
+/* ══ 初始化 ══ */
+renderOrder();
 </script>
 </body>
 </html>
