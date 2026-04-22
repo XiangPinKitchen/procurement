@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>香品小食堂</title>
 <style>
 :root {
@@ -20,16 +20,16 @@
   --text:     #111827;
   --radius:   10px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+html { -webkit-text-size-adjust: none; text-size-adjust: none; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
        background: #f0f2f5; color: var(--text); font-size: 16px; }
 
 /* 頂部 */
 .topbar { position: sticky; top: 0; z-index: 50; background: var(--white);
   border-bottom: 1px solid var(--border); padding: 8px 12px;
-  display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-.topbar-title { font-size: 16px; font-weight: 800; color: var(--green); white-space: nowrap; }
+  display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); flex-wrap: wrap; }
+.topbar-title { font-size: 16px; font-weight: 800; color: var(--green); white-space: nowrap; flex-shrink: 0; }
 .search-box { flex: 1; display: flex; align-items: center; gap: 6px;
   background: var(--gray-lt); border-radius: 20px; padding: 6px 12px;
   border: 1.5px solid transparent; transition: border-color .2s; }
@@ -43,7 +43,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
 .mode-tabs { display: flex; background: var(--white); border-bottom: 1px solid var(--border); }
 .mode-tab { flex: 1; padding: 11px 4px; font-size: 14px; font-weight: 700;
   text-align: center; cursor: pointer; color: var(--gray);
-  border-bottom: 3px solid transparent; transition: all .2s; user-select: none; }
+  border-bottom: 3px solid transparent; transition: all .2s; user-select: none;
+  white-space: nowrap; overflow: visible; }
 .mode-tab.active.order-tab  { color: var(--green); border-bottom-color: var(--green); }
 .mode-tab.active.ledger-tab { color: var(--amber); border-bottom-color: var(--amber); }
 
@@ -52,7 +53,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
   padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 6px; }
 .vtab { padding: 6px 12px; border-radius: 16px; border: 1.5px solid var(--border);
   font-size: 13px; font-weight: 600; color: var(--gray);
-  cursor: pointer; background: var(--white); transition: all .15s; }
+  cursor: pointer; background: var(--white); transition: all .15s;
+  white-space: normal; word-break: keep-all; text-align: center; }
 /* 叫貨廠商 → 綠色 */
 .vtab.order-vtab.active { background: var(--green); border-color: var(--green); color: var(--white); }
 /* 記帳群組 → 琥珀色 */
@@ -82,9 +84,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
 .icard.on { background: var(--green); border-color: var(--green); }
 .icard-row1 { display: flex; align-items: baseline; gap: 4px; min-width: 0; }
 .icard-name { font-size: 13px; font-weight: 700; color: var(--green);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex-shrink: 1; }
+  white-space: normal; overflow: visible; word-break: keep-all; min-width: 0; flex-shrink: 1; }
 .icard.on .icard-name { color: var(--white); }
-.icard-note { font-size: 11px; color: #999; white-space: nowrap; flex-shrink: 0; }
+.icard-note { font-size: 11px; color: #999; white-space: normal; flex-shrink: 0; word-break: keep-all; }
 .icard.on .icard-note { color: rgba(255,255,255,.6); }
 .icard-row2 { display: flex; align-items: center; gap: 3px; min-width: 0; }
 .icard-unit  { font-size: 11px; color: #888; background: rgba(0,0,0,.06);
@@ -96,7 +98,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
 /* 記帳快速按鈕（小膠囊，flex自動換行） */
 .btn-group { display: flex; flex-wrap: wrap; gap: 5px; }
 .ibtn { font-size: 13px; padding: 5px 10px; border-radius: 14px; font-weight: 600;
-  white-space: nowrap; cursor: pointer;
+  white-space: normal; word-break: keep-all; cursor: pointer;
   border: 1.5px solid var(--amber-md); background: var(--amber-lt); color: var(--amber); }
 .ibtn:active { background: #fde68a; }
 .group-lbl { font-size: 11px; color: #aaa; font-weight: 700; margin: 8px 0 3px; }
@@ -175,9 +177,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
 
 /* 記帳預覽 */
 .preview-lbl { font-size: 14px; font-weight: 700; color: var(--gray); margin-bottom: 7px; }
-.preview-box { background: var(--green-lt); border-radius: 8px; padding: 11px;
-  font-size: 14px; color: var(--green); line-height: 2;
-  white-space: pre-wrap; word-break: break-all; border: 1px solid var(--green-md); margin-bottom: 9px; }
 .preview-actions { display: flex; gap: 8px; }
 .copy-btn { flex: 0 0 auto; padding: 12px 16px; border: none; border-radius: 8px;
   background: #374151; color: var(--white); font-size: 15px; font-weight: 700; cursor: pointer; }
@@ -281,47 +280,64 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════════════
-  ★  可修改設定區  ★  只改這裡的內容，其他地方請勿動
-  ════════════════════════════════════════════════════════
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║             ★ 可修改設定區 ★  只改這裡，其他地方請勿動      ║
+     ╚══════════════════════════════════════════════════════════════╝
 
-  【A】店家資料
-      直接改引號裡的文字即可。
+  ┌─────────────────────────────────────────────────────────────┐
+  │  【A】店家資料                                               │
+  ├─────────────────────────────────────────────────────────────┤
+  │  直接把引號裡的文字改掉就好，不要刪掉引號本身。             │
+  │                                                             │
+  │  SHOP_NAME     = 店名（出現在訂貨單標題）                   │
+  │  DELIVERY_ADDR = 配送地址                                   │
+  │  DELIVERY_NOTE = 配送備註（抵達請致電...等）                │
+  │  TEL_MAIN      = 主要電話                                   │
+  │  TEL_B1        = 備用電話 1                                 │
+  │  TEL_B2        = 備用電話 2                                 │
+  └─────────────────────────────────────────────────────────────┘
 
-  【B】📦 叫貨廠商與品項
-      格式：{ name:"品名", unit:"單位", price:金額, note:"備註" }
-      ‣ price（金額）、note（備註）可以不填
-      ‣ 常用單位：斤 包 條 箱 瓶 罐 盒 顆 把 桶 件 片 籃 袋 捲 罐
+  ┌─────────────────────────────────────────────────────────────┐
+  │  【B】📦 叫貨廠商與品項                                     │
+  ├─────────────────────────────────────────────────────────────┤
+  │  每個廠商長這樣：                                           │
+  │                                                             │
+  │    { vendor: "廠商名稱", items: [                           │
+  │      { name: "品名", unit: "單位", price: 金額, note: "備註" },
+  │      { name: "品名", unit: "單位", price: 金額 },           │
+  │    ]},                                                      │
+  │                                                             │
+  │  ✏️  price（金額）和 note（備註）可以不填                   │
+  │  📋  常用單位：斤 包 條 箱 瓶 罐 盒 顆 把 桶 件 片 籃 袋 捲│
+  │                                                             │
+  │  ➕ 新增廠商：在最後一個 ]}, 前面，貼上整段廠商格式          │
+  │  ➕ 新增品項：在該廠商 items 最後一筆後面加一行品項         │
+  │  ➖ 刪除廠商：把整段 { vendor:... ]}, 連逗號一起刪掉        │
+  │  ➖ 刪除品項：把該行 { name:... }, 連逗號一起刪掉           │
+  └─────────────────────────────────────────────────────────────┘
 
-      ➕ 新增廠商：在最後一個 ]}, 的前面，貼上整段：
-            { vendor: "廠商名稱", items: [
-              { name: "品名", unit: "單位", price: 金額 },
-            ]},
-
-      ➕ 新增品項：在該廠商 items 的最後一筆後面加一行：
-            { name: "品名", unit: "單位", price: 金額 },
-
-      ➖ 刪除廠商或品項：把整段 { … }, 連同逗號一起刪掉
-
-  【C】📒 記帳群組與快速按鈕
-      格式：{ name:"品名", price:金額 }
-      ‣ price（金額）可以不填，不填的話按下按鈕後手動輸入
-
-      ➕ 新增群組：在最後一個 ]}, 的前面，貼上整段：
-            { group: "群組名稱", items: [
-              { name: "品名", price: 金額 },
-            ]},
-
-      ➕ 新增品項：在 items 裡面加一行：
-            { name: "品名", price: 金額 },
-
-      ➖ 刪除群組或品項：把整行連同逗號一起刪掉
-
-      ⚠️ 特殊群組（請勿修改名稱）：
-         「瓦斯」    → 一般記帳格式（🔆）
-         「外帶自取」→ 特殊格式（🔺），只輸入金額，無臨時品項按鈕
-
-════════════════════════════════════════════════════════ -->
+  ┌─────────────────────────────────────────────────────────────┐
+  │  【C】📒 記帳群組與快速按鈕                                 │
+  ├─────────────────────────────────────────────────────────────┤
+  │  每個群組長這樣：                                           │
+  │                                                             │
+  │    { group: "群組名稱", items: [                            │
+  │      { name: "品名", price: 金額 },                         │
+  │      { name: "品名" },                                      │
+  │    ]},                                                      │
+  │                                                             │
+  │  ✏️  price（金額）可以不填，不填的話按下後手動輸入          │
+  │                                                             │
+  │  ➕ 新增群組：在最後一個 ]}, 前面，貼上整段群組格式          │
+  │  ➕ 新增品項：在 items 裡最後一筆後面加一行                 │
+  │  ➖ 刪除群組：把整段 { group:... ]}, 連逗號一起刪掉         │
+  │  ➖ 刪除品項：把該行 { name:... }, 連逗號一起刪掉           │
+  │                                                             │
+  │  ⚠️  特殊群組名稱，請勿更改：                               │
+  │     「瓦斯」    → 一般記帳格式（🔆）                        │
+  │     「外帶自取」→ 特殊格式（🔺），只輸入金額               │
+  └─────────────────────────────────────────────────────────────┘
+-->
 <script>
 
 /* ══ 【A】店家資料 ══ */
@@ -966,9 +982,10 @@ function openModal() {
   document.getElementById('overlay').classList.add('open');
 }
 function closeModal()    { document.getElementById('overlay').classList.remove('open'); }
-function copyOrderText() { const el=document.getElementById('preText'); if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(el.value).then(()=>toast('已複製！')).catch(()=>fbCopy(el)); else fbCopy(el); }
+function copyOrderText() { const el=document.getElementById('preText'); if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(el.value).then(()=>toast('已複製！')).catch(()=>fbCopy(el.value)); else fbCopy(el.value); }
 function lineOrder()     { const t=document.getElementById('preText').value; navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{}); toast('正在開啟 LINE…'); setTimeout(()=>window.open('https://line.me/R/msg/text/?'+encodeURIComponent(t),'_blank'),300); }
-function fbCopy(el)      { el.select(); el.setSelectionRange(0,99999); try{document.execCommand('copy');toast('已複製！');}catch{toast('複製失敗，請手動選取');} }
+/* 共用：舊版瀏覽器複製備援 */
+function fbCopy(text)    { const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,99999); try{document.execCommand('copy');toast('已複製！');}catch{toast('複製失敗，請手動選取');} document.body.removeChild(ta); }
 
 /* ══ 記帳 ══ */
 function renderLedger() {
@@ -1093,9 +1110,9 @@ function calcLedger(skip) {
   pEl.value=lines.join('\n');
 }
 function ledgerClearAll() { showConfirm('確定要清除記帳專區所有品項？',()=>{ ledgerRows=[]; renderLedger(); toast('已清除記帳資料'); }); }
-function ledgerCopy()     { collectLedger(); const el=document.getElementById('ledger-preview'); if(!el||el.value==='（尚未有品項）'){ toast('尚未有任何品項！'); return; } const t=el.value; if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(t).then(()=>toast('已複製！')).catch(()=>fbCopyText(t)); else fbCopyText(t); }
+function ledgerCopy()     { collectLedger(); const el=document.getElementById('ledger-preview'); if(!el||el.value==='（尚未有品項）'){ toast('尚未有任何品項！'); return; } const t=el.value; if(navigator.clipboard&&window.isSecureContext) navigator.clipboard.writeText(t).then(()=>toast('已複製！')).catch(()=>fbCopy(t)); else fbCopy(t); }
 function ledgerLine()     { collectLedger(); const el=document.getElementById('ledger-preview'); if(!el||el.value==='（尚未有品項）'){ toast('尚未有任何品項！'); return; } const t=el.value; navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{}); toast('正在開啟 LINE…'); setTimeout(()=>window.open('https://line.me/R/msg/text/?'+encodeURIComponent(t),'_blank'),300); }
-function fbCopyText(text) { const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,99999); try{document.execCommand('copy');toast('已複製！');}catch{toast('複製失敗');} document.body.removeChild(ta); }
+function fbCopyText(text) { fbCopy(text); } /* 相容舊呼叫，轉交共用函式 */
 
 /* ══ Toast ══ */
 function toast(msg) { const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2500); }
