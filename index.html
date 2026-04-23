@@ -277,64 +277,73 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
   border-left: 3px solid var(--amber);
 }
 .ledger-vendor-hdr:first-child { margin-top: 0; }
+
+/* 外帶自取特殊色 */
+.vtab-takeout         { border-color: #e879f9 !important; color: #a21caf !important; }
+.vtab-takeout:hover   { background: #fdf4ff; }
+.vtab-takeout.active  { background: #a21caf !important; border-color: #a21caf !important; color: #fff !important; }
+.ibtn-takeout         { border-color: #e879f9 !important; background: #fdf4ff !important; color: #a21caf !important; font-size: 14px; padding: 8px 16px; }
 </style>
 </head>
 <body>
 
-<!-- ╔══════════════════════════════════════════════════════════════════════╗
-     ║          ★ 可修改設定區 ★  只改這裡，其他地方請勿動              ║
-     ╚══════════════════════════════════════════════════════════════════════╝
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║              ★ 可修改設定區 ★   只改這裡，其他地方請勿動                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
 
-  ════════════════════════════════════════════════════
-  【A】店家資料
-  ════════════════════════════════════════════════════
-  把引號裡的文字改成自己的就好，不要刪掉引號本身。
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【A】店家資料  ── 把引號裡的文字換掉就好，引號本身不要刪
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SHOP_NAME     店名（出現在訂貨單標題）
+  DELIVERY_ADDR 配送地址
+  DELIVERY_NOTE 配送備註（例：抵達請致電、人員出去接應）
+  TEL_MAIN      主要電話
+  TEL_B1        備用電話 1
+  TEL_B2        備用電話 2
 
-  SHOP_NAME     → 店名（出現在訂貨單標題）
-  DELIVERY_ADDR → 配送地址
-  DELIVERY_NOTE → 配送備註（例：抵達請致電…）
-  TEL_MAIN      → 主要電話
-  TEL_B1        → 備用電話 1
-  TEL_B2        → 備用電話 2
-
-  ════════════════════════════════════════════════════
-  【B】📦 叫貨廠商與品項
-  ════════════════════════════════════════════════════
-  每個廠商的格式長這樣：
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【B】📦 叫貨廠商與品項
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ◆ 每個廠商的格式：
 
     { vendor: "廠商名稱", items: [
       { name: "品名", unit: "單位", price: 金額, note: "備註" },
-      { name: "品名", unit: "單位", price: 金額 },
+      { name: "品名", unit: "單位" },
     ]},
 
-  ✏️  price（金額）和 note（備註）可以不填
+  ✏️  price（金額）和 note（備註）可以不填，不需要就整個拿掉
   📋  常用單位：斤 包 條 箱 瓶 罐 盒 顆 把 桶 件 片 籃 袋 捲
 
-  ➕ 新增廠商 → 在最後一個 ]}, 前面貼上整段廠商格式
-  ➕ 新增品項 → 在該廠商 items 最後一筆後面加一行
-  ➖ 刪除廠商 → 把整段 { vendor:... ]}, 連逗號一起刪掉
-  ➖ 刪除品項 → 把該行 { name:... }, 連逗號一起刪掉
+  ➕ 新增廠商 → 複製上面整段格式，貼在最後一個 ]}, 的前面
+  ➕ 新增品項 → 在該廠商 items 裡最後一筆的後面，加一行
+  ➖ 刪除廠商 → 把整段 { vendor:… ]}, 連同逗號一起刪掉
+  ➖ 刪除品項 → 把那行 { name:… }, 連同逗號一起刪掉
 
-  ════════════════════════════════════════════════════
-  【C】📒 記帳群組與快速按鈕
-  ════════════════════════════════════════════════════
-  每個群組的格式長這樣：
+  ⚠️  叫貨時一次只能叫一家廠商（系統會自動防呆提醒）
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【C】📒 記帳群組與快速按鈕
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ◆ 每個群組的格式：
 
     { group: "群組名稱", items: [
       { name: "品名", price: 金額 },
       { name: "品名" },
     ]},
 
-  ✏️  price（金額）可以不填，不填的話按下後手動輸入
-  ✅  現在可以同時記帳多個廠商，不再有限制！
+  ✏️  price（金額）可以不填，不填的話按下快速按鈕後手動輸入金額
 
-  ➕ 新增群組 → 在最後一個 ]}, 前面貼上整段群組格式
-  ➕ 新增品項 → 在 items 裡最後一筆後面加一行
-  ➖ 刪除群組 → 把整段 { group:... ]}, 連逗號一起刪掉
-  ➖ 刪除品項 → 把該行 { name:... }, 連逗號一起刪掉
+  ➕ 新增群組 → 複製上面整段格式，貼在最後一個 ]}, 的前面
+  ➕ 新增品項 → 在 items 裡最後一筆的後面，加一行
+  ➖ 刪除群組 → 把整段 { group:… ]}, 連同逗號一起刪掉
+  ➖ 刪除品項 → 把那行 { name:… }, 連同逗號一起刪掉
 
-  ⚠️  特殊群組，請勿更改名稱：
-      「外帶自取」→ 特殊格式（🔺），只輸入金額，一行一筆
+  ⚠️  記帳規則：
+      · 「外帶自取」群組 和 其他廠商群組 不能同時記帳
+        （先清除其中一邊，才能切換到另一邊記帳）
+      · 「外帶自取」是特殊群組，只輸入金額，一行一筆（格式為 🔺）
+      · 「外帶自取」群組名稱請勿更改，否則防呆功能會失效
 -->
 <script>
 
@@ -564,7 +573,7 @@ const LEDGER_ITEMS = [
   ]},
 
   { group: "中壢-富昌", items: [
-    { name: "五花肉", price: 140 }, { name: "軟骨排", price: 140 },
+    { name: "五花肉", price: 140 }, { name: "軟骨排", price: 130 },
   ]},
 
   { group: "永溢麵食", items: [
@@ -690,6 +699,16 @@ const orderRows  = VENDORS.map(() => []);
 const extraItems = VENDORS.map(() => []);
 let ledgerRows = [];
 
+/* ══ 日期工具 ══ */
+function getToday() {
+  const d = new Date();
+  return {
+    mm:  String(d.getMonth() + 1).padStart(2, '0'),
+    dd:  String(d.getDate()).padStart(2, '0'),
+    roc: d.getFullYear() - 1911,
+  };
+}
+
 /* ══ 廠商頁籤（叫貨）══ */
 VENDORS.forEach((v, i) => {
   const b = document.createElement('button');
@@ -702,13 +721,8 @@ VENDORS.forEach((v, i) => {
 /* ══ 群組頁籤（記帳）══ */
 LEDGER_ITEMS.forEach((g, i) => {
   const b = document.createElement('button');
-  b.className = 'vtab ledger-vtab' + (i === 0 ? ' active' : '');
-  b.textContent = g._takeout ? '🛍️' + g.group : g.group;
-  if (g._takeout) {
-    b.style.cssText = 'border-color:#e879f9;color:#a21caf;';
-    b.addEventListener('mouseenter', () => { if (!b.classList.contains('active')) b.style.background = '#fdf4ff'; });
-    b.addEventListener('mouseleave', () => { if (!b.classList.contains('active')) b.style.background = ''; });
-  }
+  b.className = 'vtab ledger-vtab' + (i === 0 ? ' active' : '') + (g._takeout ? ' vtab-takeout' : '');
+  b.textContent = g._takeout ? '🛍️ ' + g.group : g.group;
   b.onclick = () => { curLedgerGroup = i; renderLedger(); };
   document.getElementById('ledgerWrap').appendChild(b);
 });
@@ -961,7 +975,7 @@ function clearAll() { showConfirm('確定要清除所有訂貨數量？', () => 
 /* ══ 訂單文字 & 彈窗 ══ */
 function buildOrderMsg() {
   VENDORS.forEach((_, vi) => collectExtras(vi));
-  const d = new Date(), roc = d.getFullYear() - 1911, mm = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
+  const {roc, mm, dd} = getToday();
   const sep = '━━━━━━━━━━━━━━';
   let lines = [`📦${SHOP_NAME}-訂貨單 (${roc}/${mm}/${dd})`, sep], num = 1, has = false;
   VENDORS.forEach((v, vi) => {
@@ -996,18 +1010,17 @@ function fbCopy(text)    { const ta = document.createElement('textarea'); ta.val
 
 /* ══ 記帳 ══ */
 function renderLedger() {
-  const d = new Date(), mm = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
-  document.querySelectorAll('.ledger-vtab').forEach((b, i) => b.classList.toggle('active', i === curLedgerGroup));
-  const g = LEDGER_ITEMS[curLedgerGroup];
+  const {mm, dd} = getToday();
+  document.querySelectorAll('.ledger-vtab').forEach((b, i) => b.classList.toggle('active', i === curLedgerGroup));  const g = LEDGER_ITEMS[curLedgerGroup];
   const isTakeout = !!g._takeout;
 
   // 快速按鈕區
   let btns = '<div class="btn-group">';
   g.items.forEach((it, ii) => {
     const p = it.price || 0;
-    const extraStyle = isTakeout ? ' style="border-color:#e879f9;background:#fdf4ff;color:#a21caf;font-size:14px;padding:8px 16px;"' : '';
+    const extraClass = isTakeout ? ' ibtn-takeout' : '';
     const label = isTakeout ? `🛍️ ${it.name}` : it.name;
-    btns += `<button class="ibtn a" data-gi="${curLedgerGroup}" data-ii="${ii}" onclick="ledgerOpenPop(this)"${extraStyle}>${label}${p ? ` <span style="font-size:11px;opacity:.8;font-weight:700">$${p}</span>` : ''}</button>`;
+    btns += `<button class="ibtn a${extraClass}" data-gi="${curLedgerGroup}" data-ii="${ii}" onclick="ledgerOpenPop(this)">${label}${p ? ` <span style="font-size:11px;opacity:.8;font-weight:700">$${p}</span>` : ''}</button>`;
   });
   btns += `</div>`;
 
@@ -1056,6 +1069,19 @@ function ledgerOpenPop(btn) {
   const gi = +btn.dataset.gi, ii = +btn.dataset.ii;
   const it = LEDGER_ITEMS[gi]?.items[ii]; if (!it) return;
   const isTakeout = !!LEDGER_ITEMS[gi]._takeout;
+
+  // ── 防呆：外帶自取 ↔ 其他廠商 不能同時記帳 ──
+  const hasTakeout  = ledgerRows.some(r => r._takeout);
+  const hasNormal   = ledgerRows.some(r => !r._takeout);
+  if (isTakeout && hasNormal) {
+    toast('⚠️ 請先清除一般廠商品項，才能記外帶自取');
+    return;
+  }
+  if (!isTakeout && hasTakeout) {
+    toast('⚠️ 請先清除外帶自取，才能記其他廠商');
+    return;
+  }
+
   // 外帶自取開 popup 輸入金額
   if (isTakeout) {
     const ri = ledgerRows.findIndex(r => r.name === it.name && r._gi === gi);
@@ -1136,30 +1162,16 @@ function calcLedger(skip) {
   const gEl = document.getElementById('ledger-grand'); if (gEl) gEl.textContent = '$' + grand.toLocaleString('zh-TW');
   const pEl = document.getElementById('ledger-preview'); if (!pEl) return;
   if (!items.length) { pEl.value = '（尚未有品項）'; return; }
-  const d = new Date(), mm = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
+  const {mm, dd} = getToday();
 
-  const isTakeoutRow = r => r._takeout || r.name === '外帶自取';
-
-  // 依廠商分組輸出，外帶自取獨立處理
-  const groupedItems = {};
-  const takeoutItems = [];
-  items.forEach(r => {
-    if (isTakeoutRow(r)) { takeoutItems.push(r); return; }
-    const gi = r._gi !== undefined ? r._gi : curLedgerGroup;
-    if (!groupedItems[gi]) groupedItems[gi] = [];
-    groupedItems[gi].push(r);
-  });
+  const takeoutItems  = items.filter(r => r._takeout);
+  const normalItems   = items.filter(r => !r._takeout);
 
   let lines = [];
-  // 所有一般品項合併為一行 🔆
-  const allNormalItems = [];
-  Object.keys(groupedItems).forEach(gi => {
-    groupedItems[gi].forEach(r => allNormalItems.push(r));
-  });
-  if (allNormalItems.length) {
-    const str = allNormalItems.map((r, i) => {
+  if (normalItems.length) {
+    const str = normalItems.map((r, i) => {
       const q = r.qty || 0, t = Math.round(q * (r.unitPrice || 0));
-      return `${r.name}${q > 1 ? '*' + q : ''}${t > 0 ? '(' + t.toLocaleString('zh-TW') + '元)' : ''}${i === allNormalItems.length - 1 ? '。' : ''}`;
+      return `${r.name}${q > 1 ? '*' + q : ''}${t > 0 ? '(' + t.toLocaleString('zh-TW') + '元)' : ''}${i === normalItems.length - 1 ? '。' : ''}`;
     }).join('、');
     lines.push(`🔆${mm}/${dd}購買品項：${str}`);
   }
