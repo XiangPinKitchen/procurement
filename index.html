@@ -91,6 +91,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
 .icard-name   { font-size: 13px; font-weight: 700; color: var(--green);
   white-space: normal; word-break: keep-all; min-width: 0; flex-shrink: 1; }
 .icard.on .icard-name { color: var(--white); }
+.icard-remark { font-size: 10px; color: #999; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; min-width: 0; max-width: 100%; display: block; margin-top: 1px; }
+.icard.on .icard-remark { color: rgba(255,255,255,.55); }
 .icard-note   { font-size: 11px; color: #999; white-space: normal; flex-shrink: 0; word-break: keep-all; }
 .icard.on .icard-note { color: rgba(255,255,255,.6); }
 .icard-row2   { display: flex; align-items: center; gap: 3px; min-width: 0; }
@@ -343,6 +346,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-seri
 .ed-col-u  { width: 52px; text-align: center; }
 .ed-col-p  { width: 72px; text-align: right; }
 .ed-col-nt { flex: 2; min-width: 80px; }
+.ed-col-rk { flex: 2; min-width: 80px; }
 .ed-col-d  { width: 32px; }
 
 .ed-del-btn { width: 32px; height: 34px; border: none; background: #fee2e2;
@@ -435,16 +439,16 @@ let TEL_B2        = "0938-582828";              // 備用電話 2
 const VENDORS = [
 
   { vendor: "雜貨-富陽行", items: [
-    { name: "602扁碗", unit: "箱", price: 1000 },
-    { name: "C-165平蓋", unit: "箱", price: 470 },
-    { name: "C-165凸蓋", unit: "條", price: 75 },
-    { name: "750紙湯杯", unit: "條", price: 60 },
-    { name: "750紙湯杯蓋", unit: "條", price: 50 },
-    { name: "1000紙湯杯", unit: "條", price: 100 },
-    { name: "850CC湯杯蓋", unit: "條", price: 38 },
-    { name: "260紙湯杯", unit: "條", price: 30 },
-    { name: "2632蓋", unit: "條", price: 30 },
-    { name: "902圓碗", unit: "條", price: 75 },
+    { name: "602扁碗", unit: "箱", price: 1000, remark: "炒碗" },
+    { name: "C-165平蓋", unit: "箱", price: 470, remark: "炒碗(蓋)" },
+    { name: "C-165凸蓋", unit: "條", price: 75, remark: "炸物(蓋)" },
+    { name: "750紙湯杯", unit: "條", price: 60, remark: "湯碗" },
+    { name: "750紙湯杯蓋", unit: "條", price: 50, remark: "湯碗(蓋)" },
+    { name: "1000紙湯杯", unit: "條", price: 100, remark: "粥/湯麵碗" },
+    { name: "850CC湯杯蓋", unit: "條", price: 38, remark: "粥/湯麵碗(蓋)" },
+    { name: "260紙湯杯", unit: "條", price: 30, remark: "白飯碗" },
+    { name: "2632蓋", unit: "條", price: 30, remark: "白飯碗(蓋)" },
+    { name: "902圓碗", unit: "條", price: 75, remark: "深碗(加麵用)" },
     { name: "免洗筷", unit: "包", price: 25 },
     { name: "彎形湯匙", unit: "箱", price: 480 },
     { name: "邦提圈", unit: "包", price: 30 },
@@ -522,7 +526,7 @@ const VENDORS = [
     { name: "蛤仔(活)-大(8分)", unit: "斤", price: 80 },
     { name: "蝦仁(割)2號(1)16/20(3k)", unit: "包", price: 1200 },
     { name: "紅糟鰻(600g)", unit: "包", price: 155 },
-    { name: "秋刀魚(特)(10k)", unit: "尾", price: 30 },
+    { name: "秋刀魚(特)(10k)", unit: "尾", price: 30, remark: "一件1300元(約55隻)" },
     { name: "月亮蝦餅(蝦怪)", unit: "片", price: 55 },
     { name: "鮭魚碎肉A-袋(1k)", unit: "包", price: 300 },
     { name: "虱目魚肚(無刺)15/18-大", unit: "片", price: 90 },
@@ -558,12 +562,12 @@ const VENDORS = [
     { name: "軟骨排", unit: "斤", price: 130 },
   ]},
 
-  { vendor: "永溢麵食", items: [
+  { vendor: "永溢麵食(週四.日休)", items: [
     { name: "豆菜麵(5斤)", unit: "包", price: 90 },
     { name: "烏龍麵(5斤)", unit: "包", price: 100 },
   ]},
 
-  { vendor: "三信蛋行", items: [
+  { vendor: "三信蛋行(週日休)", items: [
     { name: "雞蛋(⚠️「大」顆的‼️)", unit: "籃", ledgerName: "雞蛋" },
     { name: "皮蛋", unit: "顆" },
     { name: "鹹蛋黃", unit: "顆" },
@@ -636,8 +640,8 @@ const LEDGER_ONLY = [
   <div class="mode-tab editor-tab" id="modeEditor" onclick="switchMode('editor')">⚙️ 編輯</div>
 </div>
 
-<div class="vendor-wrap" id="vendorWrap" style=""><button class="vtab order-vtab active">雜貨-富陽行</button><button class="vtab order-vtab">台北-聯和</button><button class="vtab order-vtab">中壢-聯合</button><button class="vtab order-vtab">中壢-昇暉製麵</button><button class="vtab order-vtab">中壢-富昌</button><button class="vtab order-vtab">永溢麵食</button><button class="vtab order-vtab">三信蛋行</button><button class="vtab order-vtab">市場(阿潭)</button></div>
-<div class="vendor-wrap" id="ledgerWrap" style="display:none"><button class="vtab ledger-vtab active">雜貨-富陽行</button><button class="vtab ledger-vtab">台北-聯和</button><button class="vtab ledger-vtab">中壢-聯合</button><button class="vtab ledger-vtab">中壢-昇暉製麵</button><button class="vtab ledger-vtab">中壢-富昌</button><button class="vtab ledger-vtab">永溢麵食</button><button class="vtab ledger-vtab">三信蛋行</button><button class="vtab ledger-vtab">市場(阿潭)</button><button class="vtab ledger-vtab">瓦斯</button><button class="vtab ledger-vtab vtab-takeout">🛍️ 外帶自取</button></div>
+<div class="vendor-wrap" id="vendorWrap" style=""><button class="vtab order-vtab active">雜貨-富陽行</button><button class="vtab order-vtab">台北-聯和</button><button class="vtab order-vtab">中壢-聯合</button><button class="vtab order-vtab">中壢-昇暉製麵</button><button class="vtab order-vtab">中壢-富昌</button><button class="vtab order-vtab">永溢麵食(週四.日休)</button><button class="vtab order-vtab">三信蛋行(週日休)</button><button class="vtab order-vtab">市場(阿潭)</button></div>
+<div class="vendor-wrap" id="ledgerWrap" style="display:none"><button class="vtab ledger-vtab active">雜貨-富陽行</button><button class="vtab ledger-vtab">台北-聯和</button><button class="vtab ledger-vtab">中壢-聯合</button><button class="vtab ledger-vtab">中壢-昇暉製麵</button><button class="vtab ledger-vtab">中壢-富昌</button><button class="vtab ledger-vtab">永溢麵食(週四.日休)</button><button class="vtab ledger-vtab">三信蛋行(週日休)</button><button class="vtab ledger-vtab">市場(阿潭)</button><button class="vtab ledger-vtab">瓦斯</button><button class="vtab ledger-vtab vtab-takeout">🛍️ 外帶自取</button></div>
 
 <div class="content" id="orderPanel" style=""><div id="itemList"><div class="card">
     <div class="card-head g"><div class="card-title g">雜貨-富陽行</div></div>
@@ -900,14 +904,15 @@ const LEDGER_ONLY = [
         <input class="ed-vendor-name-input" value="雜貨-富陽行" placeholder="廠商名稱" oninput="edVendors[0].vendor=this.value" onclick="event.stopPropagation()">
         <span class="ed-vendor-badge">77 項</span>
         <button class="ed-del-vendor-btn" onclick="event.stopPropagation();edDelVendor(0)">✕ 刪除</button>
-        <span class="ed-vendor-toggle" id="edvt-0">▼</span>
+        <span class="ed-vendor-toggle open" id="edvt-0">▼</span>
       </div>
-      <div class="ed-vendor-body" id="edvb-0">
+      <div class="ed-vendor-body open" id="edvb-0">
         <div class="ed-col-hdr">
           <span class="ed-col-n">品名（必填）</span>
           <span class="ed-col-u">單位</span>
           <span class="ed-col-p">價格</span>
           <span class="ed-col-nt">記帳名稱<br><small style="font-weight:400;color:#ccc">空白=同品名</small></span>
+          <span class="ed-col-rk">備註<br><small style="font-weight:400;color:#ccc">顯示在品項卡下方</small></span>
           <span class="ed-col-d"></span>
         </div>
         <div id="edvi-0">
@@ -917,6 +922,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="箱" placeholder="單位" oninput="edVendors[0].items[0].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="1000" placeholder="價格" oninput="edVendors[0].items[0].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[0].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[0].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,0)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-1" draggable="false" data-gi="0" data-ii="1" data-itype="vendor">
@@ -925,6 +931,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="箱" placeholder="單位" oninput="edVendors[0].items[1].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="470" placeholder="價格" oninput="edVendors[0].items[1].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[1].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[1].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,1)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-2" draggable="false" data-gi="0" data-ii="2" data-itype="vendor">
@@ -933,6 +940,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="條" placeholder="單位" oninput="edVendors[0].items[2].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="75" placeholder="價格" oninput="edVendors[0].items[2].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[2].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[2].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,2)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-3" draggable="false" data-gi="0" data-ii="3" data-itype="vendor">
@@ -941,6 +949,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="條" placeholder="單位" oninput="edVendors[0].items[3].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="60" placeholder="價格" oninput="edVendors[0].items[3].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[3].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[3].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,3)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-4" draggable="false" data-gi="0" data-ii="4" data-itype="vendor">
@@ -949,6 +958,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="條" placeholder="單位" oninput="edVendors[0].items[4].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="50" placeholder="價格" oninput="edVendors[0].items[4].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[4].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[4].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,4)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-5" draggable="false" data-gi="0" data-ii="5" data-itype="vendor">
@@ -957,6 +967,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="條" placeholder="單位" oninput="edVendors[0].items[5].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="100" placeholder="價格" oninput="edVendors[0].items[5].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[5].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[5].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,5)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-6" draggable="false" data-gi="0" data-ii="6" data-itype="vendor">
@@ -965,6 +976,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="條" placeholder="單位" oninput="edVendors[0].items[6].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="38" placeholder="價格" oninput="edVendors[0].items[6].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[6].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[6].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,6)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-7" draggable="false" data-gi="0" data-ii="7" data-itype="vendor">
@@ -973,6 +985,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="條" placeholder="單位" oninput="edVendors[0].items[7].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="30" placeholder="價格" oninput="edVendors[0].items[7].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[7].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[7].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,7)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-8" draggable="false" data-gi="0" data-ii="8" data-itype="vendor">
@@ -981,6 +994,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="條" placeholder="單位" oninput="edVendors[0].items[8].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="30" placeholder="價格" oninput="edVendors[0].items[8].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[8].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[8].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,8)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-9" draggable="false" data-gi="0" data-ii="9" data-itype="vendor">
@@ -989,6 +1003,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="條" placeholder="單位" oninput="edVendors[0].items[9].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="75" placeholder="價格" oninput="edVendors[0].items[9].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[9].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[9].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,9)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-10" draggable="false" data-gi="0" data-ii="10" data-itype="vendor">
@@ -997,6 +1012,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[10].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="25" placeholder="價格" oninput="edVendors[0].items[10].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[10].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[10].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,10)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-11" draggable="false" data-gi="0" data-ii="11" data-itype="vendor">
@@ -1005,6 +1021,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="箱" placeholder="單位" oninput="edVendors[0].items[11].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="480" placeholder="價格" oninput="edVendors[0].items[11].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[11].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[11].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,11)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-12" draggable="false" data-gi="0" data-ii="12" data-itype="vendor">
@@ -1013,6 +1030,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[12].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="30" placeholder="價格" oninput="edVendors[0].items[12].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[12].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[12].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,12)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-13" draggable="false" data-gi="0" data-ii="13" data-itype="vendor">
@@ -1021,6 +1039,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[13].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="45" placeholder="價格" oninput="edVendors[0].items[13].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[13].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[13].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,13)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-14" draggable="false" data-gi="0" data-ii="14" data-itype="vendor">
@@ -1029,6 +1048,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[14].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="45" placeholder="價格" oninput="edVendors[0].items[14].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[14].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[14].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,14)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-15" draggable="false" data-gi="0" data-ii="15" data-itype="vendor">
@@ -1037,6 +1057,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[15].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="45" placeholder="價格" oninput="edVendors[0].items[15].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[15].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[15].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,15)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-16" draggable="false" data-gi="0" data-ii="16" data-itype="vendor">
@@ -1045,6 +1066,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[16].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="45" placeholder="價格" oninput="edVendors[0].items[16].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[16].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[16].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,16)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-17" draggable="false" data-gi="0" data-ii="17" data-itype="vendor">
@@ -1053,6 +1075,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="捲" placeholder="單位" oninput="edVendors[0].items[17].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="155" placeholder="價格" oninput="edVendors[0].items[17].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[17].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[17].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,17)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-18" draggable="false" data-gi="0" data-ii="18" data-itype="vendor">
@@ -1061,6 +1084,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="捲" placeholder="單位" oninput="edVendors[0].items[18].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="155" placeholder="價格" oninput="edVendors[0].items[18].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[18].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[18].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,18)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-19" draggable="false" data-gi="0" data-ii="19" data-itype="vendor">
@@ -1069,6 +1093,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="捲" placeholder="單位" oninput="edVendors[0].items[19].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="155" placeholder="價格" oninput="edVendors[0].items[19].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[19].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[19].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,19)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-20" draggable="false" data-gi="0" data-ii="20" data-itype="vendor">
@@ -1077,6 +1102,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[20].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="25" placeholder="價格" oninput="edVendors[0].items[20].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[20].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[20].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,20)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-21" draggable="false" data-gi="0" data-ii="21" data-itype="vendor">
@@ -1085,6 +1111,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[21].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="25" placeholder="價格" oninput="edVendors[0].items[21].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[21].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[21].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,21)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-22" draggable="false" data-gi="0" data-ii="22" data-itype="vendor">
@@ -1093,6 +1120,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[22].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="25" placeholder="價格" oninput="edVendors[0].items[22].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[22].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[22].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,22)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-23" draggable="false" data-gi="0" data-ii="23" data-itype="vendor">
@@ -1101,6 +1129,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[23].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="25" placeholder="價格" oninput="edVendors[0].items[23].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[23].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[23].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,23)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-24" draggable="false" data-gi="0" data-ii="24" data-itype="vendor">
@@ -1109,6 +1138,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[24].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="25" placeholder="價格" oninput="edVendors[0].items[24].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[24].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[24].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,24)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-25" draggable="false" data-gi="0" data-ii="25" data-itype="vendor">
@@ -1117,6 +1147,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[25].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="25" placeholder="價格" oninput="edVendors[0].items[25].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[25].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[25].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,25)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-26" draggable="false" data-gi="0" data-ii="26" data-itype="vendor">
@@ -1125,6 +1156,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[26].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="25" placeholder="價格" oninput="edVendors[0].items[26].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[26].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[26].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,26)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-27" draggable="false" data-gi="0" data-ii="27" data-itype="vendor">
@@ -1133,6 +1165,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[27].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="100" placeholder="價格" oninput="edVendors[0].items[27].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[27].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[27].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,27)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-28" draggable="false" data-gi="0" data-ii="28" data-itype="vendor">
@@ -1141,6 +1174,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="條" placeholder="單位" oninput="edVendors[0].items[28].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="65" placeholder="價格" oninput="edVendors[0].items[28].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[28].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[28].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,28)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-29" draggable="false" data-gi="0" data-ii="29" data-itype="vendor">
@@ -1149,6 +1183,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[29].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="12" placeholder="價格" oninput="edVendors[0].items[29].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[29].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[29].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,29)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-30" draggable="false" data-gi="0" data-ii="30" data-itype="vendor">
@@ -1157,6 +1192,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="袋" placeholder="單位" oninput="edVendors[0].items[30].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="1225" placeholder="價格" oninput="edVendors[0].items[30].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[30].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[30].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,30)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-31" draggable="false" data-gi="0" data-ii="31" data-itype="vendor">
@@ -1165,6 +1201,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="桶" placeholder="單位" oninput="edVendors[0].items[31].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="845" placeholder="價格" oninput="edVendors[0].items[31].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[31].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[31].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,31)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-32" draggable="false" data-gi="0" data-ii="32" data-itype="vendor">
@@ -1173,6 +1210,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[32].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="18" placeholder="價格" oninput="edVendors[0].items[32].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[32].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[32].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,32)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-33" draggable="false" data-gi="0" data-ii="33" data-itype="vendor">
@@ -1181,6 +1219,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[33].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="85" placeholder="價格" oninput="edVendors[0].items[33].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[33].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[33].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,33)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-34" draggable="false" data-gi="0" data-ii="34" data-itype="vendor">
@@ -1189,6 +1228,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[34].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="60" placeholder="價格" oninput="edVendors[0].items[34].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[34].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[34].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,34)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-35" draggable="false" data-gi="0" data-ii="35" data-itype="vendor">
@@ -1197,6 +1237,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[35].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="60" placeholder="價格" oninput="edVendors[0].items[35].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[35].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[35].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,35)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-36" draggable="false" data-gi="0" data-ii="36" data-itype="vendor">
@@ -1205,6 +1246,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="盒" placeholder="單位" oninput="edVendors[0].items[36].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="120" placeholder="價格" oninput="edVendors[0].items[36].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[36].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[36].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,36)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-37" draggable="false" data-gi="0" data-ii="37" data-itype="vendor">
@@ -1213,6 +1255,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="盒" placeholder="單位" oninput="edVendors[0].items[37].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="190" placeholder="價格" oninput="edVendors[0].items[37].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[37].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[37].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,37)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-38" draggable="false" data-gi="0" data-ii="38" data-itype="vendor">
@@ -1221,6 +1264,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[38].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="90" placeholder="價格" oninput="edVendors[0].items[38].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[38].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[38].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,38)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-39" draggable="false" data-gi="0" data-ii="39" data-itype="vendor">
@@ -1229,6 +1273,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="罐" placeholder="單位" oninput="edVendors[0].items[39].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="145" placeholder="價格" oninput="edVendors[0].items[39].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[39].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[39].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,39)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-40" draggable="false" data-gi="0" data-ii="40" data-itype="vendor">
@@ -1237,6 +1282,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[40].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="290" placeholder="價格" oninput="edVendors[0].items[40].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[40].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[40].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,40)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-41" draggable="false" data-gi="0" data-ii="41" data-itype="vendor">
@@ -1245,6 +1291,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="桶" placeholder="單位" oninput="edVendors[0].items[41].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="220" placeholder="價格" oninput="edVendors[0].items[41].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[41].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[41].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,41)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-42" draggable="false" data-gi="0" data-ii="42" data-itype="vendor">
@@ -1253,6 +1300,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="桶" placeholder="單位" oninput="edVendors[0].items[42].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="225" placeholder="價格" oninput="edVendors[0].items[42].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[42].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[42].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,42)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-43" draggable="false" data-gi="0" data-ii="43" data-itype="vendor">
@@ -1261,6 +1309,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="桶" placeholder="單位" oninput="edVendors[0].items[43].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="250" placeholder="價格" oninput="edVendors[0].items[43].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[43].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[43].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,43)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-44" draggable="false" data-gi="0" data-ii="44" data-itype="vendor">
@@ -1269,6 +1318,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="罐" placeholder="單位" oninput="edVendors[0].items[44].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="540" placeholder="價格" oninput="edVendors[0].items[44].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[44].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[44].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,44)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-45" draggable="false" data-gi="0" data-ii="45" data-itype="vendor">
@@ -1277,6 +1327,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="瓶" placeholder="單位" oninput="edVendors[0].items[45].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="210" placeholder="價格" oninput="edVendors[0].items[45].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[45].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[45].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,45)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-46" draggable="false" data-gi="0" data-ii="46" data-itype="vendor">
@@ -1285,6 +1336,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="桶" placeholder="單位" oninput="edVendors[0].items[46].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="215" placeholder="價格" oninput="edVendors[0].items[46].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[46].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[46].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,46)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-47" draggable="false" data-gi="0" data-ii="47" data-itype="vendor">
@@ -1293,6 +1345,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="瓶" placeholder="單位" oninput="edVendors[0].items[47].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="50" placeholder="價格" oninput="edVendors[0].items[47].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[47].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[47].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,47)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-48" draggable="false" data-gi="0" data-ii="48" data-itype="vendor">
@@ -1301,6 +1354,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="瓶" placeholder="單位" oninput="edVendors[0].items[48].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="200" placeholder="價格" oninput="edVendors[0].items[48].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[48].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[48].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,48)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-49" draggable="false" data-gi="0" data-ii="49" data-itype="vendor">
@@ -1309,6 +1363,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="瓶" placeholder="單位" oninput="edVendors[0].items[49].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="75" placeholder="價格" oninput="edVendors[0].items[49].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[49].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[49].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,49)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-50" draggable="false" data-gi="0" data-ii="50" data-itype="vendor">
@@ -1317,6 +1372,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="瓶" placeholder="單位" oninput="edVendors[0].items[50].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="270" placeholder="價格" oninput="edVendors[0].items[50].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[50].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[50].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,50)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-51" draggable="false" data-gi="0" data-ii="51" data-itype="vendor">
@@ -1325,6 +1381,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="桶" placeholder="單位" oninput="edVendors[0].items[51].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="130" placeholder="價格" oninput="edVendors[0].items[51].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[51].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[51].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,51)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-52" draggable="false" data-gi="0" data-ii="52" data-itype="vendor">
@@ -1333,6 +1390,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="罐" placeholder="單位" oninput="edVendors[0].items[52].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="220" placeholder="價格" oninput="edVendors[0].items[52].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[52].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[52].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,52)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-53" draggable="false" data-gi="0" data-ii="53" data-itype="vendor">
@@ -1341,6 +1399,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="顆" placeholder="單位" oninput="edVendors[0].items[53].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="50" placeholder="價格" oninput="edVendors[0].items[53].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[53].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[53].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,53)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-54" draggable="false" data-gi="0" data-ii="54" data-itype="vendor">
@@ -1349,6 +1408,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[54].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="100" placeholder="價格" oninput="edVendors[0].items[54].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[54].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[54].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,54)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-55" draggable="false" data-gi="0" data-ii="55" data-itype="vendor">
@@ -1357,6 +1417,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="罐" placeholder="單位" oninput="edVendors[0].items[55].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="15" placeholder="價格" oninput="edVendors[0].items[55].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[55].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[55].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,55)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-56" draggable="false" data-gi="0" data-ii="56" data-itype="vendor">
@@ -1365,6 +1426,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[56].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="170" placeholder="價格" oninput="edVendors[0].items[56].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[56].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[56].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,56)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-57" draggable="false" data-gi="0" data-ii="57" data-itype="vendor">
@@ -1373,6 +1435,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[57].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="180" placeholder="價格" oninput="edVendors[0].items[57].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[57].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[57].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,57)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-58" draggable="false" data-gi="0" data-ii="58" data-itype="vendor">
@@ -1381,6 +1444,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="瓶" placeholder="單位" oninput="edVendors[0].items[58].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="210" placeholder="價格" oninput="edVendors[0].items[58].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[58].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[58].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,58)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-59" draggable="false" data-gi="0" data-ii="59" data-itype="vendor">
@@ -1389,6 +1453,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[59].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[0].items[59].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[59].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[59].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,59)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-60" draggable="false" data-gi="0" data-ii="60" data-itype="vendor">
@@ -1397,6 +1462,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[60].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[0].items[60].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[60].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[60].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,60)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-61" draggable="false" data-gi="0" data-ii="61" data-itype="vendor">
@@ -1405,6 +1471,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[61].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="175" placeholder="價格" oninput="edVendors[0].items[61].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[61].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[61].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,61)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-62" draggable="false" data-gi="0" data-ii="62" data-itype="vendor">
@@ -1413,6 +1480,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[62].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="125" placeholder="價格" oninput="edVendors[0].items[62].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[62].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[62].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,62)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-63" draggable="false" data-gi="0" data-ii="63" data-itype="vendor">
@@ -1421,6 +1489,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[63].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="80" placeholder="價格" oninput="edVendors[0].items[63].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[63].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[63].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,63)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-64" draggable="false" data-gi="0" data-ii="64" data-itype="vendor">
@@ -1429,6 +1498,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[64].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="62" placeholder="價格" oninput="edVendors[0].items[64].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[64].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[64].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,64)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-65" draggable="false" data-gi="0" data-ii="65" data-itype="vendor">
@@ -1437,6 +1507,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[65].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="100" placeholder="價格" oninput="edVendors[0].items[65].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[65].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[65].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,65)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-66" draggable="false" data-gi="0" data-ii="66" data-itype="vendor">
@@ -1445,6 +1516,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="台斤" placeholder="單位" oninput="edVendors[0].items[66].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[0].items[66].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[66].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[66].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,66)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-67" draggable="false" data-gi="0" data-ii="67" data-itype="vendor">
@@ -1453,6 +1525,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="斤" placeholder="單位" oninput="edVendors[0].items[67].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="45" placeholder="價格" oninput="edVendors[0].items[67].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[67].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[67].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,67)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-68" draggable="false" data-gi="0" data-ii="68" data-itype="vendor">
@@ -1461,6 +1534,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="罐" placeholder="單位" oninput="edVendors[0].items[68].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="55" placeholder="價格" oninput="edVendors[0].items[68].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[68].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[68].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,68)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-69" draggable="false" data-gi="0" data-ii="69" data-itype="vendor">
@@ -1469,6 +1543,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="罐" placeholder="單位" oninput="edVendors[0].items[69].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="65" placeholder="價格" oninput="edVendors[0].items[69].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[69].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[69].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,69)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-70" draggable="false" data-gi="0" data-ii="70" data-itype="vendor">
@@ -1477,6 +1552,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="罐" placeholder="單位" oninput="edVendors[0].items[70].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="220" placeholder="價格" oninput="edVendors[0].items[70].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[70].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[70].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,70)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-71" draggable="false" data-gi="0" data-ii="71" data-itype="vendor">
@@ -1485,6 +1561,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="箱" placeholder="單位" oninput="edVendors[0].items[71].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="70" placeholder="價格" oninput="edVendors[0].items[71].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[71].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[71].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,71)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-72" draggable="false" data-gi="0" data-ii="72" data-itype="vendor">
@@ -1493,6 +1570,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="罐" placeholder="單位" oninput="edVendors[0].items[72].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="130" placeholder="價格" oninput="edVendors[0].items[72].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[72].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[72].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,72)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-73" draggable="false" data-gi="0" data-ii="73" data-itype="vendor">
@@ -1501,6 +1579,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[73].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="195" placeholder="價格" oninput="edVendors[0].items[73].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[73].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[73].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,73)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-74" draggable="false" data-gi="0" data-ii="74" data-itype="vendor">
@@ -1509,6 +1588,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="把" placeholder="單位" oninput="edVendors[0].items[74].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="75" placeholder="價格" oninput="edVendors[0].items[74].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[74].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[74].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,74)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-75" draggable="false" data-gi="0" data-ii="75" data-itype="vendor">
@@ -1517,6 +1597,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[75].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="500" placeholder="價格" oninput="edVendors[0].items[75].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[75].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[75].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,75)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-0-76" draggable="false" data-gi="0" data-ii="76" data-itype="vendor">
@@ -1525,6 +1606,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[0].items[76].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="50" placeholder="價格" oninput="edVendors[0].items[76].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[0].items[76].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[0].items[76].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',0,76)">✕</button>
       </div></div>
         <button class="ed-add-item" onclick="edAddItem('vendor',0)">＋ 新增品項</button>
@@ -1535,14 +1617,15 @@ const LEDGER_ONLY = [
         <input class="ed-vendor-name-input" value="台北-聯和" placeholder="廠商名稱" oninput="edVendors[1].vendor=this.value" onclick="event.stopPropagation()">
         <span class="ed-vendor-badge">15 項</span>
         <button class="ed-del-vendor-btn" onclick="event.stopPropagation();edDelVendor(1)">✕ 刪除</button>
-        <span class="ed-vendor-toggle" id="edvt-1">▼</span>
+        <span class="ed-vendor-toggle open" id="edvt-1">▼</span>
       </div>
-      <div class="ed-vendor-body" id="edvb-1">
+      <div class="ed-vendor-body open" id="edvb-1">
         <div class="ed-col-hdr">
           <span class="ed-col-n">品名（必填）</span>
           <span class="ed-col-u">單位</span>
           <span class="ed-col-p">價格</span>
           <span class="ed-col-nt">記帳名稱<br><small style="font-weight:400;color:#ccc">空白=同品名</small></span>
+          <span class="ed-col-rk">備註<br><small style="font-weight:400;color:#ccc">顯示在品項卡下方</small></span>
           <span class="ed-col-d"></span>
         </div>
         <div id="edvi-1">
@@ -1552,6 +1635,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="件" placeholder="單位" oninput="edVendors[1].items[0].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="2100" placeholder="價格" oninput="edVendors[1].items[0].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[0].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[0].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,0)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-1" draggable="false" data-gi="1" data-ii="1" data-itype="vendor">
@@ -1560,6 +1644,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="盒" placeholder="單位" oninput="edVendors[1].items[1].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="210" placeholder="價格" oninput="edVendors[1].items[1].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[1].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[1].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,1)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-2" draggable="false" data-gi="1" data-ii="2" data-itype="vendor">
@@ -1568,6 +1653,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[1].items[2].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="75" placeholder="價格" oninput="edVendors[1].items[2].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[2].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[2].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,2)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-3" draggable="false" data-gi="1" data-ii="3" data-itype="vendor">
@@ -1576,6 +1662,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[1].items[3].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="130" placeholder="價格" oninput="edVendors[1].items[3].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[3].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[3].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,3)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-4" draggable="false" data-gi="1" data-ii="4" data-itype="vendor">
@@ -1584,6 +1671,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="斤" placeholder="單位" oninput="edVendors[1].items[4].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="80" placeholder="價格" oninput="edVendors[1].items[4].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[4].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[4].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,4)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-5" draggable="false" data-gi="1" data-ii="5" data-itype="vendor">
@@ -1592,6 +1680,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[1].items[5].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="1200" placeholder="價格" oninput="edVendors[1].items[5].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[5].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[5].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,5)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-6" draggable="false" data-gi="1" data-ii="6" data-itype="vendor">
@@ -1600,6 +1689,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[1].items[6].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="155" placeholder="價格" oninput="edVendors[1].items[6].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[6].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[6].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,6)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-7" draggable="false" data-gi="1" data-ii="7" data-itype="vendor">
@@ -1608,6 +1698,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="尾" placeholder="單位" oninput="edVendors[1].items[7].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="30" placeholder="價格" oninput="edVendors[1].items[7].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[7].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[7].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,7)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-8" draggable="false" data-gi="1" data-ii="8" data-itype="vendor">
@@ -1616,6 +1707,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="片" placeholder="單位" oninput="edVendors[1].items[8].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="55" placeholder="價格" oninput="edVendors[1].items[8].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[8].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[8].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,8)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-9" draggable="false" data-gi="1" data-ii="9" data-itype="vendor">
@@ -1624,6 +1716,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[1].items[9].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="300" placeholder="價格" oninput="edVendors[1].items[9].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[9].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[9].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,9)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-10" draggable="false" data-gi="1" data-ii="10" data-itype="vendor">
@@ -1632,6 +1725,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="片" placeholder="單位" oninput="edVendors[1].items[10].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="90" placeholder="價格" oninput="edVendors[1].items[10].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[10].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[10].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,10)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-11" draggable="false" data-gi="1" data-ii="11" data-itype="vendor">
@@ -1640,6 +1734,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[1].items[11].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="300" placeholder="價格" oninput="edVendors[1].items[11].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[11].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[11].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,11)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-12" draggable="false" data-gi="1" data-ii="12" data-itype="vendor">
@@ -1648,6 +1743,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="盒" placeholder="單位" oninput="edVendors[1].items[12].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="1350" placeholder="價格" oninput="edVendors[1].items[12].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[12].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[12].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,12)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-13" draggable="false" data-gi="1" data-ii="13" data-itype="vendor">
@@ -1656,6 +1752,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="尾" placeholder="單位" oninput="edVendors[1].items[13].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="120" placeholder="價格" oninput="edVendors[1].items[13].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[13].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[13].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,13)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-1-14" draggable="false" data-gi="1" data-ii="14" data-itype="vendor">
@@ -1664,6 +1761,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="盒" placeholder="單位" oninput="edVendors[1].items[14].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="280" placeholder="價格" oninput="edVendors[1].items[14].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[1].items[14].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[1].items[14].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',1,14)">✕</button>
       </div></div>
         <button class="ed-add-item" onclick="edAddItem('vendor',1)">＋ 新增品項</button>
@@ -1674,14 +1772,15 @@ const LEDGER_ONLY = [
         <input class="ed-vendor-name-input" value="中壢-聯合" placeholder="廠商名稱" oninput="edVendors[2].vendor=this.value" onclick="event.stopPropagation()">
         <span class="ed-vendor-badge">11 項</span>
         <button class="ed-del-vendor-btn" onclick="event.stopPropagation();edDelVendor(2)">✕ 刪除</button>
-        <span class="ed-vendor-toggle" id="edvt-2">▼</span>
+        <span class="ed-vendor-toggle open" id="edvt-2">▼</span>
       </div>
-      <div class="ed-vendor-body" id="edvb-2">
+      <div class="ed-vendor-body open" id="edvb-2">
         <div class="ed-col-hdr">
           <span class="ed-col-n">品名（必填）</span>
           <span class="ed-col-u">單位</span>
           <span class="ed-col-p">價格</span>
           <span class="ed-col-nt">記帳名稱<br><small style="font-weight:400;color:#ccc">空白=同品名</small></span>
+          <span class="ed-col-rk">備註<br><small style="font-weight:400;color:#ccc">顯示在品項卡下方</small></span>
           <span class="ed-col-d"></span>
         </div>
         <div id="edvi-2">
@@ -1691,6 +1790,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[2].items[0].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="500" placeholder="價格" oninput="edVendors[2].items[0].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[2].items[0].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[2].items[0].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',2,0)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-2-1" draggable="false" data-gi="2" data-ii="1" data-itype="vendor">
@@ -1699,6 +1799,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[2].items[1].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="630" placeholder="價格" oninput="edVendors[2].items[1].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[2].items[1].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[2].items[1].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',2,1)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-2-2" draggable="false" data-gi="2" data-ii="2" data-itype="vendor">
@@ -1707,6 +1808,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[2].items[2].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="830" placeholder="價格" oninput="edVendors[2].items[2].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[2].items[2].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[2].items[2].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',2,2)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-2-3" draggable="false" data-gi="2" data-ii="3" data-itype="vendor">
@@ -1715,6 +1817,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[2].items[3].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="380" placeholder="價格" oninput="edVendors[2].items[3].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[2].items[3].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[2].items[3].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',2,3)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-2-4" draggable="false" data-gi="2" data-ii="4" data-itype="vendor">
@@ -1723,6 +1826,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[2].items[4].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="730" placeholder="價格" oninput="edVendors[2].items[4].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[2].items[4].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[2].items[4].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',2,4)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-2-5" draggable="false" data-gi="2" data-ii="5" data-itype="vendor">
@@ -1731,6 +1835,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[2].items[5].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="450" placeholder="價格" oninput="edVendors[2].items[5].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[2].items[5].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[2].items[5].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',2,5)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-2-6" draggable="false" data-gi="2" data-ii="6" data-itype="vendor">
@@ -1739,6 +1844,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[2].items[6].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="350" placeholder="價格" oninput="edVendors[2].items[6].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[2].items[6].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[2].items[6].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',2,6)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-2-7" draggable="false" data-gi="2" data-ii="7" data-itype="vendor">
@@ -1747,6 +1853,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[2].items[7].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="65" placeholder="價格" oninput="edVendors[2].items[7].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[2].items[7].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[2].items[7].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',2,7)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-2-8" draggable="false" data-gi="2" data-ii="8" data-itype="vendor">
@@ -1755,6 +1862,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[2].items[8].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="70" placeholder="價格" oninput="edVendors[2].items[8].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[2].items[8].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[2].items[8].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',2,8)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-2-9" draggable="false" data-gi="2" data-ii="9" data-itype="vendor">
@@ -1763,6 +1871,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="斤" placeholder="單位" oninput="edVendors[2].items[9].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="93" placeholder="價格" oninput="edVendors[2].items[9].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[2].items[9].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[2].items[9].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',2,9)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-2-10" draggable="false" data-gi="2" data-ii="10" data-itype="vendor">
@@ -1771,6 +1880,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="斤" placeholder="單位" oninput="edVendors[2].items[10].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="75" placeholder="價格" oninput="edVendors[2].items[10].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[2].items[10].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[2].items[10].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',2,10)">✕</button>
       </div></div>
         <button class="ed-add-item" onclick="edAddItem('vendor',2)">＋ 新增品項</button>
@@ -1781,14 +1891,15 @@ const LEDGER_ONLY = [
         <input class="ed-vendor-name-input" value="中壢-昇暉製麵" placeholder="廠商名稱" oninput="edVendors[3].vendor=this.value" onclick="event.stopPropagation()">
         <span class="ed-vendor-badge">4 項</span>
         <button class="ed-del-vendor-btn" onclick="event.stopPropagation();edDelVendor(3)">✕ 刪除</button>
-        <span class="ed-vendor-toggle" id="edvt-3">▼</span>
+        <span class="ed-vendor-toggle open" id="edvt-3">▼</span>
       </div>
-      <div class="ed-vendor-body" id="edvb-3">
+      <div class="ed-vendor-body open" id="edvb-3">
         <div class="ed-col-hdr">
           <span class="ed-col-n">品名（必填）</span>
           <span class="ed-col-u">單位</span>
           <span class="ed-col-p">價格</span>
           <span class="ed-col-nt">記帳名稱<br><small style="font-weight:400;color:#ccc">空白=同品名</small></span>
+          <span class="ed-col-rk">備註<br><small style="font-weight:400;color:#ccc">顯示在品項卡下方</small></span>
           <span class="ed-col-d"></span>
         </div>
         <div id="edvi-3">
@@ -1798,6 +1909,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[3].items[0].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="80" placeholder="價格" oninput="edVendors[3].items[0].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[3].items[0].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[3].items[0].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',3,0)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-3-1" draggable="false" data-gi="3" data-ii="1" data-itype="vendor">
@@ -1806,6 +1918,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[3].items[1].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="80" placeholder="價格" oninput="edVendors[3].items[1].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[3].items[1].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[3].items[1].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',3,1)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-3-2" draggable="false" data-gi="3" data-ii="2" data-itype="vendor">
@@ -1814,6 +1927,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[3].items[2].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="360" placeholder="價格" oninput="edVendors[3].items[2].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[3].items[2].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[3].items[2].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',3,2)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-3-3" draggable="false" data-gi="3" data-ii="3" data-itype="vendor">
@@ -1822,6 +1936,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[3].items[3].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="310" placeholder="價格" oninput="edVendors[3].items[3].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[3].items[3].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[3].items[3].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',3,3)">✕</button>
       </div></div>
         <button class="ed-add-item" onclick="edAddItem('vendor',3)">＋ 新增品項</button>
@@ -1840,6 +1955,7 @@ const LEDGER_ONLY = [
           <span class="ed-col-u">單位</span>
           <span class="ed-col-p">價格</span>
           <span class="ed-col-nt">記帳名稱<br><small style="font-weight:400;color:#ccc">空白=同品名</small></span>
+          <span class="ed-col-rk">備註<br><small style="font-weight:400;color:#ccc">顯示在品項卡下方</small></span>
           <span class="ed-col-d"></span>
         </div>
         <div id="edvi-4">
@@ -1849,6 +1965,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="斤" placeholder="單位" oninput="edVendors[4].items[0].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="140" placeholder="價格" oninput="edVendors[4].items[0].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[4].items[0].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[4].items[0].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',4,0)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-4-1" draggable="false" data-gi="4" data-ii="1" data-itype="vendor">
@@ -1857,6 +1974,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="斤" placeholder="單位" oninput="edVendors[4].items[1].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="130" placeholder="價格" oninput="edVendors[4].items[1].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[4].items[1].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[4].items[1].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',4,1)">✕</button>
       </div></div>
         <button class="ed-add-item" onclick="edAddItem('vendor',4)">＋ 新增品項</button>
@@ -1875,6 +1993,7 @@ const LEDGER_ONLY = [
           <span class="ed-col-u">單位</span>
           <span class="ed-col-p">價格</span>
           <span class="ed-col-nt">記帳名稱<br><small style="font-weight:400;color:#ccc">空白=同品名</small></span>
+          <span class="ed-col-rk">備註<br><small style="font-weight:400;color:#ccc">顯示在品項卡下方</small></span>
           <span class="ed-col-d"></span>
         </div>
         <div id="edvi-5">
@@ -1884,6 +2003,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[5].items[0].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="90" placeholder="價格" oninput="edVendors[5].items[0].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[5].items[0].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[5].items[0].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',5,0)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-5-1" draggable="false" data-gi="5" data-ii="1" data-itype="vendor">
@@ -1892,6 +2012,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[5].items[1].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="100" placeholder="價格" oninput="edVendors[5].items[1].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[5].items[1].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[5].items[1].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',5,1)">✕</button>
       </div></div>
         <button class="ed-add-item" onclick="edAddItem('vendor',5)">＋ 新增品項</button>
@@ -1910,6 +2031,7 @@ const LEDGER_ONLY = [
           <span class="ed-col-u">單位</span>
           <span class="ed-col-p">價格</span>
           <span class="ed-col-nt">記帳名稱<br><small style="font-weight:400;color:#ccc">空白=同品名</small></span>
+          <span class="ed-col-rk">備註<br><small style="font-weight:400;color:#ccc">顯示在品項卡下方</small></span>
           <span class="ed-col-d"></span>
         </div>
         <div id="edvi-6">
@@ -1919,6 +2041,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="籃" placeholder="單位" oninput="edVendors[6].items[0].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[6].items[0].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="雞蛋" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[6].items[0].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[6].items[0].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',6,0)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-6-1" draggable="false" data-gi="6" data-ii="1" data-itype="vendor">
@@ -1927,6 +2050,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="顆" placeholder="單位" oninput="edVendors[6].items[1].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[6].items[1].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[6].items[1].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[6].items[1].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',6,1)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-6-2" draggable="false" data-gi="6" data-ii="2" data-itype="vendor">
@@ -1935,6 +2059,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="顆" placeholder="單位" oninput="edVendors[6].items[2].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[6].items[2].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[6].items[2].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[6].items[2].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',6,2)">✕</button>
       </div></div>
         <button class="ed-add-item" onclick="edAddItem('vendor',6)">＋ 新增品項</button>
@@ -1953,6 +2078,7 @@ const LEDGER_ONLY = [
           <span class="ed-col-u">單位</span>
           <span class="ed-col-p">價格</span>
           <span class="ed-col-nt">記帳名稱<br><small style="font-weight:400;color:#ccc">空白=同品名</small></span>
+          <span class="ed-col-rk">備註<br><small style="font-weight:400;color:#ccc">顯示在品項卡下方</small></span>
           <span class="ed-col-d"></span>
         </div>
         <div id="edvi-7">
@@ -1962,6 +2088,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="把" placeholder="單位" oninput="edVendors[7].items[0].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[0].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[0].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[0].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,0)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-1" draggable="false" data-gi="7" data-ii="1" data-itype="vendor">
@@ -1970,6 +2097,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="顆" placeholder="單位" oninput="edVendors[7].items[1].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[1].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[1].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[1].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,1)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-2" draggable="false" data-gi="7" data-ii="2" data-itype="vendor">
@@ -1978,6 +2106,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="" placeholder="單位" oninput="edVendors[7].items[2].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[2].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[2].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[2].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,2)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-3" draggable="false" data-gi="7" data-ii="3" data-itype="vendor">
@@ -1986,6 +2115,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="把" placeholder="單位" oninput="edVendors[7].items[3].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[3].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[3].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[3].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,3)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-4" draggable="false" data-gi="7" data-ii="4" data-itype="vendor">
@@ -1994,6 +2124,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="把" placeholder="單位" oninput="edVendors[7].items[4].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[4].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[4].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[4].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,4)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-5" draggable="false" data-gi="7" data-ii="5" data-itype="vendor">
@@ -2002,6 +2133,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[7].items[5].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[5].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[5].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[5].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,5)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-6" draggable="false" data-gi="7" data-ii="6" data-itype="vendor">
@@ -2010,6 +2142,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="顆" placeholder="單位" oninput="edVendors[7].items[6].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[6].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[6].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[6].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,6)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-7" draggable="false" data-gi="7" data-ii="7" data-itype="vendor">
@@ -2018,6 +2151,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="條" placeholder="單位" oninput="edVendors[7].items[7].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[7].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[7].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[7].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,7)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-8" draggable="false" data-gi="7" data-ii="8" data-itype="vendor">
@@ -2026,6 +2160,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="" placeholder="單位" oninput="edVendors[7].items[8].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[8].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[8].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[8].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,8)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-9" draggable="false" data-gi="7" data-ii="9" data-itype="vendor">
@@ -2034,6 +2169,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="" placeholder="單位" oninput="edVendors[7].items[9].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[9].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[9].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[9].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,9)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-10" draggable="false" data-gi="7" data-ii="10" data-itype="vendor">
@@ -2042,6 +2178,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[7].items[10].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[10].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[10].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[10].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,10)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-11" draggable="false" data-gi="7" data-ii="11" data-itype="vendor">
@@ -2050,6 +2187,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="" placeholder="單位" oninput="edVendors[7].items[11].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[11].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[11].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[11].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,11)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-12" draggable="false" data-gi="7" data-ii="12" data-itype="vendor">
@@ -2058,6 +2196,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[7].items[12].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[12].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[12].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[12].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,12)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-13" draggable="false" data-gi="7" data-ii="13" data-itype="vendor">
@@ -2066,6 +2205,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="" placeholder="單位" oninput="edVendors[7].items[13].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[13].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[13].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[13].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,13)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-14" draggable="false" data-gi="7" data-ii="14" data-itype="vendor">
@@ -2074,6 +2214,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="盒" placeholder="單位" oninput="edVendors[7].items[14].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[14].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[14].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[14].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,14)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-15" draggable="false" data-gi="7" data-ii="15" data-itype="vendor">
@@ -2082,6 +2223,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="顆" placeholder="單位" oninput="edVendors[7].items[15].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[15].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[15].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[15].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,15)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-16" draggable="false" data-gi="7" data-ii="16" data-itype="vendor">
@@ -2090,6 +2232,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="" placeholder="單位" oninput="edVendors[7].items[16].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[16].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[16].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[16].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,16)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-17" draggable="false" data-gi="7" data-ii="17" data-itype="vendor">
@@ -2098,6 +2241,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="" placeholder="單位" oninput="edVendors[7].items[17].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[17].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[17].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[17].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,17)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-18" draggable="false" data-gi="7" data-ii="18" data-itype="vendor">
@@ -2106,6 +2250,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="斤" placeholder="單位" oninput="edVendors[7].items[18].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[18].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[18].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[18].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,18)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-19" draggable="false" data-gi="7" data-ii="19" data-itype="vendor">
@@ -2114,6 +2259,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[7].items[19].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[19].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[19].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[19].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,19)">✕</button>
       </div>
       <div class="ed-item-row" id="editem-7-20" draggable="false" data-gi="7" data-ii="20" data-itype="vendor">
@@ -2122,6 +2268,7 @@ const LEDGER_ONLY = [
         <input class="ed-item-unit" value="包" placeholder="單位" oninput="edVendors[7].items[20].unit=this.value">
         <input class="ed-item-price" type="number" min="0" inputmode="decimal" value="" placeholder="價格" oninput="edVendors[7].items[20].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="" placeholder="記帳名稱（空白=同品名）" oninput="edVendors[7].items[20].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="" placeholder="備註（選填）" style="border-color:#d1fae5;background:#f0fdf4" oninput="edVendors[7].items[20].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',7,20)">✕</button>
       </div></div>
         <button class="ed-add-item" onclick="edAddItem('vendor',7)">＋ 新增品項</button>
@@ -2267,8 +2414,9 @@ function switchMode(m) {
 function buildIcard(vi, j, it, on, blocked) {
   const d = blocked ? ' style="opacity:.35;pointer-events:none"' : '';
   return `<button class="icard${on ? ' on' : ''}" id="ibtn-${vi}-${j}" onclick="orderQuickAdd(${vi},${j})"${d}>
-    <div class="icard-row1"><span class="icard-name">${it.name}</span>${it.note ? `<span class="icard-note">${it.note}</span>` : ''}</div>
+    <div class="icard-row1"><span class="icard-name">${it.name}</span></div>
     <div class="icard-row2">${it.unit ? `<span class="icard-unit">${it.unit}</span>` : ''}${it.price ? `<span class="icard-price">$${it.price.toLocaleString('zh-TW')}</span>` : ''}</div>
+    ${it.remark ? `<span class="icard-remark" title="${it.remark}">${it.remark}</span>` : ''}
   </button>`;
 }
 
@@ -2334,7 +2482,7 @@ function orderQuickAdd(vi, ji) {
   const it = VENDORS[vi].items[ji];
   let ri = orderRows[vi].findIndex(r => r.ji === ji);
   if (ri === -1) {
-    orderRows[vi].push({ji, name: it.name, unit: it.unit || '', price: it.price || 0, note: it.note || '', qty: 1});
+    orderRows[vi].push({ji, name: it.name, unit: it.unit || '', price: it.price || 0, note: it.remark || '', qty: 1});
     ri = orderRows[vi].length - 1;
   }
   openQtyPop(vi, ji, ri);
@@ -2917,6 +3065,7 @@ function renderEditorVendors() {
           <span class="ed-col-u">單位</span>
           <span class="ed-col-p">價格</span>
           <span class="ed-col-nt">記帳名稱<br><small style="font-weight:400;color:#ccc">空白=同品名</small></span>
+          <span class="ed-col-rk">備註<br><small style="font-weight:400;color:#ccc">顯示在品項卡下方</small></span>
           <span class="ed-col-d"></span>
         </div>
         <div id="edvi-${vi}">${itemsHtml}</div>
@@ -2991,6 +3140,9 @@ function buildEdItems(gi, items, isLedger) {
           oninput="edVendors[${gi}].items[${ii}].price=parseFloat(this.value)||undefined">
         <input class="ed-item-note" value="${escHtml(it.ledgerName||'')}" placeholder="記帳名稱（空白=同品名）"
           oninput="edVendors[${gi}].items[${ii}].ledgerName=this.value||undefined">
+        <input class="ed-item-note" value="${escHtml(it.remark||'')}" placeholder="備註（選填）"
+          style="border-color:#d1fae5;background:#f0fdf4"
+          oninput="edVendors[${gi}].items[${ii}].remark=this.value||undefined">
         <button class="ed-del-btn" onclick="edDelItem('vendor',${gi},${ii})">✕</button>
       </div>`).join('');
   }
@@ -3042,7 +3194,7 @@ function edDelLedgerOnly(gi) {
 }
 function edAddItem(type, gi) {
   if (type === 'vendor') {
-    edVendors[gi].items.push({name:'', unit:'', price: undefined, ledgerName: undefined});
+    edVendors[gi].items.push({name:'', unit:'', price: undefined, ledgerName: undefined, remark: undefined});
     // 重建該廠商的品項列
     document.getElementById(`edvi-${gi}`).innerHTML = buildEdItems(gi, edVendors[gi].items, false);
     document.getElementById(`edvb-${gi}`).classList.add('open');
@@ -3105,9 +3257,10 @@ function downloadHTML() {
   function vendorToStr(v) {
     const items = v.items.map(it => {
       const parts = [`name: ${JSON.stringify(it.name)}`];
-      if (it.unit)  parts.push(`unit: ${JSON.stringify(it.unit)}`);
-      if (it.price) parts.push(`price: ${it.price}`);
+      if (it.unit)       parts.push(`unit: ${JSON.stringify(it.unit)}`);
+      if (it.price)      parts.push(`price: ${it.price}`);
       if (it.ledgerName) parts.push(`ledgerName: ${JSON.stringify(it.ledgerName)}`);
+      if (it.remark)     parts.push(`remark: ${JSON.stringify(it.remark)}`);
       return `    { ${parts.join(', ')} }`;
     }).join(',\n');
     return `  { vendor: ${JSON.stringify(v.vendor)}, items: [\n${items},\n  ]}`;
